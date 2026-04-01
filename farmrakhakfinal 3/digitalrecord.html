@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poultry Farm Records Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', 'Noto Sans Devanagari', sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .gradient-bg { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-5px); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); }
+        .variety-card { background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 100%); backdrop-filter: blur(10px); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-indigo-100 via-purple-50 to-pink-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header with Language Toggle -->
+        <div class="text-center mb-8">
+            <div class="flex justify-center items-center mb-4">
+                <div class="bg-white rounded-full p-1 shadow-lg">
+                    <button onclick="toggleLanguage()" id="langToggle" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full font-medium transition-all duration-300 hover:from-blue-600 hover:to-purple-700">
+                        🌐 English | हिंदी
+                    </button>
+                </div>
+            </div>
+            <div class="gradient-bg rounded-2xl p-8 text-white shadow-2xl">
+                <h1 id="mainTitle" class="text-5xl font-bold mb-3">🐔 Poultry Farm Records</h1>
+                <p id="mainSubtitle" class="text-xl opacity-90">Government & Veterinary Compliant Record Keeping System</p>
+            </div>
+        </div>
+
+        <!-- Variety Selection -->
+        <div class="variety-card rounded-2xl shadow-2xl p-8 mb-8 border border-white/20">
+            <h2 id="varietyTitle" class="text-3xl font-bold text-center bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent mb-8">Select Poultry Variety | मुर्गी पालन प्रकार चुनें</h2>
+            
+            <!-- Row 1: Broilers & Layers -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <button onclick="selectVariety('broilers')" class="variety-btn card-hover variety-card p-6 rounded-2xl border-2 border-transparent hover:border-orange-300 shadow-lg">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🐔</div>
+                        <div class="font-bold text-xl text-orange-800 mb-2">Broilers | ब्रॉयलर</div>
+                        <div class="text-orange-600 font-medium">Meat Birds | मांस पक्षी</div>
+                        <div class="text-sm text-gray-600 mt-2">Fast growing chickens for meat production</div>
+                        <div class="text-sm text-gray-600">मांस उत्पादन के लिए तेजी से बढ़ने वाले मुर्गे</div>
+                    </div>
+                </button>
+                
+                <button onclick="selectVariety('layers')" class="variety-btn card-hover variety-card p-6 rounded-2xl border-2 border-transparent hover:border-yellow-300 shadow-lg">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🥚</div>
+                        <div class="font-bold text-xl text-yellow-800 mb-2">Layers | लेयर</div>
+                        <div class="text-yellow-600 font-medium">Egg Production | अंडा उत्पादन</div>
+                        <div class="text-sm text-gray-600 mt-2">Hens specialized for egg laying</div>
+                        <div class="text-sm text-gray-600">अंडे देने के लिए विशेष मुर्गियां</div>
+                    </div>
+                </button>
+            </div>
+            
+            <!-- Row 2: Turkeys & Ducks -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <button onclick="selectVariety('turkeys')" class="variety-btn card-hover variety-card p-6 rounded-2xl border-2 border-transparent hover:border-red-300 shadow-lg">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🦃</div>
+                        <div class="font-bold text-xl text-red-800 mb-2">Turkeys | टर्की</div>
+                        <div class="text-red-600 font-medium">Turkey Farm | टर्की फार्म</div>
+                        <div class="text-sm text-gray-600 mt-2">Large birds for meat production</div>
+                        <div class="text-sm text-gray-600">मांस उत्पादन के लिए बड़े पक्षी</div>
+                    </div>
+                </button>
+                
+                <button onclick="selectVariety('ducks')" class="variety-btn card-hover variety-card p-6 rounded-2xl border-2 border-transparent hover:border-blue-300 shadow-lg">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🦆</div>
+                        <div class="font-bold text-xl text-blue-800 mb-2">Ducks | बत्तख</div>
+                        <div class="text-blue-600 font-medium">Duck Farm | बत्तख फार्म</div>
+                        <div class="text-sm text-gray-600 mt-2">Waterfowl for eggs and meat</div>
+                        <div class="text-sm text-gray-600">अंडे और मांस के लिए जल पक्षी</div>
+                    </div>
+                </button>
+            </div>
+            
+            <!-- Row 3: Specialty (Centered) -->
+            <div class="flex justify-center">
+                <button onclick="selectVariety('specialty')" class="variety-btn card-hover variety-card p-6 rounded-2xl border-2 border-transparent hover:border-purple-300 shadow-lg w-full md:w-1/2">
+                    <div class="text-center">
+                        <div class="text-6xl mb-4">🦚</div>
+                        <div class="font-bold text-xl text-purple-800 mb-2">Specialty | विशेष</div>
+                        <div class="text-purple-600 font-medium">Quail, Guinea | बटेर, गिनी</div>
+                        <div class="text-sm text-gray-600 mt-2">Special breeds and exotic birds</div>
+                        <div class="text-sm text-gray-600">विशेष नस्लें और विदेशी पक्षी</div>
+                    </div>
+                </button>
+            </div>
+        </div>
+
+        <!-- Record Form -->
+        <div id="recordForm" class="variety-card rounded-2xl shadow-2xl p-8 mb-8 hidden fade-in border border-white/20">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div class="flex items-center gap-4 mb-4 md:mb-0">
+                    <button onclick="goBackToSelection()" class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white px-6 py-3 rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        ← <span id="backBtn">Back | वापस</span>
+                    </button>
+                    <h2 id="formTitle" class="text-3xl font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent"></h2>
+                </div>
+                <button onclick="saveRecord()" class="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-8 py-3 rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    💾 <span id="saveBtn">Save Record | रिकॉर्ड सेव करें</span>
+                </button>
+            </div>
+            <form id="dataForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></form>
+        </div>
+
+        <!-- Calculator Section -->
+        <div id="calculatorSection" class="variety-card rounded-2xl shadow-2xl p-8 mb-8 hidden fade-in border border-white/20">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <h2 id="calculatorTitle" class="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4 md:mb-0">🧮 Farm Calculator | फार्म कैलकुलेटर</h2>
+                <button onclick="toggleCalculator()" class="bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white px-6 py-3 rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                    📊 <span id="calcToggleBtn">Show/Hide Calculator | कैलकुलेटर दिखाएं/छुपाएं</span>
+                </button>
+            </div>
+            <div id="calculatorContent" class="space-y-6"></div>
+        </div>
+
+        <!-- Records Display -->
+        <div id="recordsDisplay" class="variety-card rounded-2xl shadow-2xl p-8 hidden fade-in border border-white/20">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <h2 id="recordsTitle" class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4 md:mb-0">📊 Saved Records | सेव किए गए रिकॉर्ड</h2>
+                <div class="flex gap-3">
+                    <button onclick="exportRecords()" class="bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white px-6 py-3 rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        📤 <span id="exportBtn">Export CSV | CSV निर्यात करें</span>
+                    </button>
+                    <button onclick="clearRecords()" class="bg-gradient-to-r from-red-500 to-pink-600 hover:from-red-600 hover:to-pink-700 text-white px-6 py-3 rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                        🗑️ <span id="clearBtn">Clear All | सभी साफ़ करें</span>
+                    </button>
+                </div>
+            </div>
+            <div id="recordsList" class="space-y-4"></div>
+        </div>
+    </div>
+
+    <script>
+        let currentVariety = '';
+        let records = JSON.parse(localStorage.getItem('poultryRecords') || '{}');
+        let calculatorVisible = false;
+        let currentLanguage = localStorage.getItem('language') || 'en';
+
+        // Language translations
+        const translations = {
+            en: {
+                mainTitle: "🐔 Poultry Farm Records",
+                mainSubtitle: "Government & Veterinary Compliant Record Keeping System",
+                varietyTitle: "Select Poultry Variety",
+                broilers: "Broilers",
+                broilersDesc: "Meat Birds",
+                broilersDetail: "Fast growing chickens for meat production",
+                layers: "Layers", 
+                layersDesc: "Egg Production",
+                layersDetail: "Hens specialized for egg laying",
+                turkeys: "Turkeys",
+                turkeysDesc: "Turkey Farm", 
+                turkeysDetail: "Large birds for meat production",
+                ducks: "Ducks",
+                ducksDesc: "Duck Farm",
+                ducksDetail: "Waterfowl for eggs and meat",
+                specialty: "Specialty",
+                specialtyDesc: "Quail, Guinea",
+                specialtyDetail: "Special breeds and exotic birds",
+                saveBtn: "Save Record",
+                calcToggleBtn: "Show/Hide Calculator",
+                exportBtn: "Export CSV",
+                clearBtn: "Clear All",
+                calculatorTitle: "🧮 Farm Calculator",
+                recordsTitle: "📊 Saved Records",
+                noRecords: "No records yet. Add your first record above!",
+                confirmDelete: "Are you sure you want to delete this record?",
+                confirmClear: "Are you sure you want to clear all records? This cannot be undone.",
+                fillRequired: "Please fill in all required fields (marked with *)",
+                noExport: "No records to export!"
+            },
+            hi: {
+                mainTitle: "🐔 मुर्गी पालन रिकॉर्ड",
+                mainSubtitle: "सरकारी और पशु चिकित्सा अनुपालन रिकॉर्ड रखने की प्रणाली",
+                varietyTitle: "मुर्गी पालन प्रकार चुनें",
+                broilers: "ब्रॉयलर",
+                broilersDesc: "मांस पक्षी",
+                broilersDetail: "मांस उत्पादन के लिए तेजी से बढ़ने वाले मुर्गे",
+                layers: "लेयर",
+                layersDesc: "अंडा उत्पादन", 
+                layersDetail: "अंडे देने के लिए विशेष मुर्गियां",
+                turkeys: "टर्की",
+                turkeysDesc: "टर्की फार्म",
+                turkeysDetail: "मांस उत्पादन के लिए बड़े पक्षी",
+                ducks: "बत्तख",
+                ducksDesc: "बत्तख फार्म",
+                ducksDetail: "अंडे और मांस के लिए जल पक्षी",
+                specialty: "विशेष",
+                specialtyDesc: "बटेर, गिनी",
+                specialtyDetail: "विशेष नस्लें और विदेशी पक्षी",
+                saveBtn: "रिकॉर्ड सेव करें",
+                calcToggleBtn: "कैलकुलेटर दिखाएं/छुपाएं",
+                exportBtn: "CSV निर्यात करें",
+                clearBtn: "सभी साफ़ करें",
+                calculatorTitle: "🧮 फार्म कैलकुलेटर",
+                recordsTitle: "📊 सेव किए गए रिकॉर्ड",
+                noRecords: "अभी तक कोई रिकॉर्ड नहीं। ऊपर अपना पहला रिकॉर्ड जोड़ें!",
+                confirmDelete: "क्या आप वाकई इस रिकॉर्ड को हटाना चाहते हैं?",
+                confirmClear: "क्या आप वाकई सभी रिकॉर्ड साफ़ करना चाहते हैं? इसे पूर्ववत नहीं किया जा सकता।",
+                fillRequired: "कृपया सभी आवश्यक फ़ील्ड भरें (* से चिह्नित)",
+                noExport: "निर्यात करने के लिए कोई रिकॉर्ड नहीं!"
+            }
+        };
+
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'hi' : 'en';
+            localStorage.setItem('language', currentLanguage);
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const t = translations[currentLanguage];
+            document.getElementById('mainTitle').textContent = t.mainTitle;
+            document.getElementById('mainSubtitle').textContent = t.mainSubtitle;
+            
+            // Update buttons if they exist
+            const saveBtn = document.getElementById('saveBtn');
+            if (saveBtn) saveBtn.textContent = t.saveBtn;
+            
+            const calcToggleBtn = document.getElementById('calcToggleBtn');
+            if (calcToggleBtn) calcToggleBtn.textContent = t.calcToggleBtn;
+            
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) exportBtn.textContent = t.exportBtn;
+            
+            const clearBtn = document.getElementById('clearBtn');
+            if (clearBtn) clearBtn.textContent = t.clearBtn;
+        }
+
+        // Initialize language on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            updateLanguage();
+            calculatorVisible = true;
+        });
+
+        const varietyFields = {
+            broilers: [
+                { name: 'batchDate', label: 'Batch/Chick Placement Date', type: 'date', required: true },
+                { name: 'hatcherySource', label: 'Hatchery Source', type: 'text', required: true },
+                { name: 'breedStrain', label: 'Breed/Strain', type: 'text', required: true },
+                { name: 'chicksReceived', label: 'Number of Chicks Received', type: 'number', required: true },
+                { name: 'dailyMortality', label: 'Daily Mortality Count', type: 'number' },
+                { name: 'feedConsumption', label: 'Feed Consumption (kg/day)', type: 'number', step: '0.1' },
+                { name: 'avgBodyWeight', label: 'Average Body Weight (g)', type: 'number' },
+                { name: 'fcr', label: 'Feed Conversion Ratio', type: 'number', step: '0.01' },
+                { name: 'medications', label: 'Medications Given', type: 'textarea' },
+                { name: 'vaccinations', label: 'Vaccinations', type: 'textarea' },
+                { name: 'temperature', label: 'Temperature (°C)', type: 'number', step: '0.1' },
+                { name: 'humidity', label: 'Humidity (%)', type: 'number' },
+                { name: 'marketingDate', label: 'Marketing Date', type: 'date' },
+                { name: 'saleWeight', label: 'Sale Weight (kg)', type: 'number', step: '0.1' },
+                { name: 'revenue', label: 'Revenue ($)', type: 'number', step: '0.01' },
+                { name: 'expenses', label: 'Expenses ($)', type: 'number', step: '0.01' }
+            ],
+            layers: [
+                { name: 'placementDate', label: 'Chick Placement Date', type: 'date', required: true },
+                { name: 'breedStrain', label: 'Breed/Strain', type: 'text', required: true },
+                { name: 'ageFirstEgg', label: 'Age at First Egg (days)', type: 'number' },
+                { name: 'dailyEggProduction', label: 'Daily Egg Production', type: 'number' },
+                { name: 'eggWeight', label: 'Average Egg Weight (g)', type: 'number', step: '0.1' },
+                { name: 'layPercentage', label: 'Lay Percentage (%)', type: 'number', step: '0.1' },
+                { name: 'feedIntake', label: 'Feed Intake (g/bird/day)', type: 'number' },
+                { name: 'waterIntake', label: 'Water Intake (ml/bird/day)', type: 'number' },
+                { name: 'shellStrength', label: 'Shell Strength (kg/cm²)', type: 'number', step: '0.1' },
+                { name: 'eggBreakage', label: 'Egg Breakage (%)', type: 'number', step: '0.1' },
+                { name: 'mortality', label: 'Daily Mortality', type: 'number' },
+                { name: 'vaccinations', label: 'Vaccinations', type: 'textarea' },
+                { name: 'lightingHours', label: 'Hours of Light Provided', type: 'number', step: '0.5' },
+                { name: 'productionCost', label: 'Production Cost ($)', type: 'number', step: '0.01' },
+                { name: 'eggRevenue', label: 'Egg Revenue ($)', type: 'number', step: '0.01' }
+            ],
+            turkeys: [
+                { name: 'placementDate', label: 'Placement Date', type: 'date', required: true },
+                { name: 'flockSize', label: 'Flock Size', type: 'number', required: true },
+                { name: 'breedStrain', label: 'Breed/Strain', type: 'text', required: true },
+                { name: 'bodyWeight', label: 'Body Weight (kg)', type: 'number', step: '0.1' },
+                { name: 'feedConsumption', label: 'Feed Consumption (kg/day)', type: 'number', step: '0.1' },
+                { name: 'mortality', label: 'Mortality Count', type: 'number' },
+                { name: 'healthIssues', label: 'Health Issues', type: 'textarea' },
+                { name: 'vaccinations', label: 'Vaccination Schedule', type: 'textarea' },
+                { name: 'medications', label: 'Medications', type: 'textarea' },
+                { name: 'marketingDate', label: 'Marketing Date', type: 'date' },
+                { name: 'liveWeight', label: 'Live Weight (kg)', type: 'number', step: '0.1' },
+                { name: 'salePrice', label: 'Sale Price ($)', type: 'number', step: '0.01' }
+            ],
+            ducks: [
+                { name: 'placementDate', label: 'Placement Date', type: 'date', required: true },
+                { name: 'breedType', label: 'Breed Type', type: 'select', options: ['Egg-laying', 'Meat', 'Dual-purpose'], required: true },
+                { name: 'flockSize', label: 'Flock Size', type: 'number', required: true },
+                { name: 'hatchingRecords', label: 'Hatching Records', type: 'textarea' },
+                { name: 'broodingRecords', label: 'Brooding Records', type: 'textarea' },
+                { name: 'eggProduction', label: 'Daily Egg Production', type: 'number' },
+                { name: 'feedIntake', label: 'Feed Intake (kg/day)', type: 'number', step: '0.1' },
+                { name: 'waterIntake', label: 'Water Intake (L/day)', type: 'number', step: '0.1' },
+                { name: 'mortality', label: 'Mortality Count', type: 'number' },
+                { name: 'diseases', label: 'Disease Records', type: 'textarea' },
+                { name: 'vaccinations', label: 'Vaccination Data', type: 'textarea' },
+                { name: 'marketingType', label: 'Marketing Type', type: 'select', options: ['Meat', 'Eggs', 'Both'] },
+                { name: 'marketingDetails', label: 'Marketing Details', type: 'textarea' }
+            ],
+            specialty: [
+                { name: 'placementDate', label: 'Placement Date', type: 'date', required: true },
+                { name: 'species', label: 'Species', type: 'select', options: ['Quail', 'Guinea Fowl', 'Pheasant', 'Other'], required: true },
+                { name: 'flockSize', label: 'Flock/Batch Size', type: 'number', required: true },
+                { name: 'breedStrain', label: 'Breed/Strain', type: 'text' },
+                { name: 'productionType', label: 'Production Type', type: 'select', options: ['Egg', 'Meat', 'Ornamental', 'Breeding'] },
+                { name: 'feedIntake', label: 'Feed Intake (g/day)', type: 'number' },
+                { name: 'growthRate', label: 'Growth Rate (g/week)', type: 'number', step: '0.1' },
+                { name: 'eggProduction', label: 'Egg Production (if applicable)', type: 'number' },
+                { name: 'healthRecords', label: 'Health Records', type: 'textarea' },
+                { name: 'vaccinations', label: 'Vaccination Record', type: 'textarea' },
+                { name: 'marketSales', label: 'Market Sales Details', type: 'textarea' }
+            ]
+        };
+
+        const calculatorTools = {
+            broilers: [
+                {
+                    name: 'FCR Calculator',
+                    description: 'Calculate Feed Conversion Ratio',
+                    inputs: [
+                        { name: 'totalFeed', label: 'Total Feed Consumed (kg)', type: 'number', step: '0.1' },
+                        { name: 'totalWeight', label: 'Total Weight Gained (kg)', type: 'number', step: '0.1' }
+                    ],
+                    calculate: (inputs) => {
+                        const fcr = inputs.totalFeed / inputs.totalWeight;
+                        return `FCR: ${fcr.toFixed(2)} (${fcr < 1.8 ? 'Excellent' : fcr < 2.0 ? 'Good' : fcr < 2.2 ? 'Average' : 'Needs Improvement'})`;
+                    }
+                },
+                {
+                    name: 'Mortality Rate',
+                    description: 'Calculate mortality percentage',
+                    inputs: [
+                        { name: 'totalBirds', label: 'Total Birds Started', type: 'number' },
+                        { name: 'deadBirds', label: 'Total Deaths', type: 'number' }
+                    ],
+                    calculate: (inputs) => {
+                        const rate = (inputs.deadBirds / inputs.totalBirds) * 100;
+                        return `Mortality Rate: ${rate.toFixed(2)}% (${rate < 5 ? 'Excellent' : rate < 8 ? 'Good' : rate < 12 ? 'Average' : 'High'})`;
+                    }
+                },
+                {
+                    name: 'Profit Calculator',
+                    description: 'Calculate profit per bird',
+                    inputs: [
+                        { name: 'revenue', label: 'Total Revenue ($)', type: 'number', step: '0.01' },
+                        { name: 'expenses', label: 'Total Expenses ($)', type: 'number', step: '0.01' },
+                        { name: 'birdsSold', label: 'Birds Sold', type: 'number' }
+                    ],
+                    calculate: (inputs) => {
+                        const profit = inputs.revenue - inputs.expenses;
+                        const profitPerBird = profit / inputs.birdsSold;
+                        return `Total Profit: $${profit.toFixed(2)} | Profit per Bird: $${profitPerBird.toFixed(2)}`;
+                    }
+                }
+            ],
+            layers: [
+                {
+                    name: 'Egg Production Rate',
+                    description: 'Calculate hen-day production percentage',
+                    inputs: [
+                        { name: 'eggsLaid', label: 'Eggs Laid Today', type: 'number' },
+                        { name: 'totalHens', label: 'Total Hens', type: 'number' }
+                    ],
+                    calculate: (inputs) => {
+                        const rate = (inputs.eggsLaid / inputs.totalHens) * 100;
+                        return `Production Rate: ${rate.toFixed(1)}% (${rate > 85 ? 'Excellent' : rate > 75 ? 'Good' : rate > 65 ? 'Average' : 'Low'})`;
+                    }
+                },
+                {
+                    name: 'Feed per Dozen Eggs',
+                    description: 'Calculate feed efficiency',
+                    inputs: [
+                        { name: 'feedConsumed', label: 'Feed Consumed (kg)', type: 'number', step: '0.1' },
+                        { name: 'eggsProduced', label: 'Eggs Produced', type: 'number' }
+                    ],
+                    calculate: (inputs) => {
+                        const feedPerDozen = (inputs.feedConsumed / inputs.eggsProduced) * 12;
+                        return `Feed per Dozen: ${feedPerDozen.toFixed(2)} kg (${feedPerDozen < 2.0 ? 'Excellent' : feedPerDozen < 2.3 ? 'Good' : 'Needs Improvement'})`;
+                    }
+                },
+                {
+                    name: 'Egg Revenue Calculator',
+                    description: 'Calculate daily egg revenue',
+                    inputs: [
+                        { name: 'eggsLaid', label: 'Eggs Laid', type: 'number' },
+                        { name: 'pricePerEgg', label: 'Price per Egg ($)', type: 'number', step: '0.01' },
+                        { name: 'breakageRate', label: 'Breakage Rate (%)', type: 'number', step: '0.1' }
+                    ],
+                    calculate: (inputs) => {
+                        const sellableEggs = inputs.eggsLaid * (1 - inputs.breakageRate / 100);
+                        const revenue = sellableEggs * inputs.pricePerEgg;
+                        return `Sellable Eggs: ${sellableEggs.toFixed(0)} | Daily Revenue: $${revenue.toFixed(2)}`;
+                    }
+                }
+            ],
+            turkeys: [
+                {
+                    name: 'Weight Gain Calculator',
+                    description: 'Calculate average daily gain',
+                    inputs: [
+                        { name: 'currentWeight', label: 'Current Weight (kg)', type: 'number', step: '0.1' },
+                        { name: 'startWeight', label: 'Starting Weight (kg)', type: 'number', step: '0.1' },
+                        { name: 'days', label: 'Days in Production', type: 'number' }
+                    ],
+                    calculate: (inputs) => {
+                        const totalGain = inputs.currentWeight - inputs.startWeight;
+                        const dailyGain = totalGain / inputs.days;
+                        return `Total Gain: ${totalGain.toFixed(2)} kg | Daily Gain: ${(dailyGain * 1000).toFixed(0)} g/day`;
+                    }
+                },
+                {
+                    name: 'Feed Efficiency',
+                    description: 'Calculate feed conversion for turkeys',
+                    inputs: [
+                        { name: 'feedConsumed', label: 'Feed Consumed (kg)', type: 'number', step: '0.1' },
+                        { name: 'weightGain', label: 'Weight Gain (kg)', type: 'number', step: '0.1' }
+                    ],
+                    calculate: (inputs) => {
+                        const fcr = inputs.feedConsumed / inputs.weightGain;
+                        return `FCR: ${fcr.toFixed(2)} (${fcr < 2.5 ? 'Excellent' : fcr < 3.0 ? 'Good' : fcr < 3.5 ? 'Average' : 'Needs Improvement'})`;
+                    }
+                }
+            ],
+            ducks: [
+                {
+                    name: 'Duck Egg Production',
+                    description: 'Calculate duck laying performance',
+                    inputs: [
+                        { name: 'eggsLaid', label: 'Eggs Laid', type: 'number' },
+                        { name: 'totalDucks', label: 'Total Laying Ducks', type: 'number' }
+                    ],
+                    calculate: (inputs) => {
+                        const rate = (inputs.eggsLaid / inputs.totalDucks) * 100;
+                        return `Duck Laying Rate: ${rate.toFixed(1)}% (${rate > 70 ? 'Excellent' : rate > 60 ? 'Good' : rate > 50 ? 'Average' : 'Low'})`;
+                    }
+                },
+                {
+                    name: 'Water Consumption',
+                    description: 'Calculate water efficiency',
+                    inputs: [
+                        { name: 'waterConsumed', label: 'Water Consumed (L)', type: 'number', step: '0.1' },
+                        { name: 'numberOfDucks', label: 'Number of Ducks', type: 'number' }
+                    ],
+                    calculate: (inputs) => {
+                        const waterPerDuck = inputs.waterConsumed / inputs.numberOfDucks;
+                        return `Water per Duck: ${waterPerDuck.toFixed(2)} L/day (Normal range: 0.5-1.0 L/day)`;
+                    }
+                }
+            ],
+            specialty: [
+                {
+                    name: 'Quail Egg Production',
+                    description: 'Calculate quail laying efficiency',
+                    inputs: [
+                        { name: 'eggsLaid', label: 'Eggs Laid', type: 'number' },
+                        { name: 'totalQuail', label: 'Total Laying Quail', type: 'number' }
+                    ],
+                    calculate: (inputs) => {
+                        const rate = (inputs.eggsLaid / inputs.totalQuail) * 100;
+                        return `Quail Laying Rate: ${rate.toFixed(1)}% (${rate > 80 ? 'Excellent' : rate > 70 ? 'Good' : rate > 60 ? 'Average' : 'Low'})`;
+                    }
+                },
+                {
+                    name: 'Feed Conversion',
+                    description: 'Calculate specialty bird feed efficiency',
+                    inputs: [
+                        { name: 'feedConsumed', label: 'Feed Consumed (g)', type: 'number' },
+                        { name: 'weightGain', label: 'Weight Gain (g)', type: 'number' }
+                    ],
+                    calculate: (inputs) => {
+                        const fcr = inputs.feedConsumed / inputs.weightGain;
+                        return `FCR: ${fcr.toFixed(2)} (Species varies - monitor trends)`;
+                    }
+                }
+            ]
+        };
+
+        function selectVariety(variety) {
+            currentVariety = variety;
+            
+            // Hide variety selection section
+            document.querySelector('.variety-card').style.display = 'none';
+            
+            // Show form
+            document.getElementById('recordForm').classList.remove('hidden');
+            document.getElementById('calculatorSection').classList.remove('hidden');
+            document.getElementById('recordsDisplay').classList.remove('hidden');
+            
+            // Update form title
+            const titles = {
+                en: {
+                    broilers: '🐔 Broiler Records',
+                    layers: '🥚 Layer Records', 
+                    turkeys: '🦃 Turkey Records',
+                    ducks: '🦆 Duck Records',
+                    specialty: '🦚 Specialty Poultry Records'
+                },
+                hi: {
+                    broilers: '🐔 ब्रॉयलर रिकॉर्ड',
+                    layers: '🥚 लेयर रिकॉर्ड', 
+                    turkeys: '🦃 टर्की रिकॉर्ड',
+                    ducks: '🦆 बत्तख रिकॉर्ड',
+                    specialty: '🦚 विशेष मुर्गी पालन रिकॉर्ड'
+                }
+            };
+            document.getElementById('formTitle').textContent = titles[currentLanguage][variety];
+            
+            // Generate form fields
+            generateForm(variety);
+            generateCalculators(variety);
+            displayRecords(variety);
+        }
+
+        function generateForm(variety) {
+            const form = document.getElementById('dataForm');
+            form.innerHTML = '';
+            
+            varietyFields[variety].forEach(field => {
+                const div = document.createElement('div');
+                div.className = 'space-y-3';
+                
+                let inputHtml = '';
+                if (field.type === 'textarea') {
+                    inputHtml = `<textarea id="${field.name}" name="${field.name}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 bg-white/80 backdrop-blur-sm" rows="3" placeholder="Enter ${field.label.toLowerCase()}"></textarea>`;
+                } else if (field.type === 'select') {
+                    const options = field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+                    inputHtml = `<select id="${field.name}" name="${field.name}" class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 bg-white/80 backdrop-blur-sm">
+                        <option value="">Select ${field.label}</option>
+                        ${options}
+                    </select>`;
+                } else {
+                    const step = field.step ? `step="${field.step}"` : '';
+                    const required = field.required ? 'required' : '';
+                    inputHtml = `<input type="${field.type}" id="${field.name}" name="${field.name}" ${step} ${required} class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 bg-white/80 backdrop-blur-sm" placeholder="Enter ${field.label.toLowerCase()}">`;
+                }
+                
+                div.innerHTML = `
+                    <label for="${field.name}" class="block text-sm font-bold text-gray-700 mb-2">
+                        ${field.label} ${field.required ? '<span class="text-red-500 text-lg">*</span>' : ''}
+                    </label>
+                    ${inputHtml}
+                `;
+                form.appendChild(div);
+            });
+        }
+
+        function saveRecord() {
+            const form = document.getElementById('dataForm');
+            const formData = new FormData(form);
+            const record = {};
+            
+            // Check required fields
+            let hasRequiredFields = true;
+            varietyFields[currentVariety].forEach(field => {
+                if (field.required && !formData.get(field.name)) {
+                    hasRequiredFields = false;
+                    document.getElementById(field.name).classList.add('border-red-500', 'ring-2', 'ring-red-200');
+                } else {
+                    document.getElementById(field.name).classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+                }
+            });
+            
+            if (!hasRequiredFields) {
+                alert(translations[currentLanguage].fillRequired);
+                return;
+            }
+            
+            // Collect form data
+            for (let [key, value] of formData.entries()) {
+                record[key] = value;
+            }
+            
+            record.id = Date.now();
+            record.timestamp = new Date().toISOString();
+            
+            // Save to storage
+            if (!records[currentVariety]) {
+                records[currentVariety] = [];
+            }
+            records[currentVariety].push(record);
+            localStorage.setItem('poultryRecords', JSON.stringify(records));
+            
+            // Reset form and refresh display
+            form.reset();
+            displayRecords(currentVariety);
+            
+            // Show success message
+            const button = event.target;
+            const originalText = button.innerHTML;
+            const successMsg = currentLanguage === 'hi' ? '✅ सेव हो गया!' : '✅ Saved!';
+            button.innerHTML = successMsg;
+            button.classList.add('from-green-600', 'to-green-700');
+            setTimeout(() => {
+                button.innerHTML = originalText;
+                button.classList.remove('from-green-600', 'to-green-700');
+            }, 2000);
+        }
+
+        function displayRecords(variety) {
+            const container = document.getElementById('recordsList');
+            const varietyRecords = records[variety] || [];
+            
+            if (varietyRecords.length === 0) {
+                const noRecordsMsg = translations[currentLanguage].noRecords;
+                container.innerHTML = `<div class="text-center py-16">
+                    <div class="text-6xl mb-4">📝</div>
+                    <p class="text-gray-500 text-xl">${noRecordsMsg}</p>
+                </div>`;
+                return;
+            }
+            
+            container.innerHTML = varietyRecords.map((record, index) => `
+                <div class="bg-gradient-to-br from-white via-blue-50 to-purple-50 rounded-2xl p-6 border-2 border-blue-100 shadow-lg hover:shadow-xl transition-all duration-300 card-hover">
+                    <div class="flex flex-col md:flex-row justify-between items-start mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2 md:mb-0">
+                            ${currentLanguage === 'hi' ? 'रिकॉर्ड' : 'Record'} #${varietyRecords.length - index}
+                        </h3>
+                        <div class="flex items-center gap-4">
+                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">
+                                ${new Date(record.timestamp).toLocaleDateString()}
+                            </span>
+                            <button onclick="deleteRecord('${variety}', ${record.id})" 
+                                    class="bg-red-100 hover:bg-red-200 text-red-600 hover:text-red-800 p-2 rounded-full transition-all duration-200 transform hover:scale-110">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        ${varietyFields[variety].map(field => {
+                            const value = record[field.name];
+                            if (!value) return '';
+                            return `
+                                <div class="bg-white/60 backdrop-blur-sm rounded-lg p-3 border border-gray-200">
+                                    <span class="block text-xs font-bold text-gray-600 uppercase tracking-wide mb-1">${field.label}</span>
+                                    <span class="text-gray-900 font-medium">${value}</span>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function deleteRecord(variety, recordId) {
+            if (confirm(translations[currentLanguage].confirmDelete)) {
+                records[variety] = records[variety].filter(r => r.id !== recordId);
+                localStorage.setItem('poultryRecords', JSON.stringify(records));
+                displayRecords(variety);
+            }
+        }
+
+        function clearRecords() {
+            if (confirm(translations[currentLanguage].confirmClear)) {
+                records[currentVariety] = [];
+                localStorage.setItem('poultryRecords', JSON.stringify(records));
+                displayRecords(currentVariety);
+            }
+        }
+
+        function exportRecords() {
+            const varietyRecords = records[currentVariety] || [];
+            if (varietyRecords.length === 0) {
+                alert(translations[currentLanguage].noExport);
+                return;
+            }
+            
+            // Create CSV content
+            const fields = varietyFields[currentVariety];
+            const headers = ['Record ID', 'Date Added', ...fields.map(f => f.label)];
+            const csvContent = [
+                headers.join(','),
+                ...varietyRecords.map(record => [
+                    record.id,
+                    new Date(record.timestamp).toLocaleDateString(),
+                    ...fields.map(field => `"${record[field.name] || ''}"`)
+                ].join(','))
+            ].join('\n');
+            
+            // Download CSV
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentVariety}_records_${new Date().toISOString().split('T')[0]}.csv`;
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function generateCalculators(variety) {
+            const container = document.getElementById('calculatorContent');
+            const tools = calculatorTools[variety] || [];
+            
+            if (tools.length === 0) {
+                const noCalcMsg = currentLanguage === 'hi' ? 'इस किस्म के लिए कोई कैलकुलेटर उपलब्ध नहीं है।' : 'No calculators available for this variety.';
+                container.innerHTML = `<p class="text-gray-500 text-center py-8">${noCalcMsg}</p>`;
+                return;
+            }
+            
+            container.innerHTML = tools.map((tool, index) => `
+                <div class="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 rounded-2xl p-8 border-2 border-purple-100 shadow-lg hover:shadow-xl transition-all duration-300">
+                    <h3 class="text-2xl font-bold text-purple-800 mb-3">${tool.name}</h3>
+                    <p class="text-gray-700 mb-6 text-lg">${tool.description}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                        ${tool.inputs.map(input => `
+                            <div class="space-y-2">
+                                <label class="block text-sm font-bold text-gray-700">${input.label}</label>
+                                <input type="${input.type}" id="calc_${variety}_${index}_${input.name}" 
+                                       class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200 bg-white/80 backdrop-blur-sm" 
+                                       placeholder="Enter ${input.label.toLowerCase()}" 
+                                       ${input.step ? `step="${input.step}"` : ''}>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                        <button onclick="calculateResult('${variety}', ${index})" 
+                                class="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-8 py-3 rounded-full font-bold transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105">
+                            🧮 ${currentLanguage === 'hi' ? 'गणना करें' : 'Calculate'}
+                        </button>
+                        <div id="result_${variety}_${index}" class="text-xl font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full min-h-[3rem] flex items-center"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function calculateResult(variety, toolIndex) {
+            const tool = calculatorTools[variety][toolIndex];
+            const inputs = {};
+            let hasAllInputs = true;
+            
+            // Collect input values
+            tool.inputs.forEach(input => {
+                const element = document.getElementById(`calc_${variety}_${toolIndex}_${input.name}`);
+                const value = parseFloat(element.value);
+                if (isNaN(value) || value <= 0) {
+                    hasAllInputs = false;
+                    element.classList.add('border-red-500', 'ring-2', 'ring-red-200');
+                } else {
+                    element.classList.remove('border-red-500', 'ring-2', 'ring-red-200');
+                    inputs[input.name] = value;
+                }
+            });
+            
+            const resultElement = document.getElementById(`result_${variety}_${toolIndex}`);
+            
+            if (!hasAllInputs) {
+                const errorMsg = currentLanguage === 'hi' ? 'कृपया सभी फ़ील्ड में वैध संख्या भरें' : 'Please fill all fields with valid numbers';
+                resultElement.textContent = errorMsg;
+                resultElement.className = 'text-xl font-bold text-red-700 bg-red-50 px-4 py-2 rounded-full min-h-[3rem] flex items-center';
+                return;
+            }
+            
+            // Calculate result
+            try {
+                const result = tool.calculate(inputs);
+                resultElement.textContent = result;
+                resultElement.className = 'text-xl font-bold text-green-700 bg-green-50 px-4 py-2 rounded-full min-h-[3rem] flex items-center';
+            } catch (error) {
+                const errorMsg = currentLanguage === 'hi' ? 'गणना में त्रुटि' : 'Calculation error';
+                resultElement.textContent = errorMsg;
+                resultElement.className = 'text-xl font-bold text-red-700 bg-red-50 px-4 py-2 rounded-full min-h-[3rem] flex items-center';
+            }
+        }
+
+        function toggleCalculator() {
+            const content = document.getElementById('calculatorContent');
+            calculatorVisible = !calculatorVisible;
+            
+            if (calculatorVisible) {
+                content.style.display = 'block';
+                content.classList.add('fade-in');
+            } else {
+                content.style.display = 'none';
+            }
+        }
+
+        function goBackToSelection() {
+            // Show variety selection section
+            document.querySelector('.variety-card').style.display = 'block';
+            
+            // Hide other sections
+            document.getElementById('recordForm').classList.add('hidden');
+            document.getElementById('calculatorSection').classList.add('hidden');
+            document.getElementById('recordsDisplay').classList.add('hidden');
+            
+            // Clear current variety
+            currentVariety = '';
+            
+            // Clear form
+            document.getElementById('dataForm').reset();
+        }
+
+        // Initialize calculator as visible
+        document.addEventListener('DOMContentLoaded', function() {
+            calculatorVisible = true;
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97abb6758449a6dc',t:'MTc1NzEzODA3OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

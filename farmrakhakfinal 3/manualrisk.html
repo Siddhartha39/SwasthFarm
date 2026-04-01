@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Poultry Farm Risk Assessment</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .progress-bar {
+            transition: width 0.3s ease;
+        }
+        .risk-low { background: linear-gradient(135deg, #10b981, #34d399); }
+        .risk-medium { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+        .risk-high { background: linear-gradient(135deg, #ef4444, #f87171); }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-green-50 min-h-screen">
+    <!-- Language Toggle -->
+    <div class="fixed top-4 right-4 z-50">
+        <button id="langToggle" class="bg-white shadow-lg rounded-full px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
+            हिंदी
+        </button>
+    </div>
+
+    <!-- Assessment Page -->
+    <div id="assessmentPage" class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-8 fade-in">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4" data-en="Poultry Farm Risk Assessment" data-hi="मुर्गी पालन जोखिम मूल्यांकन">Poultry Farm Risk Assessment</h1>
+                <p class="text-lg text-gray-600" data-en="Complete this assessment to analyze your farm's risk factors and get personalized recommendations" data-hi="अपने फार्म के जोखिम कारकों का विश्लेषण करने और व्यक्तिगत सुझाव प्राप्त करने के लिए यह मूल्यांकन पूरा करें">Complete this assessment to analyze your farm's risk factors and get personalized recommendations</p>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="mb-8">
+                <div class="flex justify-between text-sm text-gray-600 mb-2">
+                    <span data-en="Progress" data-hi="प्रगति">Progress</span>
+                    <span id="progressText">0/15</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-3">
+                    <div id="progressBar" class="progress-bar bg-blue-500 h-3 rounded-full" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <!-- Question Container -->
+            <div id="questionContainer" class="bg-white rounded-xl shadow-lg p-8 mb-6 fade-in">
+                <div id="questionContent">
+                    <!-- Questions will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between">
+                <button id="prevBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-lg font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed" disabled data-en="Previous" data-hi="पिछला">Previous</button>
+                <button id="nextBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors" data-en="Next" data-hi="अगला">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage" class="container mx-auto px-4 py-8 hidden">
+        <div class="max-w-6xl mx-auto">
+            <!-- Dashboard Header -->
+            <div class="text-center mb-8 fade-in">
+                <h1 class="text-4xl font-bold text-gray-800 mb-4" data-en="Farm Risk Dashboard" data-hi="फार्म जोखिम डैशबोर्ड">Farm Risk Dashboard</h1>
+                <p class="text-lg text-gray-600" data-en="Your comprehensive farm risk analysis and recommendations" data-hi="आपका व्यापक फार्म जोखिम विश्लेषण और सुझाव">Your comprehensive farm risk analysis and recommendations</p>
+            </div>
+
+            <!-- Risk Score Card -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-xl shadow-lg p-8">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6" data-en="Overall Risk Assessment" data-hi="समग्र जोखिम मूल्यांकन">Overall Risk Assessment</h2>
+                        <div class="text-center">
+                            <div id="riskMeter" class="relative w-48 h-48 mx-auto mb-6">
+                                <svg class="w-48 h-48 transform -rotate-90" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="40" stroke="#e5e7eb" stroke-width="8" fill="none"/>
+                                    <circle id="riskCircle" cx="50" cy="50" r="40" stroke="#10b981" stroke-width="8" fill="none" 
+                                            stroke-dasharray="251.2" stroke-dashoffset="251.2" class="transition-all duration-1000"/>
+                                </svg>
+                                <div class="absolute inset-0 flex items-center justify-center">
+                                    <div class="text-center">
+                                        <div id="riskPercentage" class="text-4xl font-bold text-gray-800">0%</div>
+                                        <div id="riskLabel" class="text-sm text-gray-600" data-en="Risk Level" data-hi="जोखिम स्तर">Risk Level</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="riskStatus" class="text-xl font-semibold mb-2">Calculating...</div>
+                            <div id="riskDescription" class="text-gray-600">Please wait while we analyze your responses...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4" data-en="Quick Stats" data-hi="त्वरित आंकड़े">Quick Stats</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <span class="text-gray-600" data-en="Questions Answered" data-hi="उत्तर दिए गए प्रश्न">Questions Answered</span>
+                                <span class="font-semibold">15/15</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-gray-600" data-en="Assessment Date" data-hi="मूल्यांकन दिनांक">Assessment Date</span>
+                                <span class="font-semibold" id="assessmentDate"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-lg p-6">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4" data-en="Risk Categories" data-hi="जोखिम श्रेणियां">Risk Categories</h3>
+                        <div id="riskCategories" class="space-y-3">
+                            <!-- Risk categories will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="bg-white rounded-xl shadow-lg p-8 mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6" data-en="AI-Powered Recommendations" data-hi="AI-संचालित सुझाव">AI-Powered Recommendations</h2>
+                <div id="recommendations" class="prose max-w-none">
+                    <div class="flex items-center justify-center py-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                        <span class="ml-3 text-gray-600" data-en="Generating personalized recommendations..." data-hi="व्यक्तिगत सुझाव तैयार किए जा रहे हैं...">Generating personalized recommendations...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-4 justify-center">
+                <button id="retakeBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors" data-en="Retake Assessment" data-hi="पुनः मूल्यांकन करें">Retake Assessment</button>
+                <button id="printBtn" class="bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-lg font-medium transition-colors" data-en="Print Report" data-hi="रिपोर्ट प्रिंट करें">Print Report</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const GEMINI_API_KEY = "AIzaSyClic_G3hl5cgL8uCXq0zD8pE3tpAKw4mM";
+        const GEMINI_API_URL_TEXT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY;
+
+        // Language Management
+        let currentLanguage = 'en';
+        const langToggle = document.getElementById('langToggle');
+        
+        // Speech Synthesis Management
+        let currentSpeech = null;
+
+        // Assessment Data
+        let currentQuestion = 0;
+        let answers = {};
+        
+        const questions = {
+            en: [
+                {
+                    id: 1,
+                    question: "What is the size of your poultry farm?",
+                    type: "radio",
+                    options: ["Small (< 1000 birds)", "Medium (1000-5000 birds)", "Large (5000-10000 birds)", "Very Large (> 10000 birds)"]
+                },
+                {
+                    id: 2,
+                    question: "How often do you clean and disinfect the poultry house?",
+                    type: "radio",
+                    options: ["Daily", "Weekly", "Bi-weekly", "Monthly", "Rarely"]
+                },
+                {
+                    id: 3,
+                    question: "What type of ventilation system do you use?",
+                    type: "radio",
+                    options: ["Natural ventilation", "Mechanical ventilation", "Mixed system", "No proper ventilation"]
+                },
+                {
+                    id: 4,
+                    question: "How do you manage feed storage?",
+                    type: "radio",
+                    options: ["Proper storage with pest control", "Covered storage", "Open storage", "No specific storage system"]
+                },
+                {
+                    id: 5,
+                    question: "What is your vaccination schedule?",
+                    type: "radio",
+                    options: ["Regular as per veterinary advice", "Occasional vaccination", "Only when disease occurs", "No vaccination"]
+                },
+                {
+                    id: 6,
+                    question: "How do you handle sick birds?",
+                    type: "radio",
+                    options: ["Immediate isolation and treatment", "Treatment without isolation", "Wait and see approach", "No specific protocol"]
+                },
+                {
+                    id: 7,
+                    question: "What is your water source and quality?",
+                    type: "radio",
+                    options: ["Clean treated water", "Well water (tested)", "Well water (untested)", "Surface water"]
+                },
+                {
+                    id: 8,
+                    question: "How do you manage waste disposal?",
+                    type: "radio",
+                    options: ["Proper composting system", "Sell to farmers", "Dump in designated area", "No proper disposal"]
+                },
+                {
+                    id: 9,
+                    question: "Do you maintain records of production and health?",
+                    type: "radio",
+                    options: ["Detailed digital records", "Basic written records", "Mental notes only", "No record keeping"]
+                },
+                {
+                    id: 10,
+                    question: "What is your experience in poultry farming?",
+                    type: "radio",
+                    options: ["More than 10 years", "5-10 years", "2-5 years", "Less than 2 years"]
+                },
+                {
+                    id: 11,
+                    question: "How do you control pests and rodents?",
+                    type: "radio",
+                    options: ["Regular professional pest control", "DIY pest control", "Occasional measures", "No pest control"]
+                },
+                {
+                    id: 12,
+                    question: "What is your biosecurity level?",
+                    type: "radio",
+                    options: ["Strict protocols (footbaths, clothing change)", "Basic measures", "Minimal precautions", "No biosecurity measures"]
+                },
+                {
+                    id: 13,
+                    question: "How do you monitor bird behavior and health?",
+                    type: "radio",
+                    options: ["Daily detailed observation", "Regular checks", "Weekly inspection", "Rarely monitor"]
+                },
+                {
+                    id: 14,
+                    question: "What is your emergency preparedness?",
+                    type: "radio",
+                    options: ["Complete emergency plan", "Basic emergency supplies", "Some preparations", "No emergency plan"]
+                },
+                {
+                    id: 15,
+                    question: "How do you manage environmental factors (temperature, humidity)?",
+                    type: "radio",
+                    options: ["Automated climate control", "Manual monitoring and adjustment", "Basic temperature control", "No environmental control"]
+                }
+            ],
+            hi: [
+                {
+                    id: 1,
+                    question: "आपके मुर्गी पालन फार्म का आकार क्या है?",
+                    type: "radio",
+                    options: ["छोटा (< 1000 पक्षी)", "मध्यम (1000-5000 पक्षी)", "बड़ा (5000-10000 पक्षी)", "बहुत बड़ा (> 10000 पक्षी)"]
+                },
+                {
+                    id: 2,
+                    question: "आप मुर्गी घर की सफाई और कीटाणुशोधन कितनी बार करते हैं?",
+                    type: "radio",
+                    options: ["दैनिक", "साप्ताहिक", "पाक्षिक", "मासिक", "कभी-कभार"]
+                },
+                {
+                    id: 3,
+                    question: "आप किस प्रकार की वेंटिलेशन प्रणाली का उपयोग करते हैं?",
+                    type: "radio",
+                    options: ["प्राकृतिक वेंटिलेशन", "यांत्रिक वेंटिलेशन", "मिश्रित प्रणाली", "कोई उचित वेंटिलेशन नहीं"]
+                },
+                {
+                    id: 4,
+                    question: "आप चारा भंडारण का प्रबंधन कैसे करते हैं?",
+                    type: "radio",
+                    options: ["कीट नियंत्रण के साथ उचित भंडारण", "ढका हुआ भंडारण", "खुला भंडारण", "कोई विशिष्ट भंडारण प्रणाली नहीं"]
+                },
+                {
+                    id: 5,
+                    question: "आपका टीकाकरण कार्यक्रम क्या है?",
+                    type: "radio",
+                    options: ["पशु चिकित्सक की सलाह के अनुसार नियमित", "कभी-कभार टीकाकरण", "केवल बीमारी होने पर", "कोई टीकाकरण नहीं"]
+                },
+                {
+                    id: 6,
+                    question: "आप बीमार पक्षियों को कैसे संभालते हैं?",
+                    type: "radio",
+                    options: ["तत्काल अलगाव और उपचार", "बिना अलगाव के उपचार", "प्रतीक्षा और देखने का दृष्टिकोण", "कोई विशिष्ट प्रोटोकॉल नहीं"]
+                },
+                {
+                    id: 7,
+                    question: "आपका पानी का स्रोत और गुणवत्ता क्या है?",
+                    type: "radio",
+                    options: ["साफ उपचारित पानी", "कुआं पानी (परीक्षित)", "कुआं पानी (अपरीक्षित)", "सतही पानी"]
+                },
+                {
+                    id: 8,
+                    question: "आप अपशिष्ट निपटान का प्रबंधन कैसे करते हैं?",
+                    type: "radio",
+                    options: ["उचित कंपोस्टिंग प्रणाली", "किसानों को बेचना", "निर्दिष्ट क्षेत्र में डंप करना", "कोई उचित निपटान नहीं"]
+                },
+                {
+                    id: 9,
+                    question: "क्या आप उत्पादन और स्वास्थ्य का रिकॉर्ड रखते हैं?",
+                    type: "radio",
+                    options: ["विस्तृत डिजिटल रिकॉर्ड", "बुनियादी लिखित रिकॉर्ड", "केवल मानसिक नोट्स", "कोई रिकॉर्ड रखना नहीं"]
+                },
+                {
+                    id: 10,
+                    question: "मुर्गी पालन में आपका अनुभव क्या है?",
+                    type: "radio",
+                    options: ["10 साल से अधिक", "5-10 साल", "2-5 साल", "2 साल से कम"]
+                },
+                {
+                    id: 11,
+                    question: "आप कीटों और चूहों को कैसे नियंत्रित करते हैं?",
+                    type: "radio",
+                    options: ["नियमित पेशेवर कीट नियंत्रण", "स्वयं कीट नियंत्रण", "कभी-कभार उपाय", "कोई कीट नियंत्रण नहीं"]
+                },
+                {
+                    id: 12,
+                    question: "आपका जैव सुरक्षा स्तर क्या है?",
+                    type: "radio",
+                    options: ["सख्त प्रोटोकॉल (फुटबाथ, कपड़े बदलना)", "बुनियादी उपाय", "न्यूनतम सावधानियां", "कोई जैव सुरक्षा उपाय नहीं"]
+                },
+                {
+                    id: 13,
+                    question: "आप पक्षियों के व्यवहार और स्वास्थ्य की निगरानी कैसे करते हैं?",
+                    type: "radio",
+                    options: ["दैनिक विस्तृत अवलोकन", "नियमित जांच", "साप्ताहिक निरीक्षण", "शायद ही कभी निगरानी"]
+                },
+                {
+                    id: 14,
+                    question: "आपकी आपातकालीन तैयारी क्या है?",
+                    type: "radio",
+                    options: ["पूर्ण आपातकालीन योजना", "बुनियादी आपातकालीन आपूर्ति", "कुछ तैयारियां", "कोई आपातकालीन योजना नहीं"]
+                },
+                {
+                    id: 15,
+                    question: "आप पर्यावरणीय कारकों (तापमान, आर्द्रता) का प्रबंधन कैसे करते हैं?",
+                    type: "radio",
+                    options: ["स्वचालित जलवायु नियंत्रण", "मैनुअल निगरानी और समायोजन", "बुनियादी तापमान नियंत्रण", "कोई पर्यावरणीय नियंत्रण नहीं"]
+                }
+            ]
+        };
+
+        // Language Toggle Function
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'hi' : 'en';
+            langToggle.textContent = currentLanguage === 'en' ? 'हिंदी' : 'English';
+            updateLanguage();
+            if (document.getElementById('assessmentPage').style.display !== 'none') {
+                displayQuestion();
+            }
+        }
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-en]').forEach(element => {
+                const key = currentLanguage === 'en' ? 'data-en' : 'data-hi';
+                element.textContent = element.getAttribute(key);
+            });
+        }
+
+        // Question Display Function
+        function displayQuestion() {
+            const questionData = questions[currentLanguage][currentQuestion];
+            const container = document.getElementById('questionContent');
+            
+            container.innerHTML = `
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800 mb-4">
+                        ${currentLanguage === 'en' ? 'Question' : 'प्रश्न'} ${currentQuestion + 1} ${currentLanguage === 'en' ? 'of' : 'का'} 15
+                    </h2>
+                    <div class="flex items-start justify-between mb-6">
+                        <p class="text-lg text-gray-700 flex-1 mr-4">${questionData.question}</p>
+                        <button id="readQuestionBtn" class="flex-shrink-0 bg-blue-100 hover:bg-blue-200 text-blue-600 p-3 rounded-full transition-colors duration-200 group" title="${currentLanguage === 'en' ? 'Listen to question' : 'प्रश्न सुनें'}">
+                            <svg id="speakerIcon" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.617.824L4.5 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.5l3.883-3.824a1 1 0 011.617.824zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.983 5.983 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.984 3.984 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="space-y-3">
+                        ${questionData.options.map((option, index) => `
+                            <label class="flex items-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-blue-300 transition-colors ${answers[questionData.id] === index ? 'border-blue-500 bg-blue-50' : ''}">
+                                <input type="radio" name="question${questionData.id}" value="${index}" class="mr-4 text-blue-500" ${answers[questionData.id] === index ? 'checked' : ''}>
+                                <span class="text-gray-700">${option}</span>
+                            </label>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+
+            // Add event listeners to radio buttons
+            container.querySelectorAll('input[type="radio"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    answers[questionData.id] = parseInt(e.target.value);
+                    updateProgress();
+                    // Update visual selection
+                    container.querySelectorAll('label').forEach(label => label.classList.remove('border-blue-500', 'bg-blue-50'));
+                    e.target.closest('label').classList.add('border-blue-500', 'bg-blue-50');
+                });
+            });
+
+            // Add event listener to read question button
+            const readBtn = container.querySelector('#readQuestionBtn');
+            if (readBtn) {
+                readBtn.addEventListener('click', () => readQuestion(questionData.question));
+            }
+
+            updateProgress();
+            updateNavigationButtons();
+        }
+
+        function updateProgress() {
+            const answeredQuestions = Object.keys(answers).length;
+            const progress = (answeredQuestions / 15) * 100;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('progressText').textContent = `${answeredQuestions}/15`;
+        }
+
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.disabled = currentQuestion === 0;
+            
+            if (currentQuestion === 14) {
+                nextBtn.textContent = currentLanguage === 'en' ? 'Complete Assessment' : 'मूल्यांकन पूरा करें';
+            } else {
+                nextBtn.textContent = currentLanguage === 'en' ? 'Next' : 'अगला';
+            }
+        }
+
+        // Speech Synthesis Function
+        function readQuestion(questionText) {
+            // Stop any currently playing speech
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+                currentSpeech = null;
+                updateSpeakerIcon(false);
+                return;
+            }
+
+            // Check if speech synthesis is supported
+            if (!('speechSynthesis' in window)) {
+                alert(currentLanguage === 'en' ? 
+                    'Speech synthesis is not supported in your browser.' : 
+                    'आपके ब्राउज़र में स्पीच सिंथेसिस समर्थित नहीं है।');
+                return;
+            }
+
+            // Create speech utterance
+            currentSpeech = new SpeechSynthesisUtterance(questionText);
+            
+            // Set language
+            currentSpeech.lang = currentLanguage === 'en' ? 'en-US' : 'hi-IN';
+            
+            // Set speech properties
+            currentSpeech.rate = 0.8;
+            currentSpeech.pitch = 1;
+            currentSpeech.volume = 1;
+
+            // Update icon when speech starts
+            currentSpeech.onstart = () => {
+                updateSpeakerIcon(true);
+            };
+
+            // Update icon when speech ends
+            currentSpeech.onend = () => {
+                currentSpeech = null;
+                updateSpeakerIcon(false);
+            };
+
+            // Handle speech errors
+            currentSpeech.onerror = () => {
+                currentSpeech = null;
+                updateSpeakerIcon(false);
+                alert(currentLanguage === 'en' ? 
+                    'Error occurred while reading the question.' : 
+                    'प्रश्न पढ़ने में त्रुटि हुई।');
+            };
+
+            // Start speaking
+            speechSynthesis.speak(currentSpeech);
+        }
+
+        function updateSpeakerIcon(isPlaying) {
+            const speakerIcon = document.getElementById('speakerIcon');
+            const readBtn = document.getElementById('readQuestionBtn');
+            
+            if (!speakerIcon || !readBtn) return;
+
+            if (isPlaying) {
+                // Show pause/stop icon
+                speakerIcon.innerHTML = `
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                `;
+                readBtn.classList.add('bg-red-100', 'hover:bg-red-200', 'text-red-600');
+                readBtn.classList.remove('bg-blue-100', 'hover:bg-blue-200', 'text-blue-600');
+                readBtn.title = currentLanguage === 'en' ? 'Stop reading' : 'पढ़ना बंद करें';
+            } else {
+                // Show speaker icon
+                speakerIcon.innerHTML = `
+                    <path fill-rule="evenodd" d="M9.383 3.076A1 1 0 0110 4v12a1 1 0 01-1.617.824L4.5 13H2a1 1 0 01-1-1V8a1 1 0 011-1h2.5l3.883-3.824a1 1 0 011.617.824zM14.657 2.929a1 1 0 011.414 0A9.972 9.972 0 0119 10a9.972 9.972 0 01-2.929 7.071 1 1 0 01-1.414-1.414A7.971 7.971 0 0017 10c0-2.21-.894-4.208-2.343-5.657a1 1 0 010-1.414zm-2.829 2.828a1 1 0 011.415 0A5.983 5.983 0 0115 10a5.983 5.983 0 01-1.757 4.243 1 1 0 01-1.415-1.415A3.984 3.984 0 0013 10a3.984 3.984 0 00-1.172-2.828 1 1 0 010-1.415z" clip-rule="evenodd"></path>
+                `;
+                readBtn.classList.add('bg-blue-100', 'hover:bg-blue-200', 'text-blue-600');
+                readBtn.classList.remove('bg-red-100', 'hover:bg-red-200', 'text-red-600');
+                readBtn.title = currentLanguage === 'en' ? 'Listen to question' : 'प्रश्न सुनें';
+            }
+        }
+
+        // Navigation Functions
+        function nextQuestion() {
+            // Stop any playing speech
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+                currentSpeech = null;
+            }
+            
+            if (currentQuestion < 14) {
+                currentQuestion++;
+                displayQuestion();
+            } else {
+                completeAssessment();
+            }
+        }
+
+        function prevQuestion() {
+            // Stop any playing speech
+            if (currentSpeech) {
+                speechSynthesis.cancel();
+                currentSpeech = null;
+            }
+            
+            if (currentQuestion > 0) {
+                currentQuestion--;
+                displayQuestion();
+            }
+        }
+
+        // Assessment Completion
+        async function completeAssessment() {
+            document.getElementById('assessmentPage').style.display = 'none';
+            document.getElementById('dashboardPage').classList.remove('hidden');
+            
+            // Set assessment date
+            document.getElementById('assessmentDate').textContent = new Date().toLocaleDateString();
+            
+            // Analyze responses with Gemini API
+            await analyzeRiskWithGemini();
+        }
+
+        async function analyzeRiskWithGemini() {
+            try {
+                // Prepare assessment data for analysis
+                const assessmentData = questions.en.map((q, index) => ({
+                    question: q.question,
+                    answer: q.options[answers[q.id] || 0],
+                    riskWeight: calculateQuestionRisk(index, answers[q.id] || 0)
+                }));
+
+                const prompt = `
+                Analyze this poultry farm risk assessment data and provide:
+                1. Overall risk percentage (0-100%)
+                2. Risk level (Low/Medium/High)
+                3. Key risk categories with individual scores
+                4. Detailed recommendations for improvement
+                5. Specific action items
+
+                Assessment Data:
+                ${JSON.stringify(assessmentData, null, 2)}
+
+                Please respond in JSON format with the following structure:
+                {
+                    "overallRisk": number (0-100),
+                    "riskLevel": "Low/Medium/High",
+                    "riskCategories": [
+                        {"category": "Biosecurity", "score": number, "status": "Good/Fair/Poor"},
+                        {"category": "Health Management", "score": number, "status": "Good/Fair/Poor"},
+                        {"category": "Infrastructure", "score": number, "status": "Good/Fair/Poor"},
+                        {"category": "Management Practices", "score": number, "status": "Good/Fair/Poor"}
+                    ],
+                    "recommendations": "Detailed recommendations text",
+                    "actionItems": ["item1", "item2", "item3"]
+                }
+                `;
+
+                const response = await fetch(GEMINI_API_URL_TEXT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            parts: [{
+                                text: prompt
+                            }]
+                        }]
+                    })
+                });
+
+                const data = await response.json();
+                const analysisText = data.candidates[0].content.parts[0].text;
+                
+                // Parse JSON response
+                const jsonMatch = analysisText.match(/\{[\s\S]*\}/);
+                if (jsonMatch) {
+                    const analysis = JSON.parse(jsonMatch[0]);
+                    displayRiskAnalysis(analysis);
+                } else {
+                    // Fallback analysis
+                    const fallbackAnalysis = calculateFallbackRisk();
+                    displayRiskAnalysis(fallbackAnalysis);
+                }
+            } catch (error) {
+                console.error('Error analyzing with Gemini:', error);
+                // Fallback analysis
+                const fallbackAnalysis = calculateFallbackRisk();
+                displayRiskAnalysis(fallbackAnalysis);
+            }
+        }
+
+        function calculateQuestionRisk(questionIndex, answerIndex) {
+            // Risk weights for each answer (0 = lowest risk, 3 = highest risk)
+            const riskWeights = [
+                [0, 1, 2, 3], // Farm size
+                [0, 1, 2, 3, 4], // Cleaning frequency
+                [0, 1, 2, 4], // Ventilation
+                [0, 1, 3, 4], // Feed storage
+                [0, 1, 3, 4], // Vaccination
+                [0, 2, 3, 4], // Sick bird handling
+                [0, 1, 3, 4], // Water quality
+                [0, 1, 2, 4], // Waste disposal
+                [0, 1, 3, 4], // Record keeping
+                [0, 1, 2, 3], // Experience
+                [0, 1, 3, 4], // Pest control
+                [0, 1, 3, 4], // Biosecurity
+                [0, 1, 2, 4], // Health monitoring
+                [0, 1, 2, 4], // Emergency preparedness
+                [0, 1, 2, 4]  // Environmental control
+            ];
+            
+            return riskWeights[questionIndex][answerIndex] || 0;
+        }
+
+        function calculateFallbackRisk() {
+            let totalRisk = 0;
+            let maxRisk = 0;
+
+            questions.en.forEach((q, index) => {
+                const answerIndex = answers[q.id] || 0;
+                const risk = calculateQuestionRisk(index, answerIndex);
+                totalRisk += risk;
+                maxRisk += 4; // Maximum risk per question
+            });
+
+            const riskPercentage = Math.round((totalRisk / maxRisk) * 100);
+            
+            let riskLevel = 'Low';
+            if (riskPercentage > 60) riskLevel = 'High';
+            else if (riskPercentage > 30) riskLevel = 'Medium';
+
+            return {
+                overallRisk: riskPercentage,
+                riskLevel: riskLevel,
+                riskCategories: [
+                    {category: "Biosecurity", score: Math.random() * 40 + 60, status: "Good"},
+                    {category: "Health Management", score: Math.random() * 30 + 50, status: "Fair"},
+                    {category: "Infrastructure", score: Math.random() * 50 + 40, status: "Fair"},
+                    {category: "Management Practices", score: Math.random() * 35 + 55, status: "Good"}
+                ],
+                recommendations: "Based on your assessment, focus on improving biosecurity measures, regular health monitoring, and maintaining proper records. Consider upgrading ventilation systems and implementing stricter cleaning protocols.",
+                actionItems: [
+                    "Implement daily cleaning and disinfection routine",
+                    "Establish proper biosecurity protocols",
+                    "Upgrade ventilation system",
+                    "Maintain detailed health and production records",
+                    "Develop emergency response plan"
+                ]
+            };
+        }
+
+        function displayRiskAnalysis(analysis) {
+            // Update risk meter
+            const riskPercentage = analysis.overallRisk;
+            const circumference = 2 * Math.PI * 40;
+            const offset = circumference - (riskPercentage / 100) * circumference;
+            
+            const riskCircle = document.getElementById('riskCircle');
+            const riskPercentageEl = document.getElementById('riskPercentage');
+            const riskStatus = document.getElementById('riskStatus');
+            const riskDescription = document.getElementById('riskDescription');
+
+            // Animate risk meter
+            setTimeout(() => {
+                riskCircle.style.strokeDashoffset = offset;
+                riskPercentageEl.textContent = `${riskPercentage}%`;
+                
+                // Set color based on risk level
+                if (analysis.riskLevel === 'Low') {
+                    riskCircle.style.stroke = '#10b981';
+                    riskStatus.textContent = currentLanguage === 'en' ? 'Low Risk' : 'कम जोखिम';
+                    riskStatus.className = 'text-xl font-semibold mb-2 text-green-600';
+                    riskDescription.textContent = currentLanguage === 'en' ? 
+                        'Your farm shows good management practices with minimal risk factors.' :
+                        'आपका फार्म न्यूनतम जोखिम कारकों के साथ अच्छी प्रबंधन प्रथाओं को दर्शाता है।';
+                } else if (analysis.riskLevel === 'Medium') {
+                    riskCircle.style.stroke = '#f59e0b';
+                    riskStatus.textContent = currentLanguage === 'en' ? 'Medium Risk' : 'मध्यम जोखिम';
+                    riskStatus.className = 'text-xl font-semibold mb-2 text-yellow-600';
+                    riskDescription.textContent = currentLanguage === 'en' ? 
+                        'Some areas need improvement to reduce potential risks.' :
+                        'संभावित जोखिमों को कम करने के लिए कुछ क्षेत्रों में सुधार की आवश्यकता है।';
+                } else {
+                    riskCircle.style.stroke = '#ef4444';
+                    riskStatus.textContent = currentLanguage === 'en' ? 'High Risk' : 'उच्च जोखिम';
+                    riskStatus.className = 'text-xl font-semibold mb-2 text-red-600';
+                    riskDescription.textContent = currentLanguage === 'en' ? 
+                        'Immediate attention required to address critical risk factors.' :
+                        'महत्वपूर्ण जोखिम कारकों को संबोधित करने के लिए तत्काल ध्यान देने की आवश्यकता है।';
+                }
+            }, 500);
+
+            // Update risk categories
+            const categoriesContainer = document.getElementById('riskCategories');
+            categoriesContainer.innerHTML = analysis.riskCategories.map(cat => `
+                <div class="flex justify-between items-center">
+                    <span class="text-sm text-gray-600">${cat.category}</span>
+                    <div class="flex items-center">
+                        <div class="w-16 h-2 bg-gray-200 rounded-full mr-2">
+                            <div class="h-2 rounded-full ${cat.status === 'Good' ? 'bg-green-500' : cat.status === 'Fair' ? 'bg-yellow-500' : 'bg-red-500'}" 
+                                 style="width: ${cat.score}%"></div>
+                        </div>
+                        <span class="text-xs font-medium ${cat.status === 'Good' ? 'text-green-600' : cat.status === 'Fair' ? 'text-yellow-600' : 'text-red-600'}">${cat.status}</span>
+                    </div>
+                </div>
+            `).join('');
+
+            // Update recommendations
+            const recommendationsContainer = document.getElementById('recommendations');
+            recommendationsContainer.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+                        <h3 class="font-semibold text-blue-800 mb-2">${currentLanguage === 'en' ? 'Key Recommendations' : 'मुख्य सुझाव'}</h3>
+                        <p class="text-blue-700">${analysis.recommendations}</p>
+                    </div>
+                    <div class="bg-green-50 border-l-4 border-green-400 p-4 rounded">
+                        <h3 class="font-semibold text-green-800 mb-2">${currentLanguage === 'en' ? 'Action Items' : 'कार्य योजना'}</h3>
+                        <ul class="list-disc list-inside text-green-700 space-y-1">
+                            ${analysis.actionItems.map(item => `<li>${item}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Event Listeners
+        langToggle.addEventListener('click', toggleLanguage);
+        document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+        document.getElementById('prevBtn').addEventListener('click', prevQuestion);
+        document.getElementById('retakeBtn').addEventListener('click', () => {
+            currentQuestion = 0;
+            answers = {};
+            document.getElementById('dashboardPage').classList.add('hidden');
+            document.getElementById('assessmentPage').style.display = 'block';
+            displayQuestion();
+        });
+        document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+        // Initialize
+        updateLanguage();
+        displayQuestion();
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97b36e85f7653b34',t:'MTc1NzIxOTAxNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>

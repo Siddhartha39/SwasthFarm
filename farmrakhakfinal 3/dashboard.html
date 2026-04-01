@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - SwasthFarm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .dashboard-card {
+            transition: all 0.3s ease;
+        }
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .notification-dot {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 12px;
+            height: 12px;
+            background-color: #ef4444;
+            border-radius: 50%;
+        }
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 40;
+                height: 100vh;
+            }
+            .sidebar.active {
+                transform: translateX(0);
+            }
+        }
+        .weather-bar {
+            background: linear-gradient(135deg, #3fc39d, #186aa5);
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .weather-bar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,0.35) 0%, rgba(0,0,0,0.18) 40%, rgba(0,0,0,0.35) 100%);
+            pointer-events: none;
+        }
+        .weather-title-shadow { text-shadow: 0 2px 6px rgba(0,0,0,0.35) }
+        .weather-subtle-shadow { text-shadow: 0 1px 3px rgba(0,0,0,0.35) }
+        .cta-pill {
+            background: rgba(255,255,255,0.92);
+            color: #0e9f6e;
+            border-radius: 9999px;
+            padding: 4px 10px;
+            font-weight: 700;
+            font-size: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+        }
+        .badge { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px; 
+            padding: 2px 8px; 
+            border-radius: 9999px; 
+            background: rgba(255,255,255,0.1);
+            font-size: 12px; 
+            font-weight: 600; 
+        }
+        .risk-chip { 
+            display: inline-block; 
+            padding: 2px 8px; 
+            border-radius: 9999px; 
+            background: #FBBF24; 
+            color: #1F2937; 
+            font-size: 12px; 
+            font-weight: 800; 
+        }
+        .modal {
+            transition: opacity 0.3s ease;
+        }
+
+        .chat-frame-custom {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .chat-input-container {
+            border-top: 1px solid #e5e7eb;
+            padding: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        .message-sent {
+            align-self: flex-end;
+            background-color: #d1fae5;
+            padding: 0.5rem;
+            border-radius: 0.75rem 0.75rem 0.125rem 0.75rem;
+        }
+        .message-received {
+            align-self: flex-start;
+            background-color: #f3f4f6;
+            padding: 0.5rem;
+            border-radius: 0.75rem 0.75rem 0.75rem 0.125rem;
+        }
+        /* Compact metric cards */
+        .stats-grid .dashboard-card { padding: 1rem; }
+        .stats-grid h2 { font-size: 1.5rem; }
+        .stats-grid p.text-gray-600 { font-size: 0.9rem; }
+        .stats-grid .text-4xl { font-size: 1.75rem; }
+        .stats-grid .text-3xl { font-size: 1.5rem; }
+        .stats-grid .text-2xl { font-size: 1.25rem; }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .line-clamp-3 {
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        /* Chatbot styles */
+        #ai-chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 380px;
+            height: 600px;
+            z-index: 1000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            display: none;
+            background-color: white;
+        }
+        
+        #ai-chatbot-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 30px;
+            background-color: #10b981;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            z-index: 1001;
+            transition: all 0.3s ease;
+            font-size: 24px;
+        }
+        
+        #ai-chatbot-toggle:hover {
+            transform: scale(1.1);
+            background-color: #059669;
+        }
+        
+        #ai-chatbot-container.active {
+            display: block;
+        }
+        
+        #ai-chatbot-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .result-card {
+            border: 1px solid #e5e7eb;       /* gray-200 */
+            border-radius: 0.75rem;          /* rounded-xl */
+            padding: 1rem;                   /* p-4 */
+            background: #ffffff;             /* white */
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1),
+                        0 4px 6px -2px rgba(0,0,0,0.05); /* shadow-lg */
+        }
+        
+        /* Training progress */
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #3b82f6, #10b981);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        
+        .certificate-badge {
+            display: inline-block;
+            padding: 5px 10px;
+            background-color: #10b981;
+            color: white;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-left: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .certificate-badge.show {
+            opacity: 1;
+        }
+        
+        /* Additional blocks styling */
+        .additional-block {
+            display: none;
+        }
+        
+        .additional-block.show {
+            display: block;
+        }
+        
+        .video-thumbnail {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .video-thumbnail:hover {
+            transform: scale(1.03);
+        }
+        
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
+
+</head>
+<body class="bg-gray-100 min-h-screen font-sans">
+    <!-- AI Chatbot -->
+    <div id="ai-chatbot-container" class="bg-white">
+        <iframe
+            id="ai-chatbot-frame"
+            src="https://www.chatbase.co/chatbot-iframe/kA567VKdDm2hMpBKTD457"
+            width="100%"
+            height="100%"
+            frameborder="0"
+            allowfullscreen>
+        </iframe>
+    </div>
+ <div id="ai-chatbot-toggle" role="button" tabindex="0" aria-label="Toggle chat" 
+     class="flex items-center justify-center flex-col text-white">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-4l-4 4-4-4z" />
+    </svg>
+    <span class="text-sm">Ask Question</span>
+</div>
+
+
+    <!-- Mobile menu button -->
+    <div class="lg:hidden fixed top-4 left-4 z-50">
+        <button id="mobileMenuBtn" class="p-2 rounded-md bg-green-600 text-white">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar bg-green-800 text-white w-64 fixed inset-y-0 left-0 z-40 overflow-y-auto">
+        <div class="p-6">
+            <div class="text-2xl font-bold mb-10 flex items-center">
+                <span class="mr-2">🛡️</span> SwasthFarm
+            </div>
+            
+            <nav class="space-y-2">
+                <a href="#" class="flex items-center px-4 py-3 bg-green-700 rounded-lg">
+                    <span class="mr-3">📊</span>
+                    <span data-lang="en">Dashboard</span>
+                    <span data-lang="hi" style="display: none;">डैशबोर्ड</span>
+                </a>
+                <a href="#" onclick="openModal('diseaseDetectionModal')" class="flex items-center px-4 py-3 text-green-200 hover:bg-green-700 rounded-lg">
+                    <span class="mr-3">🔬</span>
+                    <span data-lang="en">Disease Detection</span>
+                    <span data-lang="hi" style="display: none;"> फोटो से रोग पहचान</span>
+                     </a>
+                <a href="manualrisk.html" class="flex items-center px-4 py-3 text-green-200 hover:bg-green-700 rounded-lg">
+    <span class="mr-3">📋</span>
+    <span data-lang="en">Risk Assesment Test</span>
+    <span data-lang="hi" style="display: none;">जोखिम आकलन (Risk</span>
+</a>
+                </a>
+                <a href="weather.html" class="flex items-center px-4 py-3 text-green-200 hover:bg-green-700 rounded-lg">
+    <span class="mr-3">📋</span>
+    <span data-lang="en">weather risk</span>
+    <span data-lang="hi" style="display: none;">स्वास्थ्य रिकॉर्ड</span>
+</a>
+                <a href="#" onclick="openModal('vetModal')" class="flex items-center px-4 py-3 text-green-200 hover:bg-green-700 rounded-lg">
+                    <span class="mr-3">👨‍⚕️</span>
+                    <span data-lang="en">Expert Consultation</span>
+                    <span data-lang="hi" style="display: none;">विशेषज्ञ परामर्श</span>
+                </a>
+                <a href="digitalrecord.html" class="flex items-center px-4 py-3 text-green-200 hover:bg-green-700 rounded-lg">
+    <span class="mr-3">📋</span>
+    <span data-lang="en">Digital record</span>
+    <span data-lang="hi" style="display: none;">स्वास्थ्य रिकॉर्ड</span>
+</a>
+                <a href="#" onclick="showMessage('Settings are under construction.')" class="flex items-center px-4 py-3 text-green-200 hover:bg-green-700 rounded-lg">
+                    <span class="mr-3">⚙️</span>
+                    <span data-lang="en">Settings</span>
+                    <span data-lang="hi" style="display: none;">सेटिंग्स</span>
+                </a>
+            </nav>
+            
+            <div class="mt-10 pt-6 border-t border-green-700">
+                <a href="index.html" class="flex items-center px-4 py-3 text-green-200 hover:bg-green-700 rounded-lg">
+                    <span class="mr-3">🚪</span>
+                    <span data-lang="en">Logout</span>
+                    <span data-lang="hi" style="display: none;">लॉग आउट</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="lg:ml-64">
+        <!-- Top navigation -->
+        <header class="bg-white shadow">
+            <div class="px-6 py-4 flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800" data-lang="en">Dashboard</h1>
+                    <h1 class="text-2xl font-bold text-gray-800" data-lang="hi" style="display: none;">डैशबोर्ड</h1>
+                    <p class="text-gray-600" data-lang="en">Welcome back, Rajesh!</p>
+                    <p class="text-gray-600" data-lang="hi" style="display: none;">राजेश, वापसी पर स्वागत है!</p>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <div class="relative">
+                        <button class="p-2 rounded-full hover:bg-gray-100">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            </svg>
+                            <div class="notification-dot"></div>
+                        </button>
+                    </div>
+                    
+                    <div class="relative">
+                        <select id="languageSelector" class="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option value="en">English</option>
+                            <option value="hi">हिंदी</option>
+                            <option value="pa">ਪੰਜਾਬੀ</option>
+                            <option value="bn">বাংলা</option>
+                        </select>
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 bg-green-600 rounded-full flex items-center justify-center text-white font-bold">RS</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main content area -->
+        <main class="p-6">
+            <!-- Weather Bar -->
+           <div id="weatherBar" class="weather-bar p-4 md:p-5 rounded-xl shadow mb-6 text-white flex flex-col md:flex-row justify-between items-start md:items-center relative">
+                <div class="mb-4 md:mb-0 z-10">
+                    <h2 class="text-lg md:text-xl font-extrabold weather-title-shadow" id="weatherCity" data-lang="en">Weather in Kanpur</h2>
+                    <h2 class="text-lg md:text-xl font-extrabold weather-title-shadow" id="weatherCityHi" data-lang="hi" style="display: none;">कानपुर में मौसम</h2>
+                    <p class="text-3xl md:text-4xl font-extrabold my-1 weather-title-shadow" id="weatherTemp">--°C</p>
+                    <p class="text-sm md:text-base weather-subtle-shadow" id="weatherDesc">Loading...</p>
+                </div>
+                <div class="text-right z-10 max-w-xl space-y-1">
+                    <div class="space-x-2">
+                        <span class="badge">💧 <span id="weatherHumidity" data-lang="en">Humidity: --%</span><span id="weatherHumidityHi" data-lang="hi" style="display: none;">नमी: --%</span></span>
+                        <span class="badge">🌬️ <span id="weatherWind" data-lang="en">Wind: -- m/s</span><span id="weatherWindHi" data-lang="hi" style="display: none;">हवा: -- m/s</span></span>
+                    </div>
+                    <p class="risk-chip mt-1 inline-block" id="poultryRisk"></p>
+                    <div class="flex items-center justify-end mt-1">
+                        <a href="weather.html" class="cta-pill">
+                            <span data-lang="en">More info</span>
+                            <span data-lang="hi" style="display:none;">अधिक जानकारी</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Training Progress -->
+            <div class="bg-white rounded-xl p-6 shadow mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-4" data-lang="en">Training Progress</h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-4" data-lang="hi" style="display: none;">प्रशिक्षण प्रगति</h3>
+                
+                <div class="flex items-center mb-4">
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center mb-1">
+                            <span data-lang="en">Biosecurity Training</span>
+                            <span data-lang="hi" style="display: none;">बायोसिक्योरिटी प्रशिक्षण</span>
+                            <span id="progressPercentage">0%</span>
+                        </div>
+                        <div class="progress-container">
+                            <div class="progress-bar" id="trainingProgress"></div>
+                        </div>
+                    </div>
+                    <button onclick="scrollToVideos()" class="ml-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+    <span data-lang="en">Watch Video</span>
+    <span data-lang="hi" style="display: none;">वीडियो देखें</span>
+</button>
+
+                </div>
+                
+                <div class="text-sm text-gray-600">
+                    <span data-lang="en">Complete all training videos to get your certificate</span>
+                    <span data-lang="hi" style="display: none;">अपना प्रमाणपत्र प्राप्त करने के लिए सभी प्रशिक्षण वीडियो पूरे करें</span>
+                    <span id="certificateBadge" class="certificate-badge">
+                        <span data-lang="en">Certificate Ready!</span>
+                        <span data-lang="hi" style="display: none;">प्रमाणपत्र तैयार!</span>
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Stats overview (show ONLY 4) -->
+            <div class="stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                <div class="dashboard-card bg-white rounded-xl p-6 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">FCR (Feed Conversion Ratio)</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">एफसीआर (फीड कन्वर्जन रेश्यो)</p>
+                            <h2 class="text-3xl font-bold text-gray-800">1.65</h2>
+                        </div>
+                        <div class="text-4xl text-blue-500">📊</div>
+                    </div>
+                    <div class="mt-4 text-sm text-green-600 font-medium">
+                        <span data-lang="en">Good efficiency</span>
+                        <span data-lang="hi" style="display: none;">अच्छी दक्षता</span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card bg-white rounded-xl p-6 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Mortality Rate</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">मृत्यु दर</p>
+                            <h2 class="text-3xl font-bold text-gray-800">2.3%</h2>
+                        </div>
+                        <div class="text-4xl text-red-500">⚠️</div>
+                    </div>
+                    <div class="mt-4 text-sm text-red-600 font-medium">
+                        <span data-lang="en">Needs attention</span>
+                        <span data-lang="hi" style="display: none;">ध्यान देने की आवश्यकता</span>
+                    </div>
+                </div>
+                
+                <!-- Swine Flu Cases Nearby -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Swine Flu Cases Nearby</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">आसपास स्वाइन फ्लू के मामले</p>
+                            <h2 class="text-2xl font-bold text-gray-800">120</h2>
+                        </div>
+                        <div class="text-3xl text-red-500">🤒</div>
+                    </div>
+                    <div class="mt-3 text-xs text-red-600 font-medium">
+                        <span data-lang="en">Within 10km radius</span>
+                        <span data-lang="hi" style="display: none;">10km दायरे में</span>
+                    </div>
+                </div>
+
+                <!-- Vaccination Schedule -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Vaccination Schedule</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">टीकाकरण कार्यक्रम</p>
+                            <h2 class="text-2xl font-bold text-gray-800">Next: 5d</h2>
+                        </div>
+                        <div class="text-3xl text-purple-500">💉</div>
+                    </div>
+                    <div class="mt-3 text-xs text-purple-600 font-medium">
+                        <span data-lang="en">Newcastle Disease</span>
+                        <span data-lang="hi" style="display: none;">न्यूकैसल रोग</span>
+                    </div>
+                </div>
+            </div>
+            <!-- More details button -->
+            <div id="moreBtnContainerTop" class="flex justify-center mb-6">
+                <a href="#all-metrics" id="showMoreBtn" onclick="toggleAdditionalBlocks()" class="bg-green-600 text-white px-5 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center text-sm">
+                    <span data-lang="en">More details</span>
+                    <span data-lang="hi" style="display: none;">और विवरण</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </a>
+            </div>
+            
+            <!-- Show More Button (removed to display all 12 metrics) -->
+            
+            <!-- Additional Blocks (Hidden by default) -->
+            <div id="additionalBlocks" class="stats-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 additional-block hidden">
+                <!-- Current Hens -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Current Hens</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">वर्तमान मुर्गियाँ</p>
+                            <h2 class="text-2xl font-bold text-gray-800">11,250</h2>
+                        </div>
+                        <div class="text-3xl text-green-500">🐔</div>
+                    </div>
+                    <div class="mt-3 text-xs text-green-600 font-medium">
+                        <span data-lang="en">+50 this month</span>
+                        <span data-lang="hi" style="display: none;">इस महीने +50</span>
+                    </div>
+                </div>
+
+                <!-- Sold Hens -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Sold Hens</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">बेची गई मुर्गियाँ</p>
+                            <h2 class="text-2xl font-bold text-gray-800">3070</h2>
+                        </div>
+                        <div class="text-3xl text-yellow-500">💰</div>
+                    </div>
+                    <div class="mt-3 text-xs text-yellow-600 font-medium">
+                        <span data-lang="en">Last 30 days</span>
+                        <span data-lang="hi" style="display: none;">पिछले 30 दिन</span>
+                    </div>
+                </div>
+
+                <!-- Monthly Income -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Monthly Income</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">मासिक आय</p>
+                            <h2 class="text-2xl font-bold text-gray-800">₹85,420</h2>
+                        </div>
+                        <div class="text-3xl text-green-500">📈</div>
+                    </div>
+                    <div class="mt-3 text-xs text-green-600 font-medium">
+                        <span data-lang="en">+12% from last month</span>
+                        <span data-lang="hi" style="display: none;">पिछले महीने से +12%</span>
+                    </div>
+                </div>
+
+                <!-- Monthly Expenses -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Monthly Expenses</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">मासिक खर्च</p>
+                            <h2 class="text-2xl font-bold text-gray-800">₹42,380</h2>
+                        </div>
+                        <div class="text-3xl text-yellow-500">📉</div>
+                    </div>
+                    <div class="mt-3 text-xs text-yellow-600 font-medium">
+                        <span data-lang="en">+5% from last month</span>
+                        <span data-lang="hi" style="display: none;">पिछले महीने से +5%</span>
+                    </div>
+                </div>
+
+                <!-- Monthly Profit -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Monthly Profit</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">मासिक लाभ</p>
+                            <h2 class="text-2xl font-bold text-gray-800">₹43,040</h2>
+                        </div>
+                        <div class="text-3xl text-blue-500">💵</div>
+                    </div>
+                    <div class="mt-3 text-xs text-blue-600 font-medium">
+                        <span data-lang="en">+18% from last month</span>
+                        <span data-lang="hi" style="display: none;">पिछले महीने से +18%</span>
+                    </div>
+                </div>
+
+                <!-- Egg Production -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Egg Production</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">अंडा उत्पादन</p>
+                            <h2 class="text-2xl font-bold text-gray-800">92%</h2>
+                        </div>
+                        <div class="text-3xl text-yellow-500">🥚</div>
+                    </div>
+                    <div class="mt-3 text-xs text-yellow-600 font-medium">
+                        <span data-lang="en">Daily average</span>
+                        <span data-lang="hi" style="display: none;">दैनिक औसत</span>
+                    </div>
+                </div>
+
+                <!-- Feed Stock -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Feed Stock</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">चारा स्टॉक</p>
+                            <h2 class="text-2xl font-bold text-gray-800">15d</h2>
+                        </div>
+                        <div class="text-3xl text-blue-500">🌾</div>
+                    </div>
+                    <div class="mt-3 text-xs text-blue-600 font-medium">
+                        <span data-lang="en">Remaining supply</span>
+                        <span data-lang="hi" style="display: none;">शेष आपूर्ति</span>
+                    </div>
+                </div>
+
+                <!-- Water Consumption -->
+                <div class="dashboard-card bg-white rounded-xl p-4 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Water Consumption</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">पानी की खपत</p>
+                            <h2 class="text-2xl font-bold text-gray-800">320L</h2>
+                        </div>
+                        <div class="text-3xl text-blue-500">💧</div>
+                    </div>
+                    <div class="mt-3 text-xs text-blue-600 font-medium">
+                        <span data-lang="en">Daily average</span>
+                        <span data-lang="hi" style="display: none;">दैनिक औसत</span>
+                    </div>
+                </div>
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Vaccination Schedule</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">टीकाकरण कार्यक्रम</p>
+                            <h2 class="text-3xl font-bold text-gray-800">Next: 5d</h2>
+                        </div>
+                        <div class="text-4xl text-purple-500">💉</div>
+                    </div>
+                    <div class="mt-4 text-sm text-purple-600 font-medium">
+                        <span data-lang="en">Newcastle Disease</span>
+                        <span data-lang="hi" style="display: none;">न्यूकैसल रोग</span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card bg-white rounded-xl p-6 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Egg Production</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">अंडा उत्पादन</p>
+                            <h2 class="text-3xl font-bold text-gray-800">92%</h2>
+                        </div>
+                        <div class="text-4xl text-yellow-500">🥚</div>
+                    </div>
+                    <div class="mt-4 text-sm text-yellow-600 font-medium">
+                        <span data-lang="en">Daily average</span>
+                        <span data-lang="hi" style="display: none;">दैनिक औसत</span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card bg-white rounded-xl p-6 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Feed Stock</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">चारा स्टॉक</p>
+                            <h2 class="text-3xl font-bold text-gray-800">15d</h2>
+                        </div>
+                        <div class="text-4xl text-blue-500">🌾</div>
+                    </div>
+                    <div class="mt-4 text-sm text-blue-600 font-medium">
+                        <span data-lang="en">Remaining supply</span>
+                        <span data-lang="hi" style="display: none;">शेष आपूर्ति</span>
+                    </div>
+                </div>
+                
+                <div class="dashboard-card bg-white rounded-xl p-6 shadow">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-gray-600" data-lang="en">Water Consumption</p>
+                            <p class="text-gray-600" data-lang="hi" style="display: none;">पानी की खपत</p>
+                            <h2 class="text-3xl font-bold text-gray-800">320L</h2>
+                        </div>
+                        <div class="text-4xl text-blue-500">💧</div>
+                    </div>
+                    <div class="mt-4 text-sm text-blue-600 font-medium">
+                        <span data-lang="en">Daily average</span>
+                        <span data-lang="hi" style="display: none;">दैनिक औसत</span>
+                    </div>
+                </div>
+            </div>
+            <div id="moreBtnContainerBottom" class="flex justify-center mb-6"></div>
+            
+            
+            
+            <!-- Quick Actions -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="lg:col-span-2 bg-white rounded-xl p-6 shadow">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="en">Quick Actions</h3>
+                    <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="hi" style="display: none;">त्वरित कार्य</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button onclick="openModal('diseaseDetectionModal')" class="flex items-center justify-between p-4 bg-green-50 border border-green-200 rounded-lg hover:bg-green-100 transition-colors">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">🔬</span>
+                                <span data-lang="en">Disease Detection ✨</span>
+                                <span data-lang="hi" style="display: none;">फोटो से रोग पहचान ✨</span>
+                            </div>
+                            <span>&rarr;</span>
+                        </button>
+                        
+                        <button onclick="openModal('vetModal')" class="flex items-center justify-between p-4 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">👨‍⚕️</span>
+                                <span data-lang="en">Book Consultation</span>
+                                <span data-lang="hi" style="display: none;">परामर्श बुक करें</span>
+                            </div>
+                            <span>&rarr;</span>
+                        </button>
+                        
+                        <a href="digitalrecord.html" class="flex items-center justify-between p-4 bg-purple-50 border border-purple-200 rounded-lg hover:bg-purple-100 transition-colors">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">📋</span>
+                                <span data-lang="en">Digital record</span>
+                                <span data-lang="hi" style="display: none;">स्वास्थ्य रिकॉर्ड जोड़ें</span>
+                            </div>
+                            <span>&rarr;</span>
+                        </a>
+                        
+                        <button onclick="showMessage('You can now schedule a vaccination for your animals.')" class="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">💉</span>
+                                <span data-lang="en">Schedule Vaccination</span>
+                                <span data-lang="hi" style="display: none;">टीकाकरण शेड्यूल करें</span>
+                            </div>
+                            <span>&rarr;</span>
+                        </button>
+                        
+                        <button onclick="generateReportWithGemini()" class="flex items-center justify-between p-4 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">📊</span>
+                                <span data-lang="en">Generate Report ✨</span>
+                                <span data-lang="hi" style="display: none;">रिपोर्ट जनरेट करें ✨</span>
+                            </div>
+                            <span>&rarr;</span>
+                        </button>
+                        
+                        <button onclick="showProductivityTips()" class="flex items-center justify-between p-4 bg-indigo-50 border border-indigo-200 rounded-lg hover:bg-indigo-100 transition-colors">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">📈</span>
+                                <span data-lang="en">Productivity Tips</span>
+                                <span data-lang="hi" style="display: none;">उत्पादकता युक्तियाँ</span>
+                            </div>
+                            <span>&rarr;</span>
+                        </button>
+                        
+                        <button onclick="showgovernmentguidline()" class="flex items-center justify-between p-4 bg-yellow-50 border border-yellow-200 rounded-lg hover:bg-yellow-100 transition-colors">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">💉</span>
+                                <span data-lang="en">Government guidline</span>
+                                <span data-lang="hi" style="display: none;">सरकारी दिशानिर्देश</span>
+                            </div>
+                            <span>&rarr;</span>
+                        </button>
+                        
+                        <button onclick="showMoreActions()" class="flex items-center justify-between p-4 bg-gray-50 border border-gray-200 rounded-lg hover:bg-gray-100 transition-colors">
+                            <div class="flex items-center">
+                                <span class="text-2xl mr-4">➕</span>
+                                <span data-lang="en">More Actions</span>
+                                <span data-lang="hi" style="display: none;">अधिक कार्य</span>
+                            </div>
+                            <span>&rarr;</span>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Notifications -->
+                <div class="bg-white rounded-xl p-6 shadow">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="en">Notifications</h3>
+                    <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="hi" style="display: none;">सूचनाएं</h3>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded-r">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 text-yellow-500">⚠️</div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-yellow-700" data-lang="en">2 animals showing signs of fever. Recommend isolation and checkup.</p>
+                                    <p class="text-sm text-yellow-700" data-lang="hi" style="display: none;">2 जानवरों में बुखार के लक्षण दिख रहे हैं। अलगाव और जांच की सलाह दें।</p>
+                                    <p class="text-xs text-yellow-600 mt-1">2 hours ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-blue-50 border-l-4 border-blue-500 rounded-r">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 text-blue-500">🌧️</div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-blue-700" data-lang="en">Heavy rain forecasted for tomorrow. Ensure proper shelter for animals.</p>
+                                    <p class="text-sm text-blue-700" data-lang="hi" style="display: none;">कल भारी बारिश का अनुमान है। जानवरों के लिए उचित आश्रय सुनिश्चित करें।</p>
+                                    <p class="text-xs text-blue-600 mt-1">5 hours ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-green-50 border-l-4 border-green-500 rounded-r">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 text-green-500">✅</div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-green-700" data-lang="en">Vaccination completed for 15 animals. Next due in 3 months.</p>
+                                    <p class="text-sm text-green-700" data-lang="hi" style="display: none;">15 जानवरों का टीकाकरण पूरा हो गया है। अगला 3 महीने में बकाया है।</p>
+                                    <p class="text-xs text-green-600 mt-1">1 day ago</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 bg-red-50 border-l-4 border-red-500 rounded-r">
+                            <div class="flex items-start">
+                                <div class="flex-shrink-0 text-red-500">💉</div>
+                                <div class="ml-3">
+                                    <p class="text-sm text-red-700" data-lang="en">12 swine flu cases reported within 10km radius. Increase biosecurity measures.</p>
+                                    <p class="text-sm text-red-700" data-lang="hi" style="display: none;">10km दायरे में 12 स्वाइन फ्लू के मामले सामने आए हैं। बायोसिक्योरिटी उपाय बढ़ाएं।</p>
+                                    <p class="text-xs text-red-600 mt-1">2 days ago</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Overall Overview Graph -->
+            <div class="bg-white rounded-xl p-6 shadow mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="en">Overall Overview</h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="hi" style="display: none;">कुल मिलाकर अवलोकन</h3>
+                <div class="h-80">
+                    <canvas id="overviewChart"></canvas>
+                </div>
+            </div>
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-xl p-6 shadow mb-8">
+                <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="en">Recent Activity</h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="hi" style="display: none;">हाल की गतिविधि</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="text-left text-gray-600 border-b">
+                                <th class="pb-3" data-lang="en">Date</th>
+                                <th class="pb-3" data-lang="hi" style="display: none;">तारीख</th>
+                                <th class="pb-3" data-lang="en">Activity</th>
+                                <th class="pb-3" data-lang="hi" style="display: none;">गतिविधि</th>
+                                <th class="pb-3" data-lang="en">Details</th>
+                                <th class="pb-3" data-lang="hi" style="display: none;">विवरण</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y">
+                            <tr>
+                                <td class="py-3">Today</td>
+                                <td class="py-3" data-lang="en">Vaccination</td>
+                                <td class="py-3" data-lang="hi" style="display: none;">टीकाकरण</td>
+                                <td class="py-3" data-lang="en">15 hens vaccinated for Newcastle disease</td>
+                                <td class="py-3" data-lang="hi" style="display: none;">15 मुर्गियों को न्यूकैसल रोग के लिए टीका लगाया गया</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3">Yesterday</td>
+                                <td class="py-3" data-lang="en">Feed Purchase</td>
+                                <td class="py-3" data-lang="hi" style="display: none;">चारा खरीद</td>
+                                <td class="py-3" data-lang="en">Bought 500kg of premium poultry feed</td>
+                                <td class="py-3" data-lang="hi" style="display: none;">500kg प्रीमियम पोल्ट्री फीड खरीदा</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3">2 days ago</td>
+                                <td class="py-3" data-lang="en">Sales</td>
+                                <td class="py-3" data-lang="hi" style="display: none;">बिक्री</td>
+                                <td class="py-3" data-lang="en">Sold 50 hens at ₹250 each</td>
+                                <td class="py-3" data-lang="hi" style="display: none;">50 मुर्गियाँ ₹250 प्रत्येक की दर से बेचीं</td>
+                            </tr>
+                            <tr>
+                                <td class="py-3">3 days ago</td>
+                                <td class="py-3" data-lang="en">Health Check</td>
+                                <td class="py-3" data-lang="hi" style="display: none;">स्वास्थ्य जांच</td>
+                                <td class="py-3" data-lang="en">Routine health check completed for all animals</td>
+                                <td class="py-3" data-lang="hi" style="display: none;">सभी जानवरों की नियमित स्वास्थ्य जांच पूरी हुई</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Poultry News Section -->
+            <div class="mt-10 bg-white rounded-xl p-6 shadow">
+                <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="en">Poultry News & Updates</h3>
+                <h3 class="text-xl font-bold text-gray-800 mb-6" data-lang="hi" style="display: none;">पोल्ट्री समाचार और अपडेट</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="poultryNewsContainer">
+                    <div class="text-center py-10 text-gray-500">
+                        <p data-lang="en">Loading poultry news...</p>
+                        <p data-lang="hi" style="display: none;">पोल्ट्री समाचार लोड हो रहा है...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Training Videos Section -->
+             <!-- Training Videos Section -->
+<div id="videoSection" class="mt-10 bg-gray-50 rounded-xl p-6 shadow">
+
+            <div class="mt-10 bg-gray-50 rounded-xl p-6 shadow">
+                <h3 class="text-2xl font-bold text-center mb-8 text-gray-800" data-lang="en">Biosecurity Training Videos</h3>
+                <h3 class="text-2xl font-bold text-center mb-8 text-gray-800" data-lang="hi" style="display: none;">बायोसिक्योरिटी प्रशिक्षण वीडियो</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow video-thumbnail" onclick="playVideo('https://www.youtube.com/embed/nzA2oiAnoe4')">
+                        <div class="aspect-video relative">
+                            <img src="https://img.youtube.com/vi/nzA2oiAnoe4/maxresdefault.jpg" alt="Modern Poultry Farming Techniques" class="w-full h-full object-cover">
+                            <div class="play-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="en">Modern Poultry Farming Techniques</h4>
+                            <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">आधुनिक पोल्ट्री फार्मिंग तकनीक</h4>
+                            <p class="text-gray-600 text-sm" data-lang="en">Learn the latest techniques for efficient poultry farming and management.</p>
+                            <p class="text-gray-600 text-sm" data-lang="hi" style="display: none;">कुशल पोल्ट्री फार्मिंग और प्रबंधन की नवीनतम तकनीकें सीखें।</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow video-thumbnail" onclick="playVideo('https://www.youtube.com/embed/FBXiA2qFcuQ')">
+                        <div class="aspect-video relative">
+                            <img src="https://img.youtube.com/vi/FBXiA2qFcuQ/maxresdefault.jpg" alt="Disease Prevention in Poultry" class="w-full h-full object-cover">
+                            <div class="play-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="en">Disease Prevention in Poultry</h4>
+                            <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">पोल्ट्री में रोग निवारण</h4>
+                            <p class="text-gray-600 text-sm" data-lang="en">Essential practices for preventing diseases and maintaining healthy flocks.</p>
+                            <p class="text-gray-600 text-sm" data-lang="hi" style="display: none;">रोगों को रोकने और स्वस्थ झुंड बनाए रखने के लिए आवश्यक प्रथाएं।</p>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-lg overflow-hidden hover:shadow-xl transition-shadow video-thumbnail" onclick="playVideo('https://www.youtube.com/embed/NBpJDjVC1_s')">
+                        <div class="aspect-video relative">
+                            <img src="https://img.youtube.com/vi/NBpJDjVC1_s/maxresdefault.jpg" alt="Increasing Productivity in Poultry Farms" class="w-full h-full object-cover">
+                            <div class="play-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="p-4">
+                            <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="en">Increasing Productivity in Poultry Farms</h4>
+                            <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">पोल्ट्री फार्मों में उत्पादकता बढ़ाना</h4>
+                            <p class="text-gray-600 text-sm" data-lang="en">Strategies to maximize productivity and profitability in your poultry operations.</p>
+                            <p class="text-gray-600 text-sm" data-lang="hi" style="display: none;">अपने पोल्ट्री संचालन में उत्पादकता और लाभप्रदता को अधिकतम करने की रणनीतियां।</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- more videos -->
+               <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200 text-center">
+    <h4 class="text-lg font-bold text-blue-800 mb-2" data-lang="en">More Training Videos</h4>
+    <h4 class="text-lg font-bold text-blue-800 mb-2" data-lang="hi" style="display: none;">अधिक प्रशिक्षण वीडियो</h4>
+    <p class="text-blue-700 text-sm mb-4" data-lang="en">Explore our complete library of training videos.</p>
+    <p class="text-blue-700 text-sm mb-4" data-lang="hi" style="display: none;">प्रशिक्षण वीडियो की हमारी पूरी लाइब्रेरी का अन्वेषण करें।</p>
+    <a href="videos.html" class="inline-block bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors">
+        <span data-lang="en">Explore Videos</span>
+        <span data-lang="hi" style="display: none;">वीडियो देखें</span>
+    </a>
+</div>
+        </main>
+    </div>
+
+    <!-- Video Modal -->
+    <div id="videoModal" class="modal fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl overflow-hidden w-11/12 md:w-3/4 lg:w-2/3">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-bold" id="videoModalTitle"></h3>
+                <button onclick="closeModal('videoModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            <div class="aspect-video">
+                <iframe id="videoFrame" class="w-full h-full" frameborder="0" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="diseaseDetectionModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-11/12 md:w-2/3 lg:w-1/2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800" data-lang="en">Disease Detection</h3>
+                <h3 class="text-xl font-bold text-gray-800" data-lang="hi" style="display: none;">रोग पहचान</h3>
+                <button onclick="closeModal('diseaseDetectionModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <p class="text-gray-600 mb-4" data-lang="en">Upload an image of your animal to detect potential diseases.</p>
+                <p class="text-gray-600 mb-4" data-lang="hi" style="display: none;">संभावित बीमारियों का पता लगाने के लिए अपने जानवर की एक छवि अपलोड करें।</p>
+                
+                <div class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-gray-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    <p class="text-gray-600 mb-2" data-lang="en">Drag & drop your image here or</p>
+                    <p class="text-gray-600 mb-2" data-lang="hi" style="display: none;">अपनी छवि को यहां खींचें और छोड़ें या</p>
+                    <label for="file-upload" class="cursor-pointer bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors">
+                        <span data-lang="en">Browse Files</span>
+                        <span data-lang="hi" style="display: none;">फाइलें ब्राउज़ करें</span>
+                    </label>
+                    <input id="file-upload" type="file" class="hidden" accept="image/*">
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-4">
+                <button onclick="closeModal('diseaseDetectionModal')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                    <span data-lang="en">Cancel</span>
+                    <span data-lang="hi" style="display: none;">रद्द करें</span>
+                </button>
+                <button onclick="analyzeDisease()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <span data-lang="en">Analyze</span>
+                    <span data-lang="hi" style="display: none;">विश्लेषण करें</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div id="vetModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-11/12 md:w-2/3 lg:w-1/2">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800" data-lang="en">Book Veterinary Consultation</h3>
+                <h3 class="text-xl font-bold text-gray-800" data-lang="hi" style="display: none;">पशु चिकित्सा परामर्श बुक करें</h3>
+                <button onclick="closeModal('vetModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="mb-6">
+                <p class="text-gray-600 mb-4" data-lang="en">Connect with a veterinary expert for consultation.</p>
+                <p class="text-gray-600 mb-4" data-lang="hi" style="display: none;">परामर्श के लिए एक पशु चिकित्सा विशेषज्ञ से जुड़ें。</</p>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-gray-700 mb-2" data-lang="en">Select Expert</label>
+                        <label class="block text-gray-700 mb-2" data-lang="hi" style="display: none;">विशेषज्ञ चुनें</label>
+                        <select class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <option data-lang="en">Dr. Sharma - Poultry Specialist</option>
+                            <option data-lang="hi" style="display: none;">डॉ. शर्मा - पोल्ट्री विशेषज्ञ</option>
+                            <option data-lang="en">Dr. Singh - Swine Health Expert</option>
+                            <option data-lang="hi" style="display: none;">डॉ. सिंह - स्वाइन हेल्थ एक्सपर्ट</option>
+                            <option data-lang="en">Dr. Patel - General Veterinary</option>
+                            <option data-lang="hi" style="display: none;">डॉ. पटेल - सामान्य पशु चिकित्सक</option>
+                        </select>
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 mb-2" data-lang="en">Preferred Date & Time</label>
+                        <label class="block text-gray-700 mb-2" data-lang="hi" style="display: none;">पसंदीदा तारीख और समय</label>
+                        <input type="datetime-local" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                    </div>
+                    
+                    <div>
+                        <label class="block text-gray-700 mb-2" data-lang="en">Reason for Consultation</label>
+                        <label class="block text-gray-700 mb-2" data-lang="hi" style="display: none;">परामर्श का कारण</label>
+                        <textarea class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" rows="3" placeholder="Describe the symptoms or issues..."></textarea>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-4">
+                <button onclick="closeModal('vetModal')" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition-colors">
+                    <span data-lang="en">Cancel</span>
+                    <span data-lang="hi" style="display: none;">रद्द करें</span>
+                </button>
+                <button onclick="bookConsultation()" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors">
+                    <span data-lang="en">Book Now</span>
+                    <span data-lang="hi" style="display: none;">अभी बुक करें</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    
+    <!-- Productivity Tips Modal -->
+    <div id="productivityTipsModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-11/12 md:w-2/3 lg:w-1/2 max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800" data-lang="en">Productivity Tips for Farmers</h3>
+                <h3 class="text-xl font-bold text-gray-800" data-lang="hi" style="display: none;">किसानों के लिए उत्पादकता युक्तियाँ</h3>
+                <button onclick="closeModal('productivityTipsModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 🔊 Speak Button -->
+            <div class="flex justify-end mb-4">
+                <button onclick="speakContent('productivity')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a9 9 0 012.728-2.728" />
+                    </svg>
+                    <span data-lang="en">Read Aloud</span>
+                    <span data-lang="hi" style="display: none;">जोर से पढ़ें</span>
+                </button>
+                <button onclick="stopSpeaking()" class="ml-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    <span data-lang="en">Stop</span>
+                    <span data-lang="hi" style="display: none;">रोकें</span>
+                </button>
+            </div>
+
+            <div id="productivityContent" class="space-y-4">
+                <div class="p-4 bg-green-50 rounded-lg">
+                    <h4 class="font-semibold text-green-800" data-lang="en">1. Optimize Feeding Schedules</h4>
+                    <h4 class="font-semibold text-green-800" data-lang="hi" style="display: none;">1. फीडिंग शेड्यूल को अनुकूलित करें</h4>
+                    <p class="text-green-700" data-lang="en">Feed animals during cooler parts of the day to improve digestion and nutrient absorption.</p>
+                    <p class="text-green-700" data-lang="hi" style="display: none;">पाचन और पोषक तत्वों के अवशोषण में सुधार के लिए दिन के ठंडे हिस्सों में जानवरों को खिलाएं।</p>
+                </div>
+
+                <div class="p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-semibold text-blue-800" data-lang="en">2. Implement Regular Health Checks</h4>
+                    <h4 class="font-semibold text-blue-800" data-lang="hi" style="display: none;">2. नियमित स्वास्थ्य जांच लागू करें</h4>
+                    <p class="text-blue-700" data-lang="en">Weekly health assessments can help detect issues early and prevent disease spread.</p>
+                    <p class="text-blue-700" data-lang="hi" style="display: none;">साप्ताहिक स्वास्थ्य आकलन मुद्दों का शीघ्र पता लगाने और बीमारी के प्रसार को रोकने में मदद कर सकते हैं।</p>
+                </div>
+
+                <div class="p-4 bg-yellow-50 rounded-lg">
+                    <h4 class="font-semibold text-yellow-800" data-lang="en">3. Improve Water Management</h4>
+                    <h4 class="font-semibold text-yellow-800" data-lang="hi" style="display: none;">3. जल प्रबंधन में सुधार करें</h4>
+                    <p class="text-yellow-700" data-lang="en">Ensure clean, fresh water is always available. Dehydration significantly reduces productivity.</p>
+                    <p class="text-yellow-700" data-lang="hi" style="display: none;">सुनिश्चित करें कि साफ, ताजा पानी हमेशा उपलब्ध रहे। निर्जलीकरण उत्पादकता को काफी कम कर देता है।</p>
+                </div>
+                
+                <div class="p-4 bg-purple-50 rounded-lg">
+                    <h4 class="font-semibold text-purple-800" data-lang="en">4. Optimize Shelter Conditions</h4>
+                    <h4 class="font-semibold text-purple-800" data-lang="hi" style="display: none;">4 आश्रय की स्थितियों को अनुकूलित करें</h4>
+                    <p class="text-purple-700" data-lang="en">Proper ventilation, temperature control, and space management improve animal welfare and productivity.</p>
+                    <p class="text-purple-700" data-lang="hi" style="display: none;">उचित वेंटिलेशन, तापमान नियंत्रण और स्थान प्रबंधन पशु कल्याण और उत्पादकता में सुधार करते हैं।</p>
+                </div>
+                
+                <div class="p-4 bg-red-50 rounded-lg">
+                    <h4 class="font-semibold text-red-800" data-lang="en">5. Record Keeping & Data Analysis</h4>
+                    <h4 class="font-semibold text-red-800" data-lang="hi" style="display: none;">5. रिकॉर्ड रखरखाव और डेटा विश्लेषण</h4>
+                    <p class="text-red-700" data-lang="en">Maintain detailed records of health, feed, and production to identify patterns and areas for improvement.</p>
+                    <p class="text-red-700" data-lang="hi" style="display: none;">पैटर्न और सुधार के क्षेत्रों की पहचान करने के लिए स्वास्थ्य, फीड और उत्पादन के विस्तृत रिकॉर्ड रखें।</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Government Guideline Modal -->
+    <div id="governmentguidlineModal" class="modal fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-6 w-11/12 md:w-2/3 lg:w-1/2 max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-xl font-bold text-gray-800" data-lang="en">Government Guidelines for Poultry Farmers</h3>
+                <h3 class="text-xl font-bold text-gray-800" data-lang="hi" style="display: none;">पोल्ट्री किसानों के लिए सरकारी दिशानिर्देश</h3>
+                <button onclick="closeModal('governmentguidlineModal')" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- 🔊 Speak Button -->
+            <div class="flex justify-end mb-4">
+                <button onclick="speakContent('government')" class="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15.536a5 5 0 001.414 1.414m2.828-9.9a9 9 0 012.728-2.728" />
+                    </svg>
+                    <span data-lang="en">Read Aloud</span>
+                    <span data-lang="hi" style="display: none;">जोर से पढ़ें</span>
+                </button>
+                <button onclick="stopSpeaking()" class="ml-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
+                    <span data-lang="en">Stop</span>
+                    <span data-lang="hi" style="display: none;">रोकें</span>
+                </button>
+            </div>
+
+            <div class="space-y-4">
+                <!-- Vaccination -->
+                <div class="p-4 bg-green-50 rounded-lg">
+                    <h4 class="font-semibold text-green-800" data-lang="en">1. Mandatory Vaccination</h4>
+                    <h4 class="font-semibold text-green-800" data-lang="hi" style="display: none;">1. अनिवार्य टीकाकरण</h4>
+                    <p class="text-green-700" data-lang="en">Follow state veterinary department schedules for vaccination against ND, IBD, Marek's and other major poultry diseases.</p>
+                    <p class="text-green-700" data-lang="hi" style="display: none;">राज्य पशुपालन विभाग द्वारा निर्धारित कार्यक्रम के अनुसार एनडी, आईबीडी, मारेक और अन्य प्रमुख पोल्ट्री रोगों के खिलाफ टीकाकरण कराएं।</p>
+                </div>
+
+                <!-- Biosecurity -->
+                <div class="p-4 bg-blue-50 rounded-lg">
+                    <h4 class="font-semibold text-blue-800" data-lang="en">2. Biosecurity Practices</h4>
+                    <h4 class="font-semibold text-blue-800" data-lang="hi" style="display: none;">2. जैव सुरक्षा उपाय</h4>
+                    <p class="text-blue-700" data-lang="en">Restrict farm entry, use foot dips, and regularly disinfect poultry houses as per ICAR and DAHD guidelines.</p>
+                    <p class="text-blue-700" data-lang="hi" style="display: none;">फार्म में प्रवेश सीमित करें, फुट डिप का उपयोग करें और आईसएआर व DAHD दिशानिर्देशों के अनुसार पोल्ट्री शेड को नियमित रूप से साफ-सफाई व कीटाणु-मुक्त करें।</p>
+                </div>
+
+                <!-- Waste Management -->
+                <div class="p-4 bg-yellow-50 rounded-lg">
+                    <h4 class="font-semibold text-yellow-800" data-lang="en">3. Waste & Dead Bird Disposal</h4>
+                    <h4 class="font-semibold text-yellow-800" data-lang="hi" style="display: none;">3. अपशिष्ट एवं मृत पक्षी निपटान</h4>
+                    <p class="text-yellow-700" data-lang="en">Dispose of dead birds through deep burial or incineration. Avoid open dumping to prevent disease spread.</p>
+                    <p class="text-yellow-700" data-lang="hi" style="display: none;">मृत पक्षियों का निपटान गहरे गड्ढे में दफनाकर या इन्सिनरेटर द्वारा करें। खुले में फेंकने से बचें ताकि बीमारी का प्रसार न हो।</p>
+                </div>
+
+                <!-- Feed & Water -->
+                <div class="p-4 bg-purple-50 rounded-lg">
+                    <h4 class="font-semibold text-purple-800" data-lang="en">4. Feed and Water Standards</h4>
+                    <h4 class="font-semibold text-purple-800" data-lang="hi" style="display: none;">4. चारा एवं पानी मानक</h4>
+                    <p class="text-purple-700" data-lang="en">Ensure BIS-approved balanced feed and provide clean drinking water. Add supplements as per veterinary advice.</p>
+                    <p class="text-purple-700" data-lang="hi" style="display: none;">बीआईएस द्वारा अनुमोदित संतुलित चारा दें और स्वच्छ पेयजल उपलब्ध कराएं। पशु चिकित्सक की सलाह अनुसार सप्लीमेंट दें。</p>
+                </div>
+
+                <!-- Record Keeping -->
+                <div class="p-4 bg-red-50 rounded-lg">
+                    <h4 class="font-semibold text-red-800" data-lang="en">5. Record Keeping & Reporting</h4>
+                    <h4 class="font-semibold text-red-800" data-lang="hi" style="display: none;">5. अभिलेख व रिपोर्टिंग</h4>
+                    <p class="text-red-700" data-lang="en">Maintain records of vaccination, mortality, and production. Report unusual mortality to local veterinary authorities.</p>
+                    <p class="text-red-700" data-lang="hi" style="display: none;">टीकाकरण, मृत्यु दर और उत्पादन के अभिलेख रखें। असामान्य मृत्यु की सूचना स्थानीय पशुपालन विभाग को दें।</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Language switching functionality
+        // Persist and apply language selection
+        const savedLangDash = localStorage.getItem('preferredLanguage');
+        if (savedLangDash) {
+            document.getElementById('languageSelector').value = savedLangDash;
+            const evt = { target: { value: savedLangDash } };
+            (function(e){
+                const lang = e.target.value;
+                document.querySelectorAll('[data-lang]').forEach(element => {
+                    if (element.getAttribute('data-lang') === lang) {
+                        element.style.display = 'block';
+                    } else {
+                        element.style.display = 'none';
+                    }
+                });
+                // Update chart based on language
+                createOverviewChart();
+            })(evt);
+        }
+
+        document.getElementById('languageSelector').addEventListener('change', function(e) {
+            const lang = e.target.value;
+            localStorage.setItem('preferredLanguage', lang);
+            document.querySelectorAll('[data-lang]').forEach(element => {
+                if (element.getAttribute('data-lang') === lang) {
+                    element.style.display = 'block';
+                } else {
+                    element.style.display = 'none';
+                }
+            });
+            
+            // Update chart based on language
+            createOverviewChart();
+        });
+
+        // Mobile menu toggle
+        document.getElementById('mobileMenuBtn').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+
+        // Modal functions
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        // Show message
+        function showMessage(message) {
+            alert(message);
+        }
+
+        // Chatbot toggle
+        document.getElementById('ai-chatbot-toggle').addEventListener('click', function() {
+            document.getElementById('ai-chatbot-container').classList.toggle('active');
+        });
+
+        // Weather data
+        async function fetchWeatherData() {
+            try {
+                // For demo purposes, we'll use static data
+                // In a real application, you would fetch from a weather API
+                const weatherData = {
+                    temp: 28,
+                    description: "Partly Cloudy",
+                    humidity: 65,
+                    wind: 3.5,
+                    risk_en: "Moderate risk of respiratory issues in poultry. Ensure proper ventilation.",
+                    risk_hi: "पोल्ट्री में श्वसन समस्याओं का मध्यम जोखिम। उचित वेंटिलेशन सुनिश्चित करें।",
+                    gemini_en: "Based on weather patterns, recommend increasing water supply and monitoring for signs of heat stress.",
+                    gemini_hi: "मौसम के पैटर्न के आधार पर, जल आपूर्ति बढ़ाने और हीट स्ट्रेस के संकेतों की निगरानी की सलाह।"
+                };
+
+                const lang = localStorage.getItem('preferredLanguage') || document.getElementById('languageSelector').value || 'hi';
+
+                document.getElementById('weatherTemp').textContent = `${weatherData.temp}°C`;
+                document.getElementById('weatherDesc').textContent = weatherData.description;
+                document.getElementById('weatherHumidity').textContent = `Humidity: ${weatherData.humidity}%`;
+                document.getElementById('weatherHumidityHi').textContent = `नमी: ${weatherData.humidity}%`;
+                document.getElementById('weatherWind').textContent = `Wind: ${weatherData.wind} m/s`;
+                document.getElementById('weatherWindHi').textContent = `हवा: ${weatherData.wind} m/s`;
+
+                const riskText = lang === 'hi' ? weatherData.risk_hi : weatherData.risk_en;
+                const geminiText = lang === 'hi' ? weatherData.gemini_hi : weatherData.gemini_en;
+                document.getElementById('poultryRisk').textContent = riskText;
+                document.getElementById('geminiAnalysis').textContent = geminiText;
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+            }
+        }
+
+        // Training progress
+        let progress = 0;
+        
+        function increaseProgress() {
+            if (progress < 100) {
+                progress += 10;
+                document.getElementById('trainingProgress').style.width = `${progress}%`;
+                document.getElementById('progressPercentage').textContent = `${progress}%`;
+                
+                if (progress === 100) {
+                    document.getElementById('certificateBadge').classList.add('show');
+                    showMessage('Congratulations! You have completed the training. Your certificate is ready.');
+                }
+            }
+        }
+
+        // Disease detection analysis
+        async function analyzeDisease() {
+    const fileInput = document.getElementById('file-upload');
+    if (!fileInput.files.length) {
+        alert("Please upload an image first.");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onloadend = async function () {
+        const base64Image = reader.result.split(",")[1];
+
+        try {
+            const response = await fetch(GEMINI_API_URL_TEXT_IMAGE, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    contents: [{
+                        role: "user",
+                        parts: [
+                            { text: "Analyze this poultry image and detect possible diseases. Give advice in simple language." },
+                            { inline_data: { mime_type: file.type, data: base64Image } }
+                        ]
+                    }]
+                })
+            });
+
+            const result = await response.json();
+            closeModal('diseaseDetectionModal');
+
+            const analysis = result.candidates?.[0]?.content?.parts?.[0]?.text || "Unable to analyze image.";
+            showMessage("AI Disease Detection Result:\n\n" + analysis);
+
+        } catch (error) {
+            console.error("Disease detection error:", error);
+            alert("Error analyzing disease. Please try again.");
+        }
+    };
+
+    reader.readAsDataURL(file);
+}
+
+        // Book consultation
+        function bookConsultation() {
+            closeModal('vetModal');
+            showMessage('Consultation booked successfully! Dr. Sharma will connect with you at the selected time.');
+        }
+
+        // Generate report with Gemini AI
+        function generateReportWithGemini() {
+            showMessage('Generating comprehensive farm report with Gemini AI... This may take a few moments.');
+            // In a real implementation, this would call an API to generate the report
+        }
+
+        //  Productivity tips
+        // function showProductivityTips() {
+        //     showMessage('Productivity Tips:\n1. Maintain consistent feeding schedules\n2. Ensure clean water supply at all times\n3. Regularly clean and disinfect housing\n4. Monitor animals for early signs of illness\n5. Keep detailed records of all activities');
+        // }
+        
+        // Government guidelines
+        // function showgovernmentguidline() {
+        //     showMessage('Government Guidelines:\n1. Register your farm with the local animal husbandry department\n2. Follow prescribed vaccination schedules\n3. Maintain proper waste disposal systems\n4. Report notifiable diseases immediately\n5. Follow biosecurity protocols as recommended');
+        // }
+        // Productivity tips
+        function showProductivityTips() {
+            openModal('productivityTipsModal');
+        }
+        
+        // Government guidelines
+        function showgovernmentguidline() {
+            openModal('governmentguidlineModal');
+        }
+
+        // More actions
+        function showMoreActions() {
+            showMessage('Additional actions: Inventory management, Employee scheduling, Financial reports, Equipment maintenance, Supplier contacts');
+        }
+        
+        // Toggle additional blocks
+        function toggleAdditionalBlocks() {
+            const additionalBlocks = document.getElementById('additionalBlocks');
+            const showMoreBtn = document.getElementById('showMoreBtn');
+            const container = additionalBlocks.parentElement;
+
+            // Toggle visibility
+            additionalBlocks.classList.toggle('hidden');
+
+            const isShown = !additionalBlocks.classList.contains('hidden');
+
+            // Move the button below the revealed section when open, and back above when closed
+            const topContainer = document.getElementById('moreBtnContainerTop');
+            const bottomContainer = document.getElementById('moreBtnContainerBottom');
+            if (isShown) {
+                bottomContainer.appendChild(showMoreBtn);
+            } else {
+                topContainer.appendChild(showMoreBtn);
+            }
+
+            // Update button label (language-aware)
+            if (isShown) {
+                showMoreBtn.innerHTML = document.getElementById('languageSelector').value === 'hi' ? 
+                    'कम विवरण <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>' : 
+                    'Less details <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>';
+            } else {
+                showMoreBtn.innerHTML = document.getElementById('languageSelector').value === 'hi' ? 
+                    'और विवरण <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>' : 
+                    'More details <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>';
+            }
+        }
+
+        function openAllMetrics(){
+            toggleAdditionalBlocks();
+        }
+        
+        // Play video function
+        function playVideo(videoUrl) {
+            document.getElementById('videoFrame').src = videoUrl;
+            document.getElementById('videoModalTitle').textContent = 'Training Video';
+            openModal('videoModal');
+            increaseProgress();
+        }
+        
+        // Create overview chart
+        function createOverviewChart() {
+            const ctx = document.getElementById('overviewChart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (window.overviewChartInstance) {
+                window.overviewChartInstance.destroy();
+            }
+            
+            const isHindi = document.getElementById('languageSelector').value === 'hi';
+            
+            window.overviewChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: isHindi ? 
+                        ['एफसीआर', 'मृत्यु दर', 'वर्तमान मुर्गियाँ', 'बेची गई मुर्गियाँ', 'स्वाइन फ्लू', 'आय', 'खर्च', 'लाभ'] : 
+                        ['FCR', 'Mortality', 'Current Hens', 'Sold Hens', 'Swine Flu', 'Income', 'Expense', 'Profit'],
+                    datasets: [{
+                        label: isHindi ? 'मान' : 'Value',
+                        data: [1.65, 2.3, 12500, 3007, 12, 85.4, 42.3, 43.0],
+                        backgroundColor: [
+                            'rgba(54, 162, 235, 0.7)',
+                            'rgba(255, 99, 132, 0.7)',
+                            'rgba(75, 192, 192, 0.7)',
+                            'rgba(255, 205, 86, 0.7)',
+                            'rgba(153, 102, 255, 0.7)',
+                            'rgba(50, 205, 50, 0.7)',
+                            'rgba(255, 69, 0, 0.7)',
+                            'rgba(0, 128, 0, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgb(54, 162, 235)',
+                            'rgb(255, 99, 132)',
+                            'rgb(75, 192, 192)',
+                            'rgb(255, 205, 86)',
+                            'rgb(153, 102, 255)',
+                            'rgb(50, 205, 50)',
+                            'rgb(255, 69, 0)',
+                            'rgb(0, 128, 0)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: isHindi ? 'मान' : 'Value'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: isHindi ? 'मेट्रिक्स' : 'Metrics'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            text: isHindi ? 'कुल मिलाकर अवलोकन' : 'Overall Overview'
+                        }
+                    }
+                }
+            });
+        }
+        
+        // Initialize weather data and chart on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchWeatherData();
+            createOverviewChart();
+            fetchPoultryNews();
+        });
+        
+        // Poultry News API Integration
+        async function fetchPoultryNews() {
+            try {
+                // For demo purposes, we'll use mock data since we don't have a real API key
+                const mockNewsData = {
+                    articles: [
+                        {
+                            title: "New Vaccination Protocol Reduces Poultry Disease by 40%",
+                            titleHi: "नए टीकाकरण प्रोटोकॉल ने पोल्ट्री रोगों में 40% की कमी की",
+                            description: "Researchers have developed a new vaccination protocol that significantly reduces common poultry diseases.",
+                            descriptionHi: "शोधकर्ताओं ने एक नया टीकाकरण प्रोटोकॉल विकसित किया है जो सामान्य पोल्ट्री रोगों को काफी कम करता है।",
+                            url: "#",
+                            urlToImage: "https://placehold.co/600x400/3B82F6/FFFFFF?text=Poultry+Health",
+                            publishedAt: new Date().toISOString()
+                        },
+                        {
+                            title: "Climate Change Impact on Poultry Farming",
+                            titleHi: "पोल्ट्री फार्मिंग पर जलवायु परिवर्तन का प्रभाव",
+                            description: "New study shows how rising temperatures affect poultry health and productivity.",
+                            descriptionHi: "नए अध्ययन से पता चलता है कि बढ़ते तापमान का पोल्ट्री स्वास्थ्य और उत्पादकता पर कैसे प्रभाव पड़ता है।",
+                            url: "#",
+                            urlToImage: "https://placehold.co/600x400/10B981/FFFFFF?text=Climate+Impact",
+                            publishedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString()
+                        },
+                        {
+                            title: "Innovative Feed Formula Boosts Egg Production",
+                            titleHi: "अभिनव फीड फॉर्मूला अंडे के उत्पादन को बढ़ावा देता है",
+                            description: "Scientists develop new feed formula that increases egg production while reducing costs.",
+                            descriptionHi: "वैज्ञानिकों ने एक नया फीड फॉर्मूला विकसित किया है जो लागत कम करते हुए अंडे के उत्पादन को बढ़ाता है।",
+                            url: "#",
+                            urlToImage: "https://placehold.co/600x400/F59E0B/FFFFFF?text=Feed+Innovation",
+                            publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+                        }
+                    ]
+                };
+                
+                displayPoultryNews(mockNewsData);
+            } catch (error) {
+                console.error("Error fetching poultry news:", error);
+                const currentLang = document.getElementById('languageSelector').value;
+                const errorMsg = currentLang === 'hi' 
+                    ? "समाचार लोड नहीं किया जा सका। कृपया बाद में पुन: प्रयास करें。" : 
+                    "Could not load news. Please try again later.";
+                    
+                document.getElementById('poultryNewsContainer').innerHTML = `
+                    <div class="col-span-3 text-center py-6 text-red-500">
+                        <p>${errorMsg}</p>
+                    </div>
+                `;
+            }
+        }
+
+        function displayPoultryNews(newsData) {
+            const newsContainer = document.getElementById('poultryNewsContainer');
+            const currentLang = document.getElementById('languageSelector').value;
+            
+            if (!newsData.articles || newsData.articles.length === 0) {
+                const noNewsMsg = currentLang === 'hi' 
+                    ? "फिलहाल कोई पोल्ट्री समाचार उपलब्ध नहीं है。" : 
+                    "No poultry news available at the moment.";
+                    
+                newsContainer.innerHTML = `
+                    <div class="col-span-3 text-center py-6 text-gray-500">
+                        <p>${noNewsMsg}</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const newsHTML = newsData.articles.map(article => `
+                <div class="bg-gray-50 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+                    <div class="h-40 bg-gray-200 overflow-hidden">
+                        <img src="${article.urlToImage || 'https://placehold.co/600x400/EF4444/FFFFFF?text=No+Image'}" 
+                             alt="${currentLang === 'hi' ? article.titleHi : article.title}" 
+                             class="w-full h-full object-cover">
+                    </div>
+                    <div class="p-4">
+                        <h4 class="font-semibold text-lg mb-2 line-clamp-2">${currentLang === 'hi' ? article.titleHi : article.title}</h4>
+                        <p class="text-gray-600 text-sm mb-4 line-clamp-3">${currentLang === 'hi' ? article.descriptionHi : article.description}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-500">${formatDate(article.publishedAt)}</span>
+                            <a href="${article.url}" target="_blank" class="text-green-600 hover:text-green-700 text-sm font-medium">
+                                ${currentLang === 'hi' ? 'और पढ़ें →' : 'Read more →'}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            newsContainer.innerHTML = newsHTML;
+        }
+
+        // Helper function to format date
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+        function scrollToVideos() {
+    document.getElementById('videoSection').scrollIntoView({ behavior: 'smooth' });
+    increaseProgress();
+}
+ // Text-to-speech functionality
+        function speakContent(type) {
+            // Stop any previous speech
+            window.speechSynthesis.cancel();
+            
+            let textToSpeak = '';
+            const isHindi = document.getElementById('languageSelector').value === 'hi';
+            
+            if (type === 'productivity') {
+                const elements = document.querySelectorAll('#productivityContent [data-lang]');
+                elements.forEach(el => {
+                    if ((isHindi && el.getAttribute('data-lang') === 'hi') || 
+                        (!isHindi && el.getAttribute('data-lang') === 'en')) {
+                        textToSpeak += el.textContent + '. ';
+                    }
+                });
+            } else if (type === 'government') {
+                const elements = document.querySelectorAll('#governmentguidlineModal [data-lang]');
+                elements.forEach(el => {
+                    if ((isHindi && el.getAttribute('data-lang') === 'hi') || 
+                        (!isHindi && el.getAttribute('data-lang') === 'en')) {
+                        textToSpeak += el.textContent + '. ';
+                    }
+                });
+            }
+            
+            const speech = new SpeechSynthesisUtterance(textToSpeak);
+            speech.lang = isHindi ? 'hi-IN' : 'en-US';
+            window.speechSynthesis.speak(speech);
+        }
+        
+        function stopSpeaking() {
+            window.speechSynthesis.cancel();
+        }
+
+    </script>
+    <script>
+let model;
+
+// Load model when page loads
+async function loadModel() {
+    model = await tf.loadLayersModel('model_web/model.json');
+    console.log("✅ TFJS Model Loaded");
+}
+loadModel();
+
+async function analyzeDisease() {
+    const fileInput = document.getElementById('file-upload');
+    if (fileInput.files.length === 0) {
+        alert("Please upload an image first.");
+        return;
+    }
+
+    const file = fileInput.files[0];
+    const img = new Image();
+    img.src = URL.createObjectURL(file);
+
+    img.onload = async () => {
+        let tensor = tf.browser.fromPixels(img)
+            .resizeNearestNeighbor([224, 224]) // match your training size
+            .toFloat()
+            .div(255.0)
+            .expandDims();
+
+        const prediction = model.predict(tensor);
+        const result = await prediction.array();
+
+        console.log("Prediction:", result);
+
+        // Example (adjust labels as per your dataset)
+        const labels = ["Healthy", "Coccidiosis", "Salmonella", "Avian Influenza"];
+        const maxIndex = result[0].indexOf(Math.max(...result[0]));
+
+        alert("Detected: " + labels[maxIndex] + 
+              " (Confidence: " + (result[0][maxIndex] * 100).toFixed(2) + "%)");
+    };
+}
+</script>
+
+    
+</body>
+</html>

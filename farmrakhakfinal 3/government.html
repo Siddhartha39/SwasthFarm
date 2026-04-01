@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Government Dashboard - Disease & Poultry Alerts</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- jsPDF + AutoTable for PDF exports (no SRI to avoid local block) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.4/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    #map { height: 70vh; }
+    .leaflet-container { font: inherit; }
+    .badge { padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-red { background: #fee2e2; color: #b91c1c; }
+    .badge-yellow { background: #fef3c7; color: #92400e; }
+    .badge-green { background: #dcfce7; color: #166534; }
+  </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+  <!-- Top Bar -->
+  <header class="bg-white shadow sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
+      <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+        <span>🇮🇳</span> Government Disease Surveillance
+      </h1>
+      <a href="index.html" class="text-sm text-gray-600 hover:text-gray-800">Back to Home</a>
+    </div>
+  </header>
+
+  <!-- Content -->
+  <main class="max-w-7xl mx-auto px-4 py-6">
+    <!-- Controls -->
+    <div class="bg-white rounded-xl shadow p-4 mb-4 flex flex-col md:flex-row gap-3 md:items-center md:justify-between">
+      <div class="flex items-center gap-3">
+        <label class="text-sm text-gray-600">Select City</label>
+        <select id="citySelect" class="border rounded-md px-3 py-2 text-sm">
+          <option value="">All Cities</option>
+        </select>
+      </div>
+      <div class="flex items-center gap-2 text-sm">
+        <span class="badge badge-red">High Risk</span>
+        <span class="badge badge-yellow">Medium Risk</span>
+        <span class="badge badge-green">Low Risk</span>
+      </div>
+    </div>
+
+    <!-- Map and Details -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 bg-white rounded-xl shadow overflow-hidden">
+        <div id="map"></div>
+      </div>
+      <aside class="bg-white rounded-xl shadow p-5">
+        <h2 id="panelCity" class="text-xl font-bold text-gray-800 mb-1">India Overview</h2>
+        <p id="panelRisk" class="text-sm mb-4">
+          <span class="badge badge-yellow">Mixed Alerts</span>
+        </p>
+        <div class="grid grid-cols-2 gap-3 mb-4">
+          <div class="p-3 rounded-lg bg-green-50">
+            <div class="text-xs text-gray-600">Poultry Farms</div>
+            <div id="statFarms" class="text-2xl font-bold text-green-700">-</div>
+          </div>
+          <div class="p-3 rounded-lg bg-blue-50">
+            <div class="text-xs text-gray-600">Livestock</div>
+            <div id="statLivestock" class="text-2xl font-bold text-blue-700">-</div>
+          </div>
+          <div class="p-3 rounded-lg bg-yellow-50">
+            <div class="text-xs text-gray-600">Reported Cases</div>
+            <div id="statCases" class="text-2xl font-bold text-yellow-700">-</div>
+          </div>
+          <div class="p-3 rounded-lg bg-red-50">
+            <div class="text-xs text-gray-600">Active Alerts</div>
+            <div id="statAlerts" class="text-2xl font-bold text-red-700">-</div>
+          </div>
+        </div>
+        <!-- Action Bar -->
+        <div class="flex flex-wrap items-center gap-2 mb-3">
+          <button id="btnExportCity" class="px-3 py-2 rounded-md bg-green-600 text-white text-xs hover:bg-green-700">Download City Report (PDF)</button>
+          <button id="btnExportIndia" class="px-3 py-2 rounded-md bg-blue-600 text-white text-xs hover:bg-blue-700">Download India Report (PDF)</button>
+        </div>
+        <!-- Tabs -->
+        <div class="mb-3 border-b">
+          <nav class="flex gap-2 text-sm">
+            <button data-tab="overview" class="tab-btn px-3 py-2 rounded-t-md bg-gray-100 text-gray-800 font-semibold">Overview</button>
+            <button data-tab="farms" class="tab-btn px-3 py-2 rounded-t-md hover:bg-gray-100">Farms</button>
+            <button data-tab="diseases" class="tab-btn px-3 py-2 rounded-t-md hover:bg-gray-100">Diseases</button>
+            <button data-tab="sales" class="tab-btn px-3 py-2 rounded-t-md hover:bg-gray-100">Sales</button>
+          </nav>
+        </div>
+        <!-- Tab Panels -->
+        <div id="tab-overview" class="tab-panel">
+          <h3 class="font-semibold text-gray-800 mb-2">Hotspots</h3>
+          <ul id="hotspotList" class="space-y-2 text-sm text-gray-700">
+            <li class="text-gray-400">Select a city to view details.</li>
+          </ul>
+          <h3 class="font-semibold text-gray-800 mt-4 mb-2">Diseases</h3>
+          <div id="diseaseTags" class="flex flex-wrap gap-2 text-xs"></div>
+        </div>
+        <div id="tab-farms" class="tab-panel hidden">
+          <div class="overflow-auto">
+            <table class="min-w-full text-sm" id="farmsTable">
+              <thead class="bg-gray-50 text-gray-700">
+                <tr>
+                  <th class="text-left px-3 py-2">Farm</th>
+                  <th class="text-left px-3 py-2">Type</th>
+                  <th class="text-right px-3 py-2">Capacity</th>
+                  <th class="text-right px-3 py-2">Sales (Monthly)</th>
+                  <th class="text-right px-3 py-2">Avg Rate (₹/unit)</th>
+                  <th class="text-right px-3 py-2">Mortality %</th>
+                  <th class="text-left px-3 py-2">Diseases</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y" id="farmsTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="tab-diseases" class="tab-panel hidden">
+          <div class="overflow-auto">
+            <table class="min-w-full text-sm" id="diseaseTable">
+              <thead class="bg-gray-50 text-gray-700">
+                <tr>
+                  <th class="text-left px-3 py-2">Disease</th>
+                  <th class="text-left px-3 py-2">First Reported</th>
+                  <th class="text-right px-3 py-2">Cases</th>
+                  <th class="text-right px-3 py-2">Recoveries</th>
+                  <th class="text-right px-3 py-2">Mortality</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y" id="diseaseTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+        <div id="tab-sales" class="tab-panel hidden">
+          <div class="overflow-auto">
+            <table class="min-w-full text-sm" id="salesTable">
+              <thead class="bg-gray-50 text-gray-700">
+                <tr>
+                  <th class="text-left px-3 py-2">Farm</th>
+                  <th class="text-left px-3 py-2">Product</th>
+                  <th class="text-right px-3 py-2">Units Sold</th>
+                  <th class="text-right px-3 py-2">Avg Rate (₹)</th>
+                  <th class="text-right px-3 py-2">Revenue (₹)</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y" id="salesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <script>
+    // Fake dataset of Indian cities with lat/lng, risk, and details
+    const CITY_DATA = [
+      {city: 'Delhi', state: 'Delhi', lat: 28.6139, lng: 77.2090, risk: 'red', farms: 520, livestock: 124000, cases: 42, alerts: 3,
+        diseases: ['Bird Flu', 'NDV'],
+        diseaseLog: [
+          {disease: 'Bird Flu', firstReported: '2025-08-10', cases: 120, recoveries: 80, mortality: 12},
+          {disease: 'NDV', firstReported: '2025-07-22', cases: 60, recoveries: 50, mortality: 5}
+        ],
+        areas: [
+          {name: 'Najafgarh', risk: 'red'}, {name: 'Rohini', risk: 'yellow'}, {name: 'Okhla', risk: 'yellow'}
+        ],
+        farmList: [
+          {name: 'Green Valley Poultry', type: 'Broiler', capacity: 12000, sales: 9000, avgRate: 105, mortality: 2.1, diseases: ['Bird Flu']},
+          {name: 'Sunrise Layers', type: 'Layer', capacity: 18000, sales: 15000, avgRate: 6.2, mortality: 1.2, diseases: ['NDV']},
+          {name: 'Okhla Agro', type: 'Mixed', capacity: 8000, sales: 6000, avgRate: 98, mortality: 1.8, diseases: []}
+        ]
+      },
+      {city: 'Mumbai', state: 'Maharashtra', lat: 19.0760, lng: 72.8777, risk: 'yellow', farms: 410, livestock: 98000, cases: 23, alerts: 2,
+        diseases: ['Coccidiosis'],
+        diseaseLog: [
+          {disease: 'Coccidiosis', firstReported: '2025-06-05', cases: 40, recoveries: 35, mortality: 2}
+        ],
+        areas: [
+          {name: 'Panvel', risk: 'yellow'}, {name: 'Dombivli', risk: 'green'}, {name: 'Vasai', risk: 'yellow'}
+        ],
+        farmList: [
+          {name: 'Coastal Poultry', type: 'Broiler', capacity: 9000, sales: 7200, avgRate: 110, mortality: 1.5, diseases: []},
+          {name: 'Vasai Farms', type: 'Layer', capacity: 14000, sales: 12000, avgRate: 6.0, mortality: 1.0, diseases: ['Coccidiosis']}
+        ]
+      },
+      {city: 'Kanpur', state: 'Uttar Pradesh', lat: 26.4499, lng: 80.3319, risk: 'red', farms: 640, livestock: 143000, cases: 51, alerts: 4,
+        diseases: ['Bird Flu', 'Salmonellosis'],
+        diseaseLog: [
+          {disease: 'Bird Flu', firstReported: '2025-08-15', cases: 85, recoveries: 60, mortality: 10},
+          {disease: 'Salmonellosis', firstReported: '2025-09-01', cases: 25, recoveries: 20, mortality: 2}
+        ],
+        areas: [
+          {name: 'Panki', risk: 'red'}, {name: 'Kalyanpur', risk: 'yellow'}, {name: 'Govind Nagar', risk: 'yellow'}
+        ],
+        farmList: [
+          {name: 'Kalyanpur Poultry', type: 'Broiler', capacity: 15000, sales: 11800, avgRate: 102, mortality: 2.5, diseases: ['Bird Flu']},
+          {name: 'Govind Layers', type: 'Layer', capacity: 13000, sales: 11000, avgRate: 6.1, mortality: 1.3, diseases: []},
+          {name: 'Panki Agro', type: 'Broiler', capacity: 10000, sales: 7600, avgRate: 99, mortality: 3.2, diseases: ['Salmonellosis']}
+        ]
+      },
+      {city: 'Kolkata', state: 'West Bengal', lat: 22.5726, lng: 88.3639, risk: 'yellow', farms: 500, livestock: 112000, cases: 18, alerts: 1,
+        diseases: ['IBD'],
+        diseaseLog: [
+          {disease: 'IBD', firstReported: '2025-07-12', cases: 30, recoveries: 28, mortality: 1}
+        ],
+        areas: [
+          {name: 'Howrah', risk: 'yellow'}, {name: 'Salt Lake', risk: 'green'}, {name: 'Baranagar', risk: 'yellow'}
+        ],
+        farmList: [
+          {name: 'Ganges Poultry', type: 'Broiler', capacity: 11000, sales: 9000, avgRate: 101, mortality: 1.7, diseases: []}
+        ]
+      },
+      {city: 'Chennai', state: 'Tamil Nadu', lat: 13.0827, lng: 80.2707, risk: 'green', farms: 350, livestock: 86000, cases: 5, alerts: 0,
+        diseases: ['—'],
+        diseaseLog: [],
+        areas: [ {name: 'Tambaram', risk: 'green'}, {name: 'Avadi', risk: 'green'} ],
+        farmList: [ {name: 'Marina Layers', type: 'Layer', capacity: 9000, sales: 8200, avgRate: 6.3, mortality: 0.8, diseases: []} ]
+      },
+      {city: 'Bengaluru', state: 'Karnataka', lat: 12.9716, lng: 77.5946, risk: 'yellow', farms: 470, livestock: 101000, cases: 12, alerts: 1,
+        diseases: ['Mycoplasma'],
+        diseaseLog: [ {disease: 'Mycoplasma', firstReported: '2025-06-18', cases: 22, recoveries: 18, mortality: 1} ],
+        areas: [ {name: 'Yelahanka', risk: 'yellow'}, {name: 'Anekal', risk: 'green'} ],
+        farmList: [ {name: 'Silicon Poultry', type: 'Broiler', capacity: 8000, sales: 6500, avgRate: 108, mortality: 1.6, diseases: []} ]
+      },
+      {city: 'Hyderabad', state: 'Telangana', lat: 17.3850, lng: 78.4867, risk: 'yellow', farms: 530, livestock: 120000, cases: 15, alerts: 1,
+        diseases: ['Bird Flu (isolated)'],
+        diseaseLog: [ {disease: 'Bird Flu (isolated)', firstReported: '2025-05-20', cases: 12, recoveries: 10, mortality: 1} ],
+        areas: [ {name: 'Shamirpet', risk: 'yellow'}, {name: 'Ibrahimpatnam', risk: 'green'} ],
+        farmList: [ {name: 'Charminar Agro', type: 'Mixed', capacity: 12000, sales: 9800, avgRate: 100, mortality: 1.2, diseases: []} ]
+      },
+      {city: 'Jaipur', state: 'Rajasthan', lat: 26.9124, lng: 75.7873, risk: 'green', farms: 300, livestock: 74000, cases: 3, alerts: 0,
+        diseases: ['—'],
+        diseaseLog: [],
+        areas: [ {name: 'Sanganer', risk: 'green'} ],
+        farmList: [ {name: 'Pink City Layers', type: 'Layer', capacity: 7000, sales: 6200, avgRate: 6.1, mortality: 0.9, diseases: []} ]
+      }
+    ];
+
+    const riskColor = {
+      red:   { color: '#b91c1c', fill: '#ef4444' },
+      yellow:{ color: '#92400e', fill: '#f59e0b' },
+      green: { color: '#166534', fill: '#22c55e' }
+    };
+
+    // Initialize map centered on India
+    const map = L.map('map', { zoomControl: false }).setView([22.9734, 78.6569], 5);
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    const markers = [];
+    let currentCityName = '';
+
+    function makeMarker(city) {
+      const color = riskColor[city.risk].fill;
+      const marker = L.circleMarker([city.lat, city.lng], {
+        radius: 10,
+        color: '#fff',
+        weight: 2,
+        fillColor: color,
+        fillOpacity: 0.9
+      }).addTo(map);
+      marker.bindTooltip(`${city.city}, ${city.state} — ${city.risk.toUpperCase()} RISK`, { permanent: false });
+      marker.on('click', () => {
+        focusCity(city.city);
+        // Sync dropdown when selecting via map
+        const sel = document.getElementById('citySelect');
+        if (sel) sel.value = city.city;
+      });
+      markers.push({ name: city.city, marker });
+    }
+
+    function loadMarkers() {
+      CITY_DATA.forEach(makeMarker);
+    }
+
+    function populateSelect() {
+      const sel = document.getElementById('citySelect');
+      CITY_DATA.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.city;
+        opt.textContent = `${c.city}, ${c.state}`;
+        sel.appendChild(opt);
+      });
+      sel.addEventListener('change', () => {
+        if (sel.value) {
+          focusCity(sel.value);
+        } else {
+          currentCityName = '';
+          showOverview();
+        }
+      });
+    }
+
+    function setPanel(city) {
+      currentCityName = city.city;
+      document.getElementById('panelCity').textContent = `${city.city}, ${city.state}`;
+      const riskBadge = city.risk === 'red' ? 'badge-red' : (city.risk === 'yellow' ? 'badge-yellow' : 'badge-green');
+      document.getElementById('panelRisk').innerHTML = `<span class="badge ${riskBadge}">${city.risk.toUpperCase()} RISK</span>`;
+      document.getElementById('statFarms').textContent = city.farms.toLocaleString();
+      document.getElementById('statLivestock').textContent = city.livestock.toLocaleString();
+      document.getElementById('statCases').textContent = city.cases.toLocaleString();
+      document.getElementById('statAlerts').textContent = city.alerts.toLocaleString();
+
+      const list = document.getElementById('hotspotList');
+      list.innerHTML = '';
+      city.areas.forEach(a => {
+        const li = document.createElement('li');
+        const b = a.risk === 'red' ? 'badge-red' : (a.risk === 'yellow' ? 'badge-yellow' : 'badge-green');
+        li.innerHTML = `<span class="badge ${b}">${a.risk.toUpperCase()}</span> <span class="ml-2">${a.name}</span>`;
+        list.appendChild(li);
+      });
+
+      const tags = document.getElementById('diseaseTags');
+      tags.innerHTML = '';
+      city.diseases.forEach(d => {
+        const span = document.createElement('span');
+        span.className = 'badge ' + (d.toLowerCase().includes('flu') ? 'badge-red' : 'badge-yellow');
+        span.textContent = d;
+        tags.appendChild(span);
+      });
+
+      renderFarms(city);
+      renderDiseaseLog(city);
+      renderSales(city);
+    }
+
+    function focusCity(name) {
+      const city = CITY_DATA.find(c => c.city === name);
+      if (!city) return;
+      map.setView([city.lat, city.lng], 10, { animate: true });
+      setPanel(city);
+    }
+
+    function showOverview() {
+      map.setView([22.9734, 78.6569], 5, { animate: true });
+      document.getElementById('panelCity').textContent = 'India Overview';
+      document.getElementById('panelRisk').innerHTML = '<span class="badge badge-yellow">Mixed Alerts</span>';
+      document.getElementById('statFarms').textContent = '-';
+      document.getElementById('statLivestock').textContent = '-';
+      document.getElementById('statCases').textContent = '-';
+      document.getElementById('statAlerts').textContent = '-';
+      document.getElementById('hotspotList').innerHTML = '<li class="text-gray-400">Select a city to view details.</li>';
+      document.getElementById('diseaseTags').innerHTML = '';
+      // Clear tables
+      document.getElementById('farmsTableBody').innerHTML = '';
+      document.getElementById('diseaseTableBody').innerHTML = '';
+      document.getElementById('salesTableBody').innerHTML = '';
+    }
+
+    // Init
+    loadMarkers();
+    populateSelect();
+    showOverview();
+
+    // Tab logic
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabPanels = {
+      overview: document.getElementById('tab-overview'),
+      farms: document.getElementById('tab-farms'),
+      diseases: document.getElementById('tab-diseases'),
+      sales: document.getElementById('tab-sales')
+    };
+    tabButtons.forEach(btn => btn.addEventListener('click', () => {
+      tabButtons.forEach(b => b.classList.remove('bg-gray-100', 'text-gray-800', 'font-semibold'));
+      Object.values(tabPanels).forEach(p => p.classList.add('hidden'));
+      btn.classList.add('bg-gray-100', 'text-gray-800', 'font-semibold');
+      const key = btn.getAttribute('data-tab');
+      tabPanels[key].classList.remove('hidden');
+    }));
+
+    function renderFarms(city) {
+      const body = document.getElementById('farmsTableBody');
+      body.innerHTML = '';
+      (city.farmList || []).forEach(f => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2">${f.name}</td>
+          <td class="px-3 py-2">${f.type}</td>
+          <td class="px-3 py-2 text-right">${f.capacity.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">${f.sales.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">${f.avgRate.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">${f.mortality}%</td>
+          <td class="px-3 py-2">${(f.diseases||[]).join(', ') || '—'}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function renderDiseaseLog(city) {
+      const body = document.getElementById('diseaseTableBody');
+      body.innerHTML = '';
+      (city.diseaseLog || []).forEach(d => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2">${d.disease}</td>
+          <td class="px-3 py-2">${d.firstReported}</td>
+          <td class="px-3 py-2 text-right">${d.cases.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">${d.recoveries.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">${d.mortality}%</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    function renderSales(city) {
+      const body = document.getElementById('salesTableBody');
+      body.innerHTML = '';
+      (city.farmList || []).forEach(f => {
+        const revenue = Math.round(f.sales * f.avgRate);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="px-3 py-2">${f.name}</td>
+          <td class="px-3 py-2">${f.type === 'Layer' ? 'Eggs' : 'Meat'}</td>
+          <td class="px-3 py-2 text-right">${f.sales.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">${f.avgRate.toLocaleString()}</td>
+          <td class="px-3 py-2 text-right">${revenue.toLocaleString()}</td>
+        `;
+        body.appendChild(tr);
+      });
+    }
+
+    // PDF Exports
+    function buildCityPDF(city) {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('PDF library failed to load. Please check your internet connection and try again.');
+        return;
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape' });
+      doc.setFontSize(16);
+      doc.text(`City Report: ${city.city}, ${city.state}`, 14, 16);
+      doc.setFontSize(11);
+      doc.text(`Risk: ${city.risk.toUpperCase()} | Farms: ${city.farms} | Livestock: ${city.livestock} | Cases: ${city.cases} | Alerts: ${city.alerts}`, 14, 24);
+
+      // Farms Table
+      doc.text('Farms', 14, 34);
+      if (!doc.autoTable) {
+        alert('AutoTable plugin failed to load. Please check your internet connection and try again.');
+        return;
+      }
+      doc.autoTable({
+        startY: 36,
+        head: [['Farm', 'Type', 'Capacity', 'Sales (Monthly)', 'Avg Rate (₹/unit)', 'Mortality %', 'Diseases']],
+        body: (city.farmList || []).map(f => [
+          f.name, f.type, f.capacity, f.sales, f.avgRate, f.mortality + '%', (f.diseases||[]).join(', ') || '—'
+        ]),
+        styles: { fontSize: 8 }
+      });
+
+      // Diseases Table
+      doc.text('Disease Log', 14, doc.lastAutoTable.finalY + 10);
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 12,
+        head: [['Disease', 'First Reported', 'Cases', 'Recoveries', 'Mortality %']],
+        body: (city.diseaseLog || []).map(d => [ d.disease, d.firstReported, d.cases, d.recoveries, d.mortality + '%' ]),
+        styles: { fontSize: 8 }
+      });
+
+      // Sales Table
+      doc.text('Sales Summary', 14, doc.lastAutoTable.finalY + 10);
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 12,
+        head: [['Farm', 'Product', 'Units Sold', 'Avg Rate (₹)', 'Revenue (₹)']],
+        body: (city.farmList || []).map(f => {
+          const revenue = Math.round(f.sales * f.avgRate);
+          return [ f.name, (f.type === 'Layer' ? 'Eggs' : 'Meat'), f.sales, f.avgRate, revenue ];
+        }),
+        styles: { fontSize: 8 }
+      });
+
+      doc.save(`City_Report_${city.city}.pdf`);
+    }
+
+    function buildIndiaPDF() {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert('PDF library failed to load. Please check your internet connection and try again.');
+        return;
+      }
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({ orientation: 'landscape' });
+      doc.setFontSize(16);
+      doc.text('India Report: Poultry & Livestock Overview', 14, 16);
+
+      // City Summary Table
+      doc.autoTable({
+        startY: 24,
+        head: [['City', 'State', 'Risk', 'Farms', 'Livestock', 'Cases', 'Alerts']],
+        body: CITY_DATA.map(c => [ c.city, c.state, c.risk.toUpperCase(), c.farms, c.livestock, c.cases, c.alerts ]),
+        styles: { fontSize: 8 }
+      });
+
+      // Aggregate Sales Summary (top farms per city)
+      doc.text('Sales Summary (Top Farms)', 14, doc.lastAutoTable.finalY + 10);
+      const salesRows = [];
+      CITY_DATA.forEach(c => {
+        (c.farmList || []).slice(0, 3).forEach(f => {
+          const revenue = Math.round(f.sales * f.avgRate);
+          salesRows.push([ c.city, f.name, (f.type === 'Layer' ? 'Eggs' : 'Meat'), f.sales, f.avgRate, revenue ]);
+        });
+      });
+      doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 12,
+        head: [['City', 'Farm', 'Product', 'Units Sold', 'Avg Rate (₹)', 'Revenue (₹)']],
+        body: salesRows,
+        styles: { fontSize: 8 }
+      });
+
+      doc.save('India_Report_Poultry_Livestock.pdf');
+    }
+
+    // Hook export buttons
+    document.getElementById('btnExportCity').addEventListener('click', () => {
+      const selValue = document.getElementById('citySelect').value;
+      const key = selValue || currentCityName;
+      const city = CITY_DATA.find(c => c.city === key);
+      if (!city) {
+        alert('Please select a city on the map or from the dropdown to export report.');
+        return;
+      }
+      buildCityPDF(city);
+    });
+    document.getElementById('btnExportIndia').addEventListener('click', buildIndiaPDF);
+  </script>
+</body>
+</html>

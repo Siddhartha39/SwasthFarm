@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Poultry Chatbot</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f9f9f9; }
+    #chatbox { width: 80%; max-width: 600px; margin: 20px auto; padding: 20px; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
+    .message { margin: 10px 0; }
+    .user { color: blue; font-weight: bold; }
+    .bot { color: green; font-weight: bold; }
+    #inputArea { display: flex; margin-top: 15px; }
+    #userInput { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid #ccc; }
+    #sendBtn { padding: 10px 15px; margin-left: 10px; border: none; border-radius: 8px; background: green; color: white; cursor: pointer; }
+    #sendBtn:hover { background: darkgreen; }
+  </style>
+</head>
+<body>
+  <div id="chatbox">
+    <h2>🐔 Poultry Care Chatbot</h2>
+    <div id="messages"></div>
+    <div id="inputArea">
+      <input type="text" id="userInput" placeholder="Ask about poultry care, diseases, feed..." />
+      <button id="sendBtn">Send</button>
+    </div>
+  </div>
+
+  <script>
+    const GEMINI_API_KEY = "AIzaSyClic_G3hl5cgL8uCXq0zD8pE3tpAKw4mM";
+    const GEMINI_API_URL_TEXT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY;
+
+    const messagesDiv = document.getElementById("messages");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    // Add message to chat window
+    function addMessage(sender, text) {
+      const msg = document.createElement("div");
+      msg.classList.add("message");
+      msg.innerHTML = `<span class="${sender}">${sender === "user" ? "You" : "Bot"}:</span> ${text}`;
+      messagesDiv.appendChild(msg);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+    // Call Gemini API
+    async function getGeminiResponse(prompt) {
+      const body = {
+        contents: [{
+          role: "user",
+          parts: [{ text: prompt }]
+        }]
+      };
+
+      try {
+        const res = await fetch(GEMINI_API_URL_TEXT, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+        return data?.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I couldn’t get an answer.";
+      } catch (error) {
+        console.error(error);
+        return "Error fetching response from Gemini.";
+      }
+    }
+
+    // Handle user input
+    sendBtn.addEventListener("click", async () => {
+      const text = userInput.value.trim();
+      if (!text) return;
+
+      addMessage("user", text);
+      userInput.value = "";
+
+      const botReply = await getGeminiResponse("You are a Poultry Expert AI. Answer only in poultry domain. Question: " + text);
+      addMessage("bot", botReply);
+    });
+
+    // Press Enter to send
+    userInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") sendBtn.click();
+    });
+  </script>
+</body>
+</html>

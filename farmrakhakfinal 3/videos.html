@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Training Videos - SwasthFarm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .aspect-video {
+            aspect-ratio: 16 / 9;
+        }
+        .video-card {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .video-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.15);
+        }
+        .video-thumbnail {
+            position: relative;
+        }
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.8);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .video-thumbnail:hover .play-button {
+            opacity: 1;
+        }
+        .play-button i {
+            color: #3B82F6;
+            font-size: 20px;
+        }
+        .category-filter {
+            display: flex;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scrollbar-width: thin;
+        }
+        .category-filter::-webkit-scrollbar {
+            height: 6px;
+        }
+        .category-filter::-webkit-scrollbar-thumb {
+            background: #c5c5c5;
+            border-radius: 10px;
+        }
+        .category-btn {
+            flex-shrink: 0;
+            margin-right: 10px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: #f3f4f6;
+            color: #4b5563;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .category-btn:hover, .category-btn.active {
+            background: #3B82F6;
+            color: white;
+        }
+        .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .search-container {
+            position: relative;
+        }
+        .search-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #9ca3af;
+        }
+        .search-input {
+            padding-left: 45px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans">
+    <!-- Header -->
+    <header class="bg-white shadow-sm">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiByeD0iOCIgZmlsbD0iIzNCODJGNiIvPgo8cGF0aCBkPSJNMTAgMTVIMzBWMTguMzMzSDEwVjE1WiIgZmlsbD0id2hpdGUiLz4KPHBhdGggZD0iTTEwIDIxLjY2N0gzMFYyNUgxMFYyMS42NjdaIiBmaWxsPSJ3aGl0ZSIvPgo8cGF0aCBkPSJNMTAgMjguMzMzSDMwVjMxLjY2N0gxMFYyOC4zMzNaIiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4K" alt="Logo" class="h-10 w-10 mr-3">
+                    <h1 class="text-2xl font-bold text-gray-800" data-lang="en">SwasthFarm Training</h1>
+                    <h1 class="text-2xl font-bold text-gray-800" data-lang="hi" style="display: none;">फार्मरक्षक प्रशिक्षण</h1>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <select id="languageSelector" class="px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी</option>
+                    </select>
+                    <a href="dashboard.html" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center transition-colors">
+                        <i class="fas fa-arrow-left mr-2"></i>
+                        <span data-lang="en">Dashboard</span>
+                        <span data-lang="hi" style="display: none;">डैशबोर्ड</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 py-8">
+        <!-- Page Title -->
+        <div class="mb-8 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2" data-lang="en">Training Video Library</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">प्रशिक्षण वीडियो लाइब्रेरी</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto" data-lang="en">Browse our collection of instructional videos to enhance your farming knowledge and skills</p>
+            <p class="text-gray-600 max-w-2xl mx-auto" data-lang="hi" style="display: none;">अपने कृषि ज्ञान और कौशल को बढ़ाने के लिए हमारे instructional वीडियो के संग्रह को ब्राउज़ करें</p>
+        </div>
+        
+        <!-- Search and Filter Section -->
+        <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+            <div class="search-container mb-6">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    id="video-search" 
+                    placeholder="Search for videos..." 
+                    class="search-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    data-lang="en">
+                <input 
+                    type="text" 
+                    id="video-search-hi" 
+                    placeholder="वीडियो खोजें..." 
+                    class="search-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    data-lang="hi" style="display: none;">
+            </div>
+            
+            <div>
+                <h3 class="font-medium text-gray-700 mb-3" data-lang="en">Filter by category:</h3>
+                <h3 class="font-medium text-gray-700 mb-3" data-lang="hi" style="display: none;">श्रेणी के अनुसार फ़िल्टर करें:</h3>
+                <div class="category-filter">
+                    <button class="category-btn active" data-category="all">
+                        <span data-lang="en">All Videos</span>
+                        <span data-lang="hi" style="display: none;">सभी वीडियो</span>
+                    </button>
+                    <button class="category-btn" data-category="poultry">
+                        <span data-lang="en">Poultry</span>
+                        <span data-lang="hi" style="display: none;">पोल्ट्री</span>
+                    </button>
+                    <button class="category-btn" data-category="dairy">
+                        <span data-lang="en">Dairy</span>
+                        <span data-lang="hi" style="display: none;">डेयरी</span>
+                    </button>
+                    <button class="category-btn" data-category="goat">
+                        <span data-lang="en">Goat & Sheep</span>
+                        <span data-lang="hi" style="display: none;">बकरी और भेड़</span>
+                    </button>
+                    <button class="category-btn" data-category="health">
+                        <span data-lang="en">Animal Health</span>
+                        <span data-lang="hi" style="display: none;">पशु स्वास्थ्य</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Video Gallery -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="video-gallery">
+            <!-- Video 1 -->
+            <div class="video-card bg-white rounded-xl shadow-sm overflow-hidden video-item" data-tags="poultry farming modern techniques" data-category="poultry">
+                <div class="video-thumbnail aspect-video relative bg-gray-200">
+                    <iframe 
+                        src="https://www.youtube.com/embed/nzA2oiAnoe4" 
+                        title="Modern Poultry Farming Techniques" 
+                        allowfullscreen
+                        class="w-full h-full"
+                    ></iframe>
+                    <div class="play-button">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="en">Poultry</span>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="hi" style="display: none;">पोल्ट्री</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="en">Modern Poultry Farming Techniques</h4>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">आधुनिक पोल्ट्री फार्मिंग तकनीक</h4>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="en">Learn the latest techniques for efficient poultry farming and management, from feeding to housing.</p>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="hi" style="display: none;">कुशल पोल्ट्री फार्मिंग और प्रबंधन की नवीनतम तकनीकें सीखें, फीडिंग से लेकर आवास तक।</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="far fa-clock mr-1"></i>
+                        <span>15 min</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Video 2 -->
+            <div class="video-card bg-white rounded-xl shadow-sm overflow-hidden video-item" data-tags="disease prevention biosecurity" data-category="health">
+                <div class="video-thumbnail aspect-video relative bg-gray-200">
+                    <iframe 
+                        src="https://www.youtube.com/embed/FBXiA2qFcuQ" 
+                        title="Disease Prevention in Poultry" 
+                        allowfullscreen
+                        class="w-full h-full"
+                    ></iframe>
+                    <div class="play-button">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="en">Animal Health</span>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="hi" style="display: none;">पशु स्वास्थ्य</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="en">Disease Prevention in Poultry</h4>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">पोल्ट्री में रोग निवारण</h4>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="en">Essential practices for preventing diseases and maintaining healthy flocks through biosecurity measures.</p>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="hi" style="display: none;">बायोसिक्योरिटी उपायों के माध्यम से रोगों को रोकने और स्वस्थ झुंड बनाए रखने के लिए आवश्यक प्रथाएं।</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="far fa-clock mr-1"></i>
+                        <span>12 min</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Video 3 -->
+            <div class="video-card bg-white rounded-xl shadow-sm overflow-hidden video-item" data-tags="productivity profit farming tips" data-category="poultry">
+                <div class="video-thumbnail aspect-video relative bg-gray-200">
+                    <iframe 
+                        src="https://www.youtube.com/embed/NBpJDjVC1_s" 
+                        title="Increasing Productivity in Poultry Farms" 
+                        allowfullscreen
+                        class="w-full h-full"
+                    ></iframe>
+                    <div class="play-button">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="en">Poultry</span>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="hi" style="display: none;">पोल्ट्री</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="en">Increasing Productivity in Poultry Farms</h4>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">पोल्ट्री फार्मों में उत्पादकता बढ़ाना</h4>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="en">Strategies to maximize productivity and profitability in your poultry operations through smart management.</p>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="hi" style="display: none;">स्मार्ट प्रबंधन के माध्यम से अपने पोल्ट्री संचालन में उत्पादकता और लाभप्रदता को अधिकतम करने की रणनीतियां।</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="far fa-clock mr-1"></i>
+                        <span>18 min</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Video 4 -->
+            <div class="video-card bg-white rounded-xl shadow-sm overflow-hidden video-item" data-tags="cattle dairy health milk" data-category="dairy">
+                <div class="video-thumbnail aspect-video relative bg-gray-200">
+                    <iframe 
+                        src="https://www.youtube.com/embed/G6oOqM3uG3A" 
+                        title="Dairy Cattle Management" 
+                        allowfullscreen
+                        class="w-full h-full"
+                    ></iframe>
+                    <div class="play-button">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="en">Dairy</span>
+                        <span class="bg-purple-100 text-purple-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="hi" style="display: none;">डेयरी</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="en">Best Practices for Dairy Cattle Management</h4>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">डेयरी मवेशी प्रबंधन के लिए सर्वोत्तम अभ्यास</h4>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="en">Learn how to maintain a healthy herd, optimize feeding, and increase milk production.</p>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="hi" style="display: none;">स्वस्थ झुंड बनाए रखने, फीडिंग को अनुकूलित करने और दूध उत्पादन बढ़ाने का तरीका जानें।</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="far fa-clock mr-1"></i>
+                        <span>22 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video 5 -->
+            <div class="video-card bg-white rounded-xl shadow-sm overflow-hidden video-item" data-tags="goat sheep health vaccination" data-category="goat">
+                <div class="video-thumbnail aspect-video relative bg-gray-200">
+                    <iframe 
+                        src="https://www.youtube.com/embed/V6jY3sQeF8I" 
+                        title="Goat and Sheep Health" 
+                        allowfullscreen
+                        class="w-full h-full"
+                    ></iframe>
+                    <div class="play-button">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="en">Goat & Sheep</span>
+                        <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="hi" style="display: none;">बकरी और भेड़</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="en">Goat & Sheep Health and Vaccination Guide</h4>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">बकरी और भेड़ के स्वास्थ्य और टीकाकरण गाइड</h4>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="en">A comprehensive guide on common diseases and vaccination schedules for small livestock.</p>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="hi" style="display: none;">छोटे पशुधन के लिए सामान्य बीमारियों और टीकाकरण अनुसूची पर एक व्यापक गाइड।</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="far fa-clock mr-1"></i>
+                        <span>16 min</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video 6 - Additional example -->
+            <div class="video-card bg-white rounded-xl shadow-sm overflow-hidden video-item" data-tags="feeding nutrition livestock" data-category="health">
+                <div class="video-thumbnail aspect-video relative bg-gray-200">
+                    <iframe 
+                        src="https://www.youtube.com/embed/dQw4w9WgXcQ" 
+                        title="Animal Nutrition Basics" 
+                        allowfullscreen
+                        class="w-full h-full"
+                    ></iframe>
+                    <div class="play-button">
+                        <i class="fas fa-play"></i>
+                    </div>
+                </div>
+                <div class="p-5">
+                    <div class="flex items-center mb-2">
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="en">Animal Health</span>
+                        <span class="bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded" data-lang="hi" style="display: none;">पशु स्वास्थ्य</span>
+                    </div>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="en">Animal Nutrition Basics</h4>
+                    <h4 class="text-lg font-bold text-gray-800 mb-2" data-lang="hi" style="display: none;">पशु पोषण के मूल सिद्धांत</h4>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="en">Understanding the nutritional requirements of farm animals for optimal growth and health.</p>
+                    <p class="text-gray-600 text-sm mb-3 line-clamp-2" data-lang="hi" style="display: none;">इष्टतम विकास और स्वास्थ्य के लिए खेत जानवरों की पोषण संबंधी आवश्यकताओं को समझना।</p>
+                    <div class="flex items-center text-sm text-gray-500">
+                        <i class="far fa-clock mr-1"></i>
+                        <span>14 min</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t mt-12 py-8">
+        <div class="container mx-auto px-4 text-center text-gray-600 text-sm">
+            <p data-lang="en">&copy; 2023 SwasthFarm. All rights reserved.</p>
+            <p data-lang="hi" style="display: none;">&copy; 2023 फार्मरक्षक। सर्वाधिकार सुरक्षित।</p>
+        </div>
+    </footer>
+
+    <script>
+        // Language selector logic
+        const languageSelector = document.getElementById('languageSelector');
+        
+        languageSelector.addEventListener('change', function(e) {
+            const lang = e.target.value;
+            localStorage.setItem('preferredLanguage', lang);
+            changeLanguage(lang);
+        });
+
+        function changeLanguage(lang) {
+            document.querySelectorAll('[data-lang]').forEach(el => {
+                if (el.getAttribute('data-lang') === lang) {
+                    el.style.display = 'block';
+                } else {
+                    el.style.display = 'none';
+                }
+            });
+            document.getElementById('video-search').style.display = lang === 'en' ? 'block' : 'none';
+            document.getElementById('video-search-hi').style.display = lang === 'hi' ? 'block' : 'none';
+        }
+
+        // Apply saved language on load
+        (function(){
+            const saved = localStorage.getItem('preferredLanguage');
+            if (saved) {
+                languageSelector.value = saved;
+                changeLanguage(saved);
+            }
+        })();
+
+        // Search functionality
+        document.getElementById('video-search').addEventListener('keyup', filterVideos);
+        document.getElementById('video-search-hi').addEventListener('keyup', filterVideos);
+
+        function filterVideos(event) {
+            const searchTerm = event.target.value.toLowerCase();
+            const videoItems = document.querySelectorAll('.video-item');
+            videoItems.forEach(item => {
+                const tags = item.getAttribute('data-tags').toLowerCase();
+                const titleEn = item.querySelector('h4[data-lang="en"]').innerText.toLowerCase();
+                const titleHi = item.querySelector('h4[data-lang="hi"]').innerText.toLowerCase();
+                const descEn = item.querySelector('p[data-lang="en"]').innerText.toLowerCase();
+                const descHi = item.querySelector('p[data-lang="hi"]').innerText.toLowerCase();
+                
+                if (tags.includes(searchTerm) || titleEn.includes(searchTerm) || titleHi.includes(searchTerm) || 
+                    descEn.includes(searchTerm) || descHi.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        // Category filter functionality
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        categoryButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                categoryButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                const category = this.getAttribute('data-category');
+                filterByCategory(category);
+            });
+        });
+        
+        function filterByCategory(category) {
+            const videoItems = document.querySelectorAll('.video-item');
+            videoItems.forEach(item => {
+                if (category === 'all' || item.getAttribute('data-category') === category) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        // Initialize language on page load
+        changeLanguage('en');
+    </script>
+</body>
+</html>

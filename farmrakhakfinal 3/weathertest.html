@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanpur 7-Day Temperature</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .temp-bar { transition: all 0.5s ease-in-out; }
+        .weather-card { animation: slideIn 0.6s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen p-4">
+    <div class="max-w-4xl mx-auto">
+        <!-- Temperature Widget -->
+        <div id="temperatureWidget" class="bg-white rounded-xl shadow-lg p-6">
+            <div class="flex items-center justify-between mb-6">
+                <div class="flex items-center space-x-3">
+                    <span class="text-3xl">🌡️</span>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Kanpur Weather</h2>
+                        <p class="text-gray-600">7-Day Temperature Forecast</p>
+                    </div>
+                </div>
+                <button id="refreshBtn" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2">
+                    <span>🔄</span>
+                    <span>Refresh</span>
+                </button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="text-center py-8">
+                <div class="animate-spin text-4xl mb-4">🌀</div>
+                <p class="text-gray-600">Loading weather data...</p>
+            </div>
+
+            <!-- Weather Data -->
+            <div id="weatherData" class="hidden">
+                <!-- Current Weather -->
+                <div id="currentWeather" class="bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-lg p-4 mb-6">
+                    <!-- Current weather will be populated here -->
+                </div>
+
+                <!-- 7-Day Forecast -->
+                <div class="grid grid-cols-1 md:grid-cols-7 gap-3">
+                    <div id="forecastContainer">
+                        <!-- Forecast cards will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Temperature Chart -->
+                <div class="mt-6 bg-gray-50 rounded-lg p-4">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Temperature Trend</h3>
+                    <div id="temperatureChart" class="relative h-32">
+                        <!-- Temperature bars will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="text-center py-8 hidden">
+                <span class="text-4xl mb-4 block">⚠️</span>
+                <p class="text-red-600 font-medium">Failed to load weather data</p>
+                <p class="text-gray-600 text-sm mt-2">Please check your connection and try again</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const OPENWEATHER_API_KEY = "1054194b19be2ee77212f297143cd1bd";
+        const GEMINI_API_KEY = "AIzaSyClic_G3hl5cgL8uCXq0zD8pE3tpAKw4mM";
+        const GEMINI_API_URL_TEXT_IMAGE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + GEMINI_API_KEY;
+        const GEMINI_API_URL_TEXT = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + GEMINI_API_KEY;
+
+        const KANPUR_COORDS = { lat: 26.4499, lon: 80.3319 };
+
+        async function fetchWeatherData() {
+            try {
+                showLoading();
+                
+                // Fetch current weather
+                const currentResponse = await fetch(
+                    `https://api.openweathermap.org/data/2.5/weather?lat=${KANPUR_COORDS.lat}&lon=${KANPUR_COORDS.lon}&appid=${OPENWEATHER_API_KEY}&units=metric`
+                );
+                const currentData = await currentResponse.json();
+
+                // Fetch 7-day forecast
+                const forecastResponse = await fetch(
+                    `https://api.openweathermap.org/data/2.5/forecast?lat=${KANPUR_COORDS.lat}&lon=${KANPUR_COORDS.lon}&appid=${OPENWEATHER_API_KEY}&units=metric`
+                );
+                const forecastData = await forecastResponse.json();
+
+                if (currentResponse.ok && forecastResponse.ok) {
+                    displayWeatherData(currentData, forecastData);
+                } else {
+                    showError();
+                }
+            } catch (error) {
+                console.error('Error fetching weather data:', error);
+                showError();
+            }
+        }
+
+        function showLoading() {
+            document.getElementById('loadingState').classList.remove('hidden');
+            document.getElementById('weatherData').classList.add('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+        }
+
+        function showError() {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('weatherData').classList.add('hidden');
+            document.getElementById('errorState').classList.remove('hidden');
+        }
+
+        function displayWeatherData(current, forecast) {
+            document.getElementById('loadingState').classList.add('hidden');
+            document.getElementById('errorState').classList.add('hidden');
+            document.getElementById('weatherData').classList.remove('hidden');
+
+            // Display current weather
+            displayCurrentWeather(current);
+
+            // Process and display 7-day forecast
+            const dailyForecasts = processForecastData(forecast);
+            displayForecast(dailyForecasts);
+            displayTemperatureChart(dailyForecasts);
+        }
+
+        function displayCurrentWeather(data) {
+            const container = document.getElementById('currentWeather');
+            const temp = Math.round(data.main.temp);
+            const feelsLike = Math.round(data.main.feels_like);
+            const description = data.weather[0].description;
+            const icon = getWeatherIcon(data.weather[0].main);
+
+            container.innerHTML = `
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <span class="text-5xl">${icon}</span>
+                        <div>
+                            <h3 class="text-2xl font-bold">${temp}°C</h3>
+                            <p class="text-blue-100 capitalize">${description}</p>
+                            <p class="text-blue-200 text-sm">Feels like ${feelsLike}°C</p>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-blue-100 text-sm">Humidity: ${data.main.humidity}%</p>
+                        <p class="text-blue-100 text-sm">Wind: ${Math.round(data.wind.speed * 3.6)} km/h</p>
+                        <p class="text-blue-100 text-sm">Pressure: ${data.main.pressure} hPa</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function processForecastData(forecast) {
+            const dailyData = {};
+            
+            forecast.list.forEach(item => {
+                const date = new Date(item.dt * 1000);
+                const dateKey = date.toDateString();
+                
+                if (!dailyData[dateKey]) {
+                    dailyData[dateKey] = {
+                        date: date,
+                        temps: [],
+                        weather: item.weather[0],
+                        humidity: item.main.humidity,
+                        windSpeed: item.wind.speed
+                    };
+                }
+                
+                dailyData[dateKey].temps.push(item.main.temp);
+            });
+
+            // Convert to array and get first 7 days
+            return Object.values(dailyData).slice(0, 7).map(day => ({
+                date: day.date,
+                minTemp: Math.round(Math.min(...day.temps)),
+                maxTemp: Math.round(Math.max(...day.temps)),
+                avgTemp: Math.round(day.temps.reduce((a, b) => a + b, 0) / day.temps.length),
+                weather: day.weather,
+                humidity: day.humidity,
+                windSpeed: day.windSpeed
+            }));
+        }
+
+        function displayForecast(dailyForecasts) {
+            const container = document.getElementById('forecastContainer');
+            
+            container.innerHTML = dailyForecasts.map((day, index) => {
+                const dayName = index === 0 ? 'Today' : day.date.toLocaleDateString('en-US', { weekday: 'short' });
+                const icon = getWeatherIcon(day.weather.main);
+                
+                return `
+                    <div class="weather-card bg-white border border-gray-200 rounded-lg p-3 text-center hover:shadow-md transition-shadow" style="animation-delay: ${index * 0.1}s">
+                        <p class="text-sm font-medium text-gray-600 mb-2">${dayName}</p>
+                        <span class="text-2xl mb-2 block">${icon}</span>
+                        <div class="space-y-1">
+                            <p class="text-lg font-bold text-gray-800">${day.maxTemp}°</p>
+                            <p class="text-sm text-gray-500">${day.minTemp}°</p>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 capitalize">${day.weather.description}</p>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function displayTemperatureChart(dailyForecasts) {
+            const container = document.getElementById('temperatureChart');
+            const maxTemp = Math.max(...dailyForecasts.map(d => d.maxTemp));
+            const minTemp = Math.min(...dailyForecasts.map(d => d.minTemp));
+            const tempRange = maxTemp - minTemp;
+
+            container.innerHTML = `
+                <div class="flex items-end justify-between h-full space-x-1">
+                    ${dailyForecasts.map((day, index) => {
+                        const heightPercent = tempRange > 0 ? ((day.avgTemp - minTemp) / tempRange) * 100 : 50;
+                        const dayName = index === 0 ? 'Today' : day.date.toLocaleDateString('en-US', { weekday: 'short' });
+                        
+                        return `
+                            <div class="flex-1 flex flex-col items-center">
+                                <div class="text-xs font-medium text-gray-600 mb-1">${day.avgTemp}°</div>
+                                <div class="temp-bar bg-gradient-to-t from-blue-500 to-blue-300 rounded-t w-full relative" 
+                                     style="height: ${Math.max(heightPercent, 10)}%; min-height: 20px;"
+                                     title="${dayName}: ${day.avgTemp}°C">
+                                </div>
+                                <div class="text-xs text-gray-500 mt-1">${dayName}</div>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+                <div class="flex justify-between text-xs text-gray-400 mt-2">
+                    <span>Min: ${minTemp}°C</span>
+                    <span>Max: ${maxTemp}°C</span>
+                </div>
+            `;
+        }
+
+        function getWeatherIcon(weatherMain) {
+            const icons = {
+                'Clear': '☀️',
+                'Clouds': '☁️',
+                'Rain': '🌧️',
+                'Drizzle': '🌦️',
+                'Thunderstorm': '⛈️',
+                'Snow': '❄️',
+                'Mist': '🌫️',
+                'Smoke': '🌫️',
+                'Haze': '🌫️',
+                'Dust': '🌫️',
+                'Fog': '🌫️',
+                'Sand': '🌫️',
+                'Ash': '🌫️',
+                'Squall': '💨',
+                'Tornado': '🌪️'
+            };
+            return icons[weatherMain] || '🌤️';
+        }
+
+        // Event listeners
+        document.getElementById('refreshBtn').addEventListener('click', fetchWeatherData);
+
+        // Initialize
+        fetchWeatherData();
+
+        // Auto-refresh every 10 minutes
+        setInterval(fetchWeatherData, 10 * 60 * 1000);
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'97c771a4d6125495',t:'MTc1NzQyODg2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
