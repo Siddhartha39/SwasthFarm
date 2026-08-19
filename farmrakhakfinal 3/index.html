@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwasthFarm - Multi-Species Livestock Health & Disease Surveillance Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .animal-chip { transition: all 0.2s ease; }
+        .animal-chip.active { border-color: #10b981; background-color: #ecfdf5; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased">
+
+    <!-- Top Alert Banner with Location Indicator -->
+    <div class="bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 text-white py-2 px-4 text-xs font-medium shadow-sm flex items-center justify-between">
+        <div class="flex items-center gap-2 max-w-4xl mx-auto text-center justify-center">
+            <span class="bg-amber-400 text-amber-950 px-2 py-0.5 rounded-full text-[10px] font-black uppercase">National Advisory</span>
+            <span data-lang="en">Multi-Livestock Surveillance: Seasonal alerts active for Cattle (LSD/FMD), Swine (ASF), and Poultry (ND).</span>
+            <span data-lang="hi" style="display: none;">पशुधन निगरानी: मवेशी (LSD/FMD), सुअर (ASF), एवं पोल्ट्री (रानीखेत) हेतु सतर्कता सक्रिय।</span>
+        </div>
+        <!-- Location badge in header -->
+        <button onclick="openLocationModal()" class="hidden md:flex items-center gap-1.5 px-2.5 py-1 bg-white/10 hover:bg-white/20 rounded-lg text-xs font-bold border border-white/20 transition">
+            <i class="fas fa-map-marker-alt text-amber-300"></i>
+            <span id="topLocationLabel">Kanpur, UP</span>
+            <i class="fas fa-chevron-down text-[10px] text-slate-300"></i>
+        </button>
+    </div>
+
+    <!-- Main Navigation Header -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="index.html" class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-white text-2xl shadow-md">
+                    🐾
+                </div>
+                <div>
+                    <span class="text-2xl font-black tracking-tight text-slate-900 flex items-center gap-1.5">
+                        Swasth<span class="text-emerald-600">Farm</span>
+                    </span>
+                    <p class="text-xs text-slate-500 font-medium -mt-1" data-lang="en">Livestock Health, Dairy & Disease Surveillance</p>
+                    <p class="text-xs text-slate-500 font-medium -mt-1" data-lang="hi" style="display: none;">पशु स्वास्थ्य, डेयरी व रोग निगरानी मंच</p>
+                </div>
+            </a>
+
+            <!-- Desktop Nav Links -->
+            <nav class="hidden md:flex items-center gap-7 text-sm font-semibold text-slate-600">
+                <a href="#species" class="hover:text-emerald-600 transition" data-lang="en">Livestock Species</a>
+                <a href="#species" class="hover:text-emerald-600 transition" data-lang="hi" style="display: none;">पशुधन श्रेणियां</a>
+
+                <a href="dashboard.html" class="hover:text-emerald-600 transition" data-lang="en">Dashboard</a>
+                <a href="dashboard.html" class="hover:text-emerald-600 transition" data-lang="hi" style="display: none;">डैशबोर्ड</a>
+
+                <a href="weather.html" class="hover:text-emerald-600 transition" data-lang="en">Weather & THI Risk</a>
+                <a href="weather.html" class="hover:text-emerald-600 transition" data-lang="hi" style="display: none;">मौसम व THI जोखिम</a>
+
+                <a href="digitalrecord.html" class="hover:text-emerald-600 transition" data-lang="en">Digital Register</a>
+                <a href="digitalrecord.html" class="hover:text-emerald-600 transition" data-lang="hi" style="display: none;">डिजिटल रजिस्टर</a>
+
+                <a href="government.html" class="hover:text-emerald-600 transition text-amber-700 flex items-center gap-1">
+                    <span>🇮🇳</span>
+                    <span data-lang="en">National GIS Map</span>
+                    <span data-lang="hi" style="display: none;">राष्ट्रीय रोग नक्शा</span>
+                </a>
+            </nav>
+
+            <!-- Actions & Language Switcher -->
+            <div class="flex items-center gap-3">
+                <select id="globalLangSelector" class="bg-slate-100 text-slate-700 text-xs md:text-sm font-medium rounded-lg px-2.5 py-1.5 border border-slate-300 outline-none">
+                    <option value="en">🌐 English</option>
+                    <option value="hi">🌐 हिंदी (Hindi)</option>
+                    <option value="pa">🌐 ਪੰਜਾਬੀ (Punjabi)</option>
+                    <option value="bn">🌐 বাংলা (Bengali)</option>
+                </select>
+
+                <button onclick="openAuthModal('farmer')" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-lg shadow-sm hover:shadow transition flex items-center gap-2">
+                    <i class="fas fa-user-circle"></i>
+                    <span data-lang="en">Farmer Login</span>
+                    <span data-lang="hi" style="display: none;">किसान लॉगिन</span>
+                </button>
+
+                <button onclick="openAuthModal('government')" class="hidden sm:inline-flex bg-slate-800 hover:bg-slate-900 text-white text-xs md:text-sm font-bold px-3.5 py-2 rounded-lg transition items-center gap-1.5 border border-slate-700">
+                    <i class="fas fa-shield-alt text-amber-400"></i>
+                    <span data-lang="en">Govt Portal</span>
+                    <span data-lang="hi" style="display: none;">सरकारी पोर्टल</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative overflow-hidden bg-gradient-to-b from-emerald-950 via-teal-900 to-slate-900 text-white pt-14 pb-20 md:pt-20 md:pb-28">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                
+                <!-- Hero Left Content -->
+                <div class="lg:col-span-7 space-y-6 text-center lg:text-left">
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-800/80 border border-emerald-500/30 text-emerald-300 text-xs font-semibold">
+                        <span class="flex h-2 w-2 rounded-full bg-emerald-400 animate-ping"></span>
+                        <span data-lang="en">AI Veterinary Diagnostics for Cow, Buffalo, Pig & Poultry</span>
+                        <span data-lang="hi" style="display: none;">गाय, भैंस, सुअर व मुर्गी हेतु एआई पशु चिकित्सा मंच</span>
+                    </div>
+
+                    <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight text-white leading-tight">
+                        <span data-lang="en">Smart Livestock Health & Outbreak Intelligence</span>
+                        <span data-lang="hi" style="display: none;">उन्नत पशु स्वास्थ्य एवं महामारी रोकथाम प्रणाली</span>
+                    </h1>
+
+                    <p class="text-sm sm:text-base text-emerald-100/90 max-w-2xl font-normal leading-relaxed">
+                        <span data-lang="en">
+                            Empowering Indian farmers with species-specific dashboards: Dairy milk yield & mastitis management for Cows & Buffaloes, growth FCR & African Swine Fever monitoring for Pigs, and flock biosecurity for Poultry.
+                        </span>
+                        <span data-lang="hi" style="display: none;">
+                            भारतीय पशुपालकों के लिए पशु-विशिष्ट डैशबोर्ड: गाय व भैंस हेतु दूध उत्पादन व थनैला प्रबंधन, सुअर हेतु विकास दर व स्वाइन फीवर निगरानी, और मुर्गी पालन हेतु जैव सुरक्षा।
+                        </span>
+                    </p>
+
+                    <!-- Species Selector Pills in Hero -->
+                    <div class="pt-2">
+                        <p class="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2.5" data-lang="en">Select Your Livestock To Begin:</p>
+                        <p class="text-xs text-emerald-300 font-bold uppercase tracking-wider mb-2.5" data-lang="hi" style="display: none;">शुरू करने के लिए अपना पशु चुनें:</p>
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 max-w-xl mx-auto lg:mx-0">
+                            <button onclick="quickSelectAnimal('cow')" class="p-3 bg-white/10 hover:bg-emerald-600/60 border border-white/20 rounded-xl text-left transition flex items-center gap-2">
+                                <span class="text-2xl">🐄</span>
+                                <div>
+                                    <div class="text-xs font-bold">Cow / गाय</div>
+                                    <div class="text-[10px] text-emerald-200">Dairy / Milk</div>
+                                </div>
+                            </button>
+                            <button onclick="quickSelectAnimal('buffalo')" class="p-3 bg-white/10 hover:bg-emerald-600/60 border border-white/20 rounded-xl text-left transition flex items-center gap-2">
+                                <span class="text-2xl">🐃</span>
+                                <div>
+                                    <div class="text-xs font-bold">Buffalo / भैंस</div>
+                                    <div class="text-[10px] text-emerald-200">High Fat Milk</div>
+                                </div>
+                            </button>
+                            <button onclick="quickSelectAnimal('pig')" class="p-3 bg-white/10 hover:bg-emerald-600/60 border border-white/20 rounded-xl text-left transition flex items-center gap-2">
+                                <span class="text-2xl">🐖</span>
+                                <div>
+                                    <div class="text-xs font-bold">Pig / सुअर</div>
+                                    <div class="text-[10px] text-emerald-200">Growth / Swine</div>
+                                </div>
+                            </button>
+                            <button onclick="quickSelectAnimal('poultry')" class="p-3 bg-white/10 hover:bg-emerald-600/60 border border-white/20 rounded-xl text-left transition flex items-center gap-2">
+                                <span class="text-2xl">🐔</span>
+                                <div>
+                                    <div class="text-xs font-bold">Poultry / मुर्गी</div>
+                                    <div class="text-[10px] text-emerald-200">Broiler / Layer</div>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- CTAs -->
+                    <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-4">
+                        <button onclick="openAuthModal('farmer')" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white font-bold text-sm px-7 py-3.5 rounded-xl shadow-lg shadow-emerald-500/25 transition transform hover:-translate-y-0.5 flex items-center justify-center gap-2">
+                            <span>🚀</span>
+                            <span data-lang="en">Launch Farmer Portal</span>
+                            <span data-lang="hi" style="display: none;">किसान पोर्टल खोलें</span>
+                        </button>
+                        <button onclick="openLocationModal()" class="w-full sm:w-auto bg-white/10 hover:bg-white/20 text-white border border-white/20 font-semibold text-sm px-6 py-3.5 rounded-xl backdrop-blur transition flex items-center justify-center gap-2">
+                            <span>📍</span>
+                            <span id="heroLocationBtnText">Set Farm Location</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hero Right Interactive Livestock Health Card -->
+                <div class="lg:col-span-5">
+                    <div class="bg-white rounded-2xl shadow-2xl p-6 text-slate-800 border border-slate-100 relative">
+                        <div class="flex items-center justify-between border-b pb-4 mb-4">
+                            <div class="flex items-center gap-2">
+                                <span class="text-2xl" id="heroCardEmoji">🐄</span>
+                                <div>
+                                    <h3 class="text-base font-bold text-slate-900" id="heroCardTitle">Dairy Cattle Health Index</h3>
+                                    <p class="text-[11px] text-slate-500" id="heroCardSub">Location: Kanpur, UP (THI: 74)</p>
+                                </div>
+                            </div>
+                            <span class="badge badge-green">Live Telemetry</span>
+                        </div>
+
+                        <!-- Interactive Preview Box -->
+                        <div class="space-y-3">
+                            <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                                <div class="flex justify-between text-xs font-bold text-emerald-900 mb-1">
+                                    <span>🌡️ Temperature-Humidity Index (THI)</span>
+                                    <span class="text-emerald-700">74 (Moderate)</span>
+                                </div>
+                                <p class="text-[11px] text-emerald-800 leading-snug">
+                                    Normal comfort zone is THI &lt; 72. Current humidity causes mild heat stress. Maintain sprinkler cooling in dairy shed.
+                                </p>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-2 text-xs">
+                                <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                                    <span class="text-slate-500 block text-[10px] font-bold uppercase">Expected Avg Yield</span>
+                                    <span class="text-lg font-black text-slate-800">18.5 L/day</span>
+                                </div>
+                                <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-xl">
+                                    <span class="text-slate-500 block text-[10px] font-bold uppercase">Next Vaccine</span>
+                                    <span class="text-lg font-black text-emerald-600">FMD Booster</span>
+                                </div>
+                            </div>
+
+                            <button onclick="openAuthModal('farmer')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shadow-sm flex items-center justify-center gap-2">
+                                <i class="fas fa-play"></i>
+                                <span>Open Full Multi-Species Dashboard</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- 4 Species Features Section -->
+    <section id="species" class="py-16 bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12">
+                <span class="badge badge-green text-xs uppercase font-bold px-3 py-1">Comprehensive Livestock Coverage</span>
+                <h2 class="text-3xl font-extrabold text-slate-900 mt-3 mb-2">Dedicated Intelligence for Every Livestock Type</h2>
+                <p class="text-xs sm:text-sm text-slate-600">Tailored biosecurity protocols, vaccine timetables, disease diagnostics, and yield tracking.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Species 1: Cow -->
+                <div class="p-6 bg-slate-50 hover:bg-emerald-50/40 rounded-2xl border border-slate-200 transition duration-300 hover:shadow-lg">
+                    <div class="text-4xl mb-4">🐄</div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Cow / Dairy Cattle</h3>
+                    <p class="text-xs text-emerald-700 font-semibold mb-3">Gir, Sahiwal, Crossbred HF, Jersey</p>
+                    <ul class="text-xs text-slate-600 space-y-1.5 mb-4 list-disc list-inside">
+                        <li>Daily milk yield & fat % tracking</li>
+                        <li>Mastitis & Somatic cell risk alerts</li>
+                        <li>Lumpy Skin Disease (LSD) AI scanner</li>
+                        <li>FMD & HS/BQ vaccination calendar</li>
+                    </ul>
+                    <button onclick="quickSelectAnimal('cow')" class="w-full py-2 bg-white hover:bg-emerald-600 hover:text-white border border-slate-300 text-slate-800 rounded-lg text-xs font-bold transition">
+                        Select Cow &rarr;
+                    </button>
+                </div>
+
+                <!-- Species 2: Buffalo -->
+                <div class="p-6 bg-slate-50 hover:bg-emerald-50/40 rounded-2xl border border-slate-200 transition duration-300 hover:shadow-lg">
+                    <div class="text-4xl mb-4">🐃</div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Buffalo Dairy</h3>
+                    <p class="text-xs text-emerald-700 font-semibold mb-3">Murrah, Nili-Ravi, Jaffarabadi</p>
+                    <ul class="text-xs text-slate-600 space-y-1.5 mb-4 list-disc list-inside">
+                        <li>High Fat (7-8%) milk bookkeeping</li>
+                        <li>Silent heat / estrus detection</li>
+                        <li>Wallowing & heat stress control</li>
+                        <li>Haemorrhagic Septicaemia (HS) warnings</li>
+                    </ul>
+                    <button onclick="quickSelectAnimal('buffalo')" class="w-full py-2 bg-white hover:bg-emerald-600 hover:text-white border border-slate-300 text-slate-800 rounded-lg text-xs font-bold transition">
+                        Select Buffalo &rarr;
+                    </button>
+                </div>
+
+                <!-- Species 3: Pig -->
+                <div class="p-6 bg-slate-50 hover:bg-emerald-50/40 rounded-2xl border border-slate-200 transition duration-300 hover:shadow-lg">
+                    <div class="text-4xl mb-4">🐖</div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Pig / Swine Farm</h3>
+                    <p class="text-xs text-emerald-700 font-semibold mb-3">Large White Yorkshire, Landrace, Desi</p>
+                    <ul class="text-xs text-slate-600 space-y-1.5 mb-4 list-disc list-inside">
+                        <li>Average Daily Gain (ADG) calculation</li>
+                        <li>Piglet litter size & farrowing log</li>
+                        <li>African Swine Fever (ASF) diagnostics</li>
+                        <li>Iron injection & CSF vaccine log</li>
+                    </ul>
+                    <button onclick="quickSelectAnimal('pig')" class="w-full py-2 bg-white hover:bg-emerald-600 hover:text-white border border-slate-300 text-slate-800 rounded-lg text-xs font-bold transition">
+                        Select Pig &rarr;
+                    </button>
+                </div>
+
+                <!-- Species 4: Poultry -->
+                <div class="p-6 bg-slate-50 hover:bg-emerald-50/40 rounded-2xl border border-slate-200 transition duration-300 hover:shadow-lg">
+                    <div class="text-4xl mb-4">🐔</div>
+                    <h3 class="text-lg font-bold text-slate-900 mb-1">Poultry / Hen</h3>
+                    <p class="text-xs text-emerald-700 font-semibold mb-3">Broiler, Layer, Country / Kadaknath</p>
+                    <ul class="text-xs text-slate-600 space-y-1.5 mb-4 list-disc list-inside">
+                        <li>Automated FCR (Feed Conversion Ratio)</li>
+                        <li>Daily egg collection & mortality %</li>
+                        <li>Coccidiosis & Ranikhet AI detector</li>
+                        <li>LaSota & IBD vaccine timetable</li>
+                    </ul>
+                    <button onclick="quickSelectAnimal('poultry')" class="w-full py-2 bg-white hover:bg-emerald-600 hover:text-white border border-slate-300 text-slate-800 rounded-lg text-xs font-bold transition">
+                        Select Poultry &rarr;
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-10 border-t border-slate-800 text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+            <div class="flex items-center justify-center gap-2 text-white font-bold text-lg">
+                <span>🐾</span> <span>SwasthFarm</span>
+            </div>
+            <p class="max-w-xl mx-auto text-slate-400">
+                A Unified Digital Health, Dairy Intelligence & Epidemic Surveillance Platform for Indian Dairy Cattle, Buffalo, Swine, and Poultry Farmers.
+            </p>
+            <p class="text-slate-500">© 2026 SwasthFarm. Animal Husbandry & Veterinary Surveillance Mission.</p>
+        </div>
+    </footer>
+
+    <!-- LOCATION SELECTION ONBOARDING MODAL -->
+    <div id="locationModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6 space-y-5 border border-slate-100">
+            <div class="flex items-center justify-between border-b pb-3">
+                <div class="flex items-center gap-2">
+                    <span class="text-2xl">📍</span>
+                    <h3 class="text-base font-bold text-slate-900">Set Farm Location</h3>
+                </div>
+                <button onclick="closeLocationModal()" class="text-slate-400 hover:text-slate-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-600">
+                Weather, Temperature-Humidity Index (THI), and disease risk warnings will be customized for your farm district:
+            </p>
+
+            <button onclick="detectGPSAndSave()" class="w-full py-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl border border-emerald-200 text-xs flex items-center justify-center gap-2 transition">
+                <i class="fas fa-crosshairs text-emerald-600"></i>
+                <span>Use Live GPS Location</span>
+            </button>
+
+            <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1">Or Select Major Agro-Dairy Hub</label>
+                <select id="onboardLocationSelect" class="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg text-xs font-bold text-slate-800 outline-none">
+                    <option value="Kanpur, Uttar Pradesh">Kanpur, Uttar Pradesh (Central UP)</option>
+                    <option value="Karnal, Haryana">Karnal, Haryana (NDRI Dairy Hub)</option>
+                    <option value="Anand, Gujarat">Anand, Gujarat (Amul Dairy Hub)</option>
+                    <option value="Pune, Maharashtra">Pune / Baramati, Maharashtra</option>
+                    <option value="Namakkal, Tamil Nadu">Namakkal, Tamil Nadu (Egg/Poultry Hub)</option>
+                    <option value="Ludhiana, Punjab">Ludhiana, Punjab (PAU Dairy Region)</option>
+                    <option value="Bareilly, Uttar Pradesh">Bareilly, UP (IVRI Veterinary Hub)</option>
+                    <option value="Hyderabad, Telangana">Hyderabad / Warangal, Telangana</option>
+                    <option value="Varanasi, Uttar Pradesh">Varanasi, Eastern UP</option>
+                    <option value="Patna, Bihar">Patna, Bihar</option>
+                </select>
+            </div>
+
+            <button onclick="saveLocationSelection()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs transition shadow-sm">
+                Confirm Location & Continue
+            </button>
+        </div>
+    </div>
+
+    <!-- UNIFIED AUTHENTICATION MODAL (WITH ANIMAL PICKER) -->
+    <div id="authModal" class="fixed inset-0 z-50 bg-slate-900/80 backdrop-blur-sm hidden items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full overflow-hidden border border-slate-100 animate-in fade-in zoom-in duration-200">
+            
+            <!-- Modal Header -->
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 p-5 text-white text-center relative">
+                <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-emerald-100 hover:text-white text-xl">
+                    <i class="fas fa-times"></i>
+                </button>
+                <div class="text-3xl mb-1" id="authHeaderEmoji">🐾</div>
+                <h3 class="text-xl font-bold">SwasthFarm Portal Login</h3>
+                <p class="text-xs text-emerald-100">Live Dashboard & Veterinary Intelligence</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-bold text-slate-600">
+                <button id="tabFarmerBtn" onclick="switchAuthTab('farmer')" class="flex-1 py-3 border-b-2 border-emerald-600 text-emerald-700 bg-white transition flex items-center justify-center gap-2">
+                    <i class="fas fa-tractor"></i> <span>Farmer Login</span>
+                </button>
+                <button id="tabGovtBtn" onclick="switchAuthTab('government')" class="flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center justify-center gap-2">
+                    <i class="fas fa-shield-alt text-amber-500"></i> <span>Government</span>
+                </button>
+            </div>
+
+            <!-- Tab 1: Farmer Signup/Login with Animal Selector -->
+            <div id="farmerAuthPanel" class="p-6 space-y-4">
+                
+                <!-- Animal Type Choice Grid -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1.5">Select Primary Animal / Livestock</label>
+                    <div class="grid grid-cols-4 gap-2">
+                        <button type="button" onclick="setAuthAnimal('cow')" id="authAnim-cow" class="animal-chip p-2 rounded-xl border-2 border-emerald-600 bg-emerald-50 text-center active">
+                            <span class="text-xl block">🐄</span>
+                            <span class="text-[10px] font-bold">Cow</span>
+                        </button>
+                        <button type="button" onclick="setAuthAnimal('buffalo')" id="authAnim-buffalo" class="animal-chip p-2 rounded-xl border-2 border-slate-200 text-center">
+                            <span class="text-xl block">🐃</span>
+                            <span class="text-[10px] font-bold">Buffalo</span>
+                        </button>
+                        <button type="button" onclick="setAuthAnimal('pig')" id="authAnim-pig" class="animal-chip p-2 rounded-xl border-2 border-slate-200 text-center">
+                            <span class="text-xl block">🐖</span>
+                            <span class="text-[10px] font-bold">Pig</span>
+                        </button>
+                        <button type="button" onclick="setAuthAnimal('poultry')" id="authAnim-poultry" class="animal-chip p-2 rounded-xl border-2 border-slate-200 text-center">
+                            <span class="text-xl block">🐔</span>
+                            <span class="text-[10px] font-bold">Poultry</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Mobile Number (India)</label>
+                    <div class="relative">
+                        <span class="absolute left-3 top-2.5 text-xs font-bold text-slate-400">+91</span>
+                        <input type="tel" id="farmerPhone" placeholder="9876543210" value="9876543210" maxlength="10" class="w-full pl-10 pr-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Herd / Flock Size</label>
+                        <input type="number" id="farmerHerdSize" value="25" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">District / Hub</label>
+                        <select id="farmerLocationInput" class="w-full p-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold text-slate-800 outline-none">
+                            <option value="Kanpur, UP" selected>Kanpur, UP</option>
+                            <option value="Karnal, Haryana">Karnal, HR</option>
+                            <option value="Anand, Gujarat">Anand, GJ</option>
+                            <option value="Pune, Maharashtra">Pune, MH</option>
+                            <option value="Namakkal, Tamil Nadu">Namakkal, TN</option>
+                            <option value="Ludhiana, Punjab">Ludhiana, PB</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="p-2.5 bg-emerald-50 border border-emerald-200 rounded-lg text-[11px] text-emerald-800 flex items-center gap-2">
+                    <span>⚡</span>
+                    <span>1-Click Instant Login. Dashboard will adapt to your selected animal & location.</span>
+                </div>
+
+                <button onclick="handleFarmerLogin()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs shadow transition flex items-center justify-center gap-2">
+                    <span>🚀</span> <span>Open Customized Dashboard</span>
+                </button>
+            </div>
+
+            <!-- Tab 2: Government Portal Login Form -->
+            <div id="govtAuthPanel" class="p-6 space-y-4 hidden text-xs">
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 flex items-center gap-2 font-medium">
+                    <span class="text-base">🛡️</span>
+                    <span>Official Disease Surveillance Access. Demo: <code>government</code> / <code>psit</code></span>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Official Username</label>
+                    <input type="text" id="govtUsername" value="government" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 mb-1">Security Code / Password</label>
+                    <input type="password" id="govtPassword" value="psit" class="w-full px-3 py-2 bg-slate-50 border border-slate-300 rounded-lg text-xs font-semibold">
+                </div>
+
+                <button onclick="handleGovtLogin()" class="w-full py-3 bg-slate-800 hover:bg-slate-900 text-white font-bold rounded-xl text-xs transition flex items-center justify-center gap-2 shadow">
+                    <span>🔐</span> <span>Access Surveillance Portal</span>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        let chosenAnimal = localStorage.getItem('swasthFarmAnimal') || 'cow';
+        let savedLoc = localStorage.getItem('userLocation') || 'Kanpur, Uttar Pradesh';
+
+        // Update top location label
+        function refreshLocationUI() {
+            document.getElementById('topLocationLabel').textContent = savedLoc.split(',')[0];
+            document.getElementById('heroLocationBtnText').textContent = `Location: ${savedLoc.split(',')[0]}`;
+        }
+        refreshLocationUI();
+
+        // Location Modal
+        function openLocationModal() {
+            document.getElementById('locationModal').classList.remove('hidden');
+            document.getElementById('locationModal').classList.add('flex');
+        }
+
+        function closeLocationModal() {
+            document.getElementById('locationModal').classList.add('hidden');
+            document.getElementById('locationModal').classList.remove('flex');
+        }
+
+        function saveLocationSelection() {
+            const loc = document.getElementById('onboardLocationSelect').value;
+            savedLoc = loc;
+            localStorage.setItem('userLocation', loc);
+            refreshLocationUI();
+            closeLocationModal();
+            alert(`✅ Farm Location updated to ${loc}! Regional weather & THI risks calibrated.`);
+        }
+
+        function detectGPSAndSave() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        savedLoc = `Farm Zone (${pos.coords.latitude.toFixed(2)}°N, ${pos.coords.longitude.toFixed(2)}°E)`;
+                        localStorage.setItem('userLocation', savedLoc);
+                        refreshLocationUI();
+                        closeLocationModal();
+                        alert(`✅ GPS Location acquired! Weather calibrated.`);
+                    },
+                    () => {
+                        saveLocationSelection();
+                    }
+                );
+            }
+        }
+
+        // Animal Selector
+        function setAuthAnimal(animal) {
+            chosenAnimal = animal;
+            ['cow', 'buffalo', 'pig', 'poultry'].forEach(a => {
+                const btn = document.getElementById(`authAnim-${a}`);
+                if (btn) {
+                    if (a === animal) {
+                        btn.className = 'animal-chip p-2 rounded-xl border-2 border-emerald-600 bg-emerald-50 text-center active';
+                    } else {
+                        btn.className = 'animal-chip p-2 rounded-xl border-2 border-slate-200 text-center';
+                    }
+                }
+            });
+        }
+
+        function quickSelectAnimal(animal) {
+            chosenAnimal = animal;
+            localStorage.setItem('swasthFarmAnimal', animal);
+            openAuthModal('farmer');
+            setAuthAnimal(animal);
+        }
+
+        // Auth Modal Controls
+        function openAuthModal(tab = 'farmer') {
+            document.getElementById('authModal').classList.remove('hidden');
+            document.getElementById('authModal').classList.add('flex');
+            switchAuthTab(tab);
+            setAuthAnimal(chosenAnimal);
+        }
+
+        function closeAuthModal() {
+            document.getElementById('authModal').classList.add('hidden');
+            document.getElementById('authModal').classList.remove('flex');
+        }
+
+        function switchAuthTab(tab) {
+            const fPanel = document.getElementById('farmerAuthPanel');
+            const gPanel = document.getElementById('govtAuthPanel');
+            const fBtn = document.getElementById('tabFarmerBtn');
+            const gBtn = document.getElementById('tabGovtBtn');
+
+            if (tab === 'farmer') {
+                fPanel.classList.remove('hidden');
+                gPanel.classList.add('hidden');
+                fBtn.className = 'flex-1 py-3 border-b-2 border-emerald-600 text-emerald-700 bg-white transition flex items-center justify-center gap-2';
+                gBtn.className = 'flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center justify-center gap-2';
+            } else {
+                gPanel.classList.remove('hidden');
+                fPanel.classList.add('hidden');
+                gBtn.className = 'flex-1 py-3 border-b-2 border-amber-600 text-amber-700 bg-white transition flex items-center justify-center gap-2';
+                fBtn.className = 'flex-1 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition flex items-center justify-center gap-2';
+            }
+        }
+
+        function handleFarmerLogin() {
+            const phone = document.getElementById('farmerPhone').value.trim() || '9876543210';
+            const herd = document.getElementById('farmerHerdSize').value || '25';
+            const loc = document.getElementById('farmerLocationInput').value;
+
+            const session = {
+                phone: '+91 ' + phone.slice(-10),
+                name: 'Farmer ' + phone.slice(-4),
+                animal: chosenAnimal,
+                herdSize: herd,
+                location: loc,
+                userType: 'farmer',
+                loginTime: new Date().toISOString()
+            };
+
+            localStorage.setItem('swasthFarmUser', JSON.stringify(session));
+            localStorage.setItem('swasthFarmAnimal', chosenAnimal);
+            localStorage.setItem('userLocation', loc);
+            localStorage.setItem('userLoggedIn', 'true');
+
+            window.location.href = 'dashboard.html';
+        }
+
+        function handleGovtLogin() {
+            const user = document.getElementById('govtUsername').value.trim();
+            const pass = document.getElementById('govtPassword').value.trim();
+
+            if (user === 'government' && pass === 'psit') {
+                localStorage.setItem('swasthFarmGovtUser', JSON.stringify({ user: 'government', loginTime: new Date().toISOString() }));
+                localStorage.setItem('userLoggedIn', 'true');
+                window.location.href = 'government.html';
+            } else {
+                alert('Invalid government credentials. Use government / psit');
+            }
+        }
+
+        // Language Switcher
+        const langSel = document.getElementById('globalLangSelector');
+        const sLang = localStorage.getItem('preferredLanguage') || 'en';
+        langSel.value = sLang;
+        function setLang(l) {
+            localStorage.setItem('preferredLanguage', l);
+            document.querySelectorAll('[data-lang]').forEach(el => el.style.display = el.getAttribute('data-lang') === l ? '' : 'none');
+        }
+        langSel.addEventListener('change', (e) => setLang(e.target.value));
+        setLang(sLang);
+
+        // Check if first visit, show location onboarding
+        if (!localStorage.getItem('userLocationSet')) {
+            setTimeout(openLocationModal, 800);
+            localStorage.setItem('userLocationSet', 'true');
+        }
+    </script>
+</body>
+</html>

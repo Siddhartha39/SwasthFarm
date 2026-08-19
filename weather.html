@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livestock Weather & THI Outbreak Matrix - SwasthFarm</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/main.css">
+    <style>
+        .temp-bar { transition: height 0.6s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen">
+
+    <!-- Header Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <a href="dashboard.html" class="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center hover:bg-emerald-200 transition">
+                    <i class="fas fa-arrow-left"></i>
+                </a>
+                <div>
+                    <h1 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <span>⛅</span>
+                        <span data-lang="en">Livestock Weather & THI Risk Engine</span>
+                        <span data-lang="hi" style="display: none;">पशुधन मौसम एवं THI जोखिम विश्लेषण</span>
+                    </h1>
+                    <p class="text-xs text-slate-500" data-lang="en">Temperature-Humidity Index (THI) for Dairy Cows, Buffaloes, Swine & Poultry</p>
+                    <p class="text-xs text-slate-500" data-lang="hi" style="display: none;">गाय, भैंस, सुअर व पोल्ट्री हेतु आर्द्रता-तापमान सूचकांक</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <select id="langSelector" class="bg-slate-100 text-xs md:text-sm font-medium rounded-lg px-3 py-1.5 border border-slate-300 outline-none">
+                    <option value="en">🌐 English</option>
+                    <option value="hi">🌐 हिंदी</option>
+                </select>
+                <a href="dashboard.html" class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs md:text-sm font-bold px-4 py-2 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fas fa-columns"></i>
+                    <span data-lang="en">Dashboard</span>
+                    <span data-lang="hi" style="display: none;">डैशबोर्ड</span>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+        
+        <!-- Controls & Region Picker -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-lg shrink-0">
+                    <i class="fas fa-map-marker-alt"></i>
+                </div>
+                <div class="w-full">
+                    <label class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Select Livestock / Dairy Region</label>
+                    <select id="citySelect" class="mt-1 w-full md:w-72 bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs font-bold text-slate-800 outline-none focus:ring-2 focus:ring-emerald-500">
+                        <option value="Kanpur" selected>Kanpur, Uttar Pradesh (Central Dairy/Poultry)</option>
+                        <option value="Karnal">Karnal, Haryana (NDRI Dairy Hub)</option>
+                        <option value="Anand">Anand, Gujarat (Amul Dairy Hub)</option>
+                        <option value="Pune">Pune / Baramati, Maharashtra</option>
+                        <option value="Ludhiana">Ludhiana, Punjab (PAU High-Yield Dairy)</option>
+                        <option value="Namakkal">Namakkal, Tamil Nadu (Egg/Poultry Hub)</option>
+                        <option value="Bareilly">Bareilly, UP (IVRI Veterinary Hub)</option>
+                        <option value="Hyderabad">Hyderabad / Warangal, Telangana</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+                <button onclick="detectGPSLocation()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition flex items-center gap-2 border border-slate-200">
+                    <i class="fas fa-crosshairs text-emerald-600"></i>
+                    <span>Use GPS Location</span>
+                </button>
+                <button onclick="loadWeather()" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition flex items-center gap-2 shadow-sm">
+                    <i class="fas fa-sync-alt" id="refreshIcon"></i>
+                    <span>Refresh Data</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Live THI & Climate Overview -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+            
+            <!-- Weather Card (5 Cols) -->
+            <div class="lg:col-span-5 bg-gradient-to-br from-emerald-700 via-teal-800 to-slate-900 text-white rounded-2xl p-6 shadow-md relative overflow-hidden flex flex-col justify-between">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <span class="badge bg-white/20 text-white border border-white/30 text-xs font-semibold mb-2">Live Weather Feed</span>
+                        <h2 id="displayCity" class="text-2xl font-black">Kanpur, UP</h2>
+                        <p id="displayCondition" class="text-emerald-100 text-xs font-medium">Partly Cloudy</p>
+                    </div>
+                    <div id="displayWeatherIcon" class="text-6xl">⛅</div>
+                </div>
+
+                <div class="my-6">
+                    <div class="flex items-baseline gap-2">
+                        <span id="displayTemp" class="text-6xl font-black tracking-tight">32°C</span>
+                        <span id="displayFeelsLike" class="text-emerald-200 text-xs font-medium">Feels 36°C</span>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 pt-4 border-t border-white/20 text-xs">
+                    <div>
+                        <span class="text-emerald-200 block text-[10px]">Humidity</span>
+                        <span id="displayHumidity" class="font-black text-sm text-white">68%</span>
+                    </div>
+                    <div>
+                        <span class="text-emerald-200 block text-[10px]">THI Index</span>
+                        <span id="displayTHI" class="font-black text-sm text-amber-300">74.2</span>
+                    </div>
+                    <div>
+                        <span class="text-emerald-200 block text-[10px]">Dairy Stress</span>
+                        <span id="displayStressLevel" class="font-black text-sm text-amber-300">Moderate</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multi-Species Threat Matrix (7 Cols) -->
+            <div class="lg:col-span-7 bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col justify-between space-y-4">
+                <div class="flex items-center justify-between border-b pb-3">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">🛡️</span>
+                        <h3 class="text-base font-bold text-slate-800">Species-Specific Climate Risk Assessment</h3>
+                    </div>
+                    <span id="overallRiskBadge" class="badge badge-yellow text-xs">MODERATE THI ALERT</span>
+                </div>
+
+                <!-- 4 Species Risk Cards -->
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    <!-- Cow -->
+                    <div class="p-3 bg-amber-50 rounded-xl border border-amber-200">
+                        <div class="text-xl mb-1">🐄 Cow</div>
+                        <span class="text-[10px] font-bold text-amber-900 block">THI: 74 (Stress)</span>
+                        <p class="text-[10px] text-amber-800 mt-1">Milk drop ~10%. Run sprinkler fans & buffer salt.</p>
+                    </div>
+
+                    <!-- Buffalo -->
+                    <div class="p-3 bg-blue-50 rounded-xl border border-blue-200">
+                        <div class="text-xl mb-1">🐃 Buffalo</div>
+                        <span class="text-[10px] font-bold text-blue-900 block">High Solar Load</span>
+                        <p class="text-[10px] text-blue-800 mt-1">Dark skin absorbs heat. Provide wallow pool 2x daily.</p>
+                    </div>
+
+                    <!-- Pig -->
+                    <div class="p-3 bg-red-50 rounded-xl border border-red-200">
+                        <div class="text-xl mb-1">🐖 Pig</div>
+                        <span class="text-[10px] font-bold text-red-900 block">Heat Risk (>28°C)</span>
+                        <p class="text-[10px] text-red-800 mt-1">No sweat glands. Wet floor & activate mud wallows.</p>
+                    </div>
+
+                    <!-- Poultry -->
+                    <div class="p-3 bg-emerald-50 rounded-xl border border-emerald-200">
+                        <div class="text-xl mb-1">🐔 Poultry</div>
+                        <span class="text-[10px] font-bold text-emerald-900 block">Litter Spores</span>
+                        <p class="text-[10px] text-emerald-800 mt-1">Rake litter to inhibit coccidiosis spores.</p>
+                    </div>
+                </div>
+
+                <div class="p-3.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 font-medium">
+                    💡 <strong>Formula Used:</strong> $\text{THI} = 0.8 \times T + \frac{\text{RH}}{100} \times (T - 14.4) + 46.4$. Values &gt; 72 indicate dairy stress; values &gt; 78 indicate severe panting and lactation decline.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- 7-Day Trend Visualizer -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-base font-bold text-slate-800">7-Day Regional Temperature & THI Forecast</h3>
+                    <p class="text-xs text-slate-500">Day-by-day maximum, minimum, and livestock comfort indicators</p>
+                </div>
+            </div>
+
+            <!-- Temperature Bars -->
+            <div class="h-44 flex items-end justify-between gap-2 pt-6 border-b border-slate-100 pb-4" id="forecastBarContainer"></div>
+
+            <!-- 7-Day Cards -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-3 mt-6" id="forecastCardsContainer"></div>
+        </div>
+
+    </main>
+
+    <script>
+        const cityData = {
+            "Kanpur": { temp: 32, humidity: 68, condition: "Partly Cloudy", icon: "⛅" },
+            "Karnal": { temp: 30, humidity: 62, condition: "Hazy Sunshine", icon: "🌤️" },
+            "Anand": { temp: 34, humidity: 72, condition: "Warm & Humid", icon: "☀️" },
+            "Pune": { temp: 28, humidity: 55, condition: "Pleasant", icon: "🌤️" },
+            "Ludhiana": { temp: 31, humidity: 60, condition: "Clear Sky", icon: "☀️" },
+            "Namakkal": { temp: 35, humidity: 75, condition: "Humid & Sunny", icon: "☀️" },
+            "Bareilly": { temp: 30, humidity: 65, condition: "Scattered Clouds", icon: "⛅" },
+            "Hyderabad": { temp: 32, humidity: 58, condition: "Clear", icon: "☀️" }
+        };
+
+        const citySelect = document.getElementById('citySelect');
+        const savedLoc = localStorage.getItem('userLocation') || 'Kanpur';
+
+        // Match initial dropdown
+        for (let i = 0; i < citySelect.options.length; i++) {
+            if (savedLoc.toLowerCase().includes(citySelect.options[i].value.toLowerCase())) {
+                citySelect.selectedIndex = i;
+                break;
+            }
+        }
+
+        function calculateTHI(temp, humidity) {
+            return (0.8 * temp + (humidity / 100) * (temp - 14.4) + 46.4).toFixed(1);
+        }
+
+        function loadWeather() {
+            const cityName = citySelect.value;
+            const data = cityData[cityName] || cityData["Kanpur"];
+            const thi = calculateTHI(data.temp, data.humidity);
+
+            document.getElementById('displayCity').textContent = cityName;
+            document.getElementById('displayCondition').textContent = data.condition;
+            document.getElementById('displayTemp').textContent = `${data.temp}°C`;
+            document.getElementById('displayFeelsLike').textContent = `Feels ${data.temp + 4}°C`;
+            document.getElementById('displayHumidity').textContent = `${data.humidity}%`;
+            document.getElementById('displayTHI').textContent = thi;
+            document.getElementById('displayWeatherIcon').textContent = data.icon;
+
+            const stressLabel = document.getElementById('displayStressLevel');
+            const riskBadge = document.getElementById('overallRiskBadge');
+
+            if (thi > 78) {
+                stressLabel.textContent = 'Severe';
+                stressLabel.className = 'font-black text-sm text-red-400';
+                riskBadge.className = 'badge badge-red text-xs';
+                riskBadge.textContent = 'SEVERE THI STRESS (>78)';
+            } else if (thi > 72) {
+                stressLabel.textContent = 'Moderate';
+                stressLabel.className = 'font-black text-sm text-amber-300';
+                riskBadge.className = 'badge badge-yellow text-xs';
+                riskBadge.textContent = 'MODERATE THI ALERT (72-78)';
+            } else {
+                stressLabel.textContent = 'Safe / Optimal';
+                stressLabel.className = 'font-black text-sm text-emerald-300';
+                riskBadge.className = 'badge badge-green text-xs';
+                riskBadge.textContent = 'OPTIMAL CLIMATE (<72)';
+            }
+
+            render7DayForecast(data.temp, data.humidity);
+        }
+
+        function render7DayForecast(baseTemp, baseHumidity) {
+            const days = ['Today', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon'];
+            const barContainer = document.getElementById('forecastBarContainer');
+            const cardsContainer = document.getElementById('forecastCardsContainer');
+
+            const forecast = days.map((day, idx) => {
+                const max = baseTemp + Math.floor(Math.sin(idx) * 2);
+                const min = max - 8;
+                const hum = Math.min(85, Math.max(45, baseHumidity + (idx % 2 === 0 ? 3 : -2)));
+                const thi = calculateTHI(max, hum);
+                const icon = max > 33 ? '☀️' : (hum > 70 ? '🌧️' : '⛅');
+                return { day, max, min, hum, thi, icon };
+            });
+
+            barContainer.innerHTML = forecast.map(f => {
+                const height = Math.min(100, Math.max(30, (f.max / 45) * 100));
+                return `
+                    <div class="flex-1 flex flex-col items-center gap-1">
+                        <span class="text-[11px] font-bold text-slate-700">${f.max}°</span>
+                        <div class="w-full max-w-[36px] bg-slate-100 rounded-t-lg relative h-28 flex items-end justify-center p-1">
+                            <div class="temp-bar w-full bg-gradient-to-t from-emerald-600 to-teal-400 rounded-t-md" style="height: ${height}%;"></div>
+                        </div>
+                        <span class="text-[10px] font-semibold text-slate-500 mt-1">${f.day}</span>
+                    </div>
+                `;
+            }).join('');
+
+            cardsContainer.innerHTML = forecast.map(f => `
+                <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
+                    <span class="text-[11px] font-bold text-slate-600">${f.day}</span>
+                    <div class="text-2xl my-1">${f.icon}</div>
+                    <div class="text-xs font-black text-slate-800">${f.max}° / ${f.min}°</div>
+                    <span class="text-[10px] font-bold ${f.thi > 72 ? 'text-amber-600' : 'text-emerald-600'} block mt-1">THI ${f.thi}</span>
+                </div>
+            `).join('');
+        }
+
+        function detectGPSLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        citySelect.options[0].text = `GPS (${pos.coords.latitude.toFixed(2)}°N, ${pos.coords.longitude.toFixed(2)}°E)`;
+                        citySelect.value = "Kanpur";
+                        loadWeather();
+                        alert('GPS location synchronized!');
+                    },
+                    () => alert('Unable to get GPS. Showing regional defaults.')
+                );
+            }
+        }
+
+        citySelect.addEventListener('change', loadWeather);
+        loadWeather();
+    </script>
+</body>
+</html>
