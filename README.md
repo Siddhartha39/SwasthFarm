@@ -290,18 +290,29 @@ graph TB
 
 ---
 
-### 🔍 Technology Evaluation & Rationale Table
-| **Frontend Framework** | **React 18** | High-performance component-based architecture, concurrent rendering, and clean separation between presentation and state. |
-| **Language** | **TypeScript 5** | Strict type safety across complex biological schemas (milk solids, egg batches, gestation, vaccination statuses), preventing runtime regressions. |
-| **Build Tool** | **Vite 5** | Sub-second Hot Module Replacement (HMR), optimized Rollup tree-shaking, and immediate local boot compared to legacy Webpack configurations. |
-| **Styling** | **Tailwind CSS 3** | Zero-runtime CSS generation, rapid responsive design tokens, and exact adherence to the deep forest green branding (`#047857`, `#059669`, `#10b981`). |
-| **Data Visualization** | **Recharts** | Declarative, SVG-based charting engine built natively for React with smooth hover tooltips, animated area gradients, and responsive containers. |
-| **Authentication** | **Firebase Auth** | Out-of-the-box support for Phone/OTP (with preserved test mode `123456`), secure email/password, and Google OAuth with JWT token rotation. |
-| **Primary Database** | **Cloud Firestore** | Real-time listeners for live farm updates, robust offline caching on mobile devices, and native subcollection isolation for multi-farm setups. |
-| **Analytics Backend** | **Python 3 + FastAPI** | Asynchronous execution, automatic OpenAPI Swagger UI generation, and native compatibility with standard data science libraries. |
-| **Numerical Processing** | **Pandas & NumPy** | Vectorized rolling window operations, moving averages, standard deviations, and memory-efficient matrix calculations. |
-| **Statistics & Modeling** | **SciPy & Scikit-learn** | Interquartile Range (IQR) outlier calculations, Z-score thresholds, and ordinary least squares linear regression for predictive forecasting. |
-| **Environmental Telemetry**| **OpenWeather & NRC THI**| Empirical microclimate tracking using the National Research Council (NRC) formula for livestock heat-stress warnings. |
+### 🔍 Comprehensive Tech Stack & Practical Usage Table
+
+| Layer / Domain | Technology & Version | Exact Practical Use in SwasthFarm | Why It Was Chosen / Key Advantages |
+| :--- | :--- | :--- | :--- |
+| **Frontend Framework** | **React 18.3** | Component-driven UI architecture, concurrent rendering, tabbed multi-species dashboards, modal management, and responsive layout. | Fast component lifecycle, huge community ecosystem, virtual DOM optimizations, and seamless state integration. |
+| **Strict Type System** | **TypeScript 5.5** | Strongly typed data models for `Farm`, `Animal`, `HealthRecord`, `FeedRecord`, `ProductionRecord`, `VaccinationRecord`, and `AlertItem`. | Eliminates runtime `undefined` bugs, enforces strict biological record schemas, and provides full IDE autocomplete. |
+| **Build & Tooling** | **Vite 5.4** | Modern dev server and production bundler compiling TypeScript and Tailwind with Rollup tree-shaking. | Sub-second Hot Module Replacement (HMR), zero Webpack configuration bloat, and instantaneous build times. |
+| **UI Styling** | **Tailwind CSS 3.4** | Utility-first styling engine driving the agricultural aesthetic: deep forest greens (`#047857`, `#059669`, `#10b981`), cards, glassmorphism, and responsive grids. | Zero-runtime CSS overhead, mobile-first responsiveness, and rapid design iteration with cohesive color tokens. |
+| **Iconography** | **Lucide React 0.344+** | SVG visual icons for animal species, veterinary instruments, health vitals, temperature, alerts, and navigation. | Ultra-lightweight, tree-shakable SVGs that maintain visual clarity across all screen densities. |
+| **Data Visualization** | **Recharts 2.15** | Interactive SVG charts rendering 7-day milk yield trends, 30-day baseline overlays, and 5-day predictive yield projection curves. | Native React declarative charting, smooth hover tooltips, animated area gradients, and fluid responsive containers. |
+| **Cloud Database** | **Google Cloud Firestore** | NoSQL document database organized into a partitioned multi-tenant hierarchy: `users/{id}/farms/{id}/animals/{id}/records/`. | Realtime live data synchronization, offline caching on mobile devices, atomic subcollection transactions, and flexible schemas. |
+| **Cloud Storage** | **Firebase Storage** | Secure cloud bucket storing animal identification and profile photos (strictly for animal identification, zero image disease prediction). | Highly scalable blob storage, automatic tokenized security URLs, and global CDN delivery for low latency. |
+| **Cloud Security** | **Firestore Security Rules** | Granular user-scoped access control rules enforcing `request.auth.uid == userId` for all subcollections. | Strict tenant isolation ensuring farmers and veterinarians can only read and write their own enterprise data. |
+| **Authentication** | **Firebase Auth** | Multi-provider identity supporting Phone/OTP (universal test OTP `123456`), email/password, and Google OAuth. | Out-of-the-box secure session management, JWT token rotation, and frictionless onboarding for rural users via mobile phone OTP. |
+| **Analytics Microservice** | **Python 3.11+ & FastAPI 0.128+** | Asynchronous REST backend running on Uvicorn (`http://localhost:8000`), handling statistical modeling and yield predictions. | High execution speed, native asynchronous I/O, automatic OpenAPI Swagger UI docs (`/docs`), and full Python data science compatibility. |
+| **Request Validation** | **Pydantic v2** | Strict schema validation and data serialization for all REST analytics payloads (`/trends`, `/anomalies`, `/predictions`, `/risk-score`). | Type coercion, automated JSON validation, and clean descriptive error reporting for malformed client requests. |
+| **Numerical Processing** | **Pandas 2.2+ & NumPy 1.26+** | Vectorized rolling window operations (`rolling(7).mean()`), moving standard deviations ($\sigma$), and matrix computations. | Memory-efficient C-optimized array calculations, fast time-series resampling, and robust missing-data imputation. |
+| **Statistical Outliers** | **SciPy & Statsmodels** | Interquartile Range (IQR = $Q_3 - Q_1$) and Z-score tests ($Z = \frac{X - \mu}{\sigma}$) flagging milk yield drops & fever deviations. | Ground-truth empirical mathematics that prevents false alarms and identifies subclinical herd problems early. |
+| **Predictive Modeling** | **Scikit-Learn 1.4+** | Damped Ordinary Least Squares (OLS) regression modeling 5-day predictive milk yields and Average Daily Gain (ADG) with 95% confidence intervals. | Lightweight and explainable linear forecasting; runs on standard CPU instances without heavy GPU dependencies. |
+| **Microclimate Telemetry** | **OpenWeather API** | Live local temperature, humidity, atmospheric pressure, and 5-day weather forecasts for farm coordinates. | Real-time weather intelligence allowing proactive adjustments to shed ventilation and feed formulation. |
+| **Heat-Stress Index** | **NRC THI Equation** | National Research Council livestock thermal comfort formula: $\text{THI} = (1.8T + 32) - (0.55 - 0.0055RH)(1.8T - 26)$. | Provides empirical thresholds (Comfortable $<72$, Mild $72-78$, Moderate $79-88$, Severe $>88$) to trigger automated sprinkler cooling. |
+| **AI Farm Assistant** | **Deterministic Tool-Calling** | Natural language interface that routes farmer queries to verified Firestore tools (`query_production_anomaly_detector()`, etc.). | Zero hallucinations: answers are synthesized strictly from live, verifiable farm records and biological baselines. |
+| **Bilingual Localization** | **React Context API** | Dynamic English and Hindi (हिंदी) dictionary system updating all navigation, vitals, tooltips, and alerts in real-time. | Lowers barriers for Indian farmers and field technicians by providing accessible native-language interfaces. |
 
 ---
 
