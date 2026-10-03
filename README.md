@@ -1,129 +1,109 @@
-# 🐔 SwasthFarm (फार्मरक्षक)
-### Smart Poultry Health, AI Disease Diagnostics & National Disease Surveillance Platform
+# 🛡️ SwasthFarm (स्वस्थ फार्म) 2.0
+### Multi-Animal Farm Management, Biosecurity & Intelligent Statistical Analytics Platform
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-emerald.svg)](LICENSE)
-[![TensorFlow.js](https://img.shields.io/badge/AI-TensorFlow.js-orange.svg)](https://www.tensorflow.org/js)
-[![Tailwind CSS](https://img.shields.io/badge/UI-TailwindCSS-38bdf8.svg)](https://tailwindcss.com)
-[![Leaflet GIS](https://img.shields.io/badge/GIS-Leaflet-10b981.svg)](https://leafletjs.com)
-[![DAHD Compliant](https://img.shields.io/badge/Standards-DAHD%20%2F%20ICAR-blue.svg)](https://dahd.nic.in)
-
-> **SwasthFarm** is a unified, bi-directional digital agriculture and veterinary surveillance platform built for Indian poultry farmers and government animal husbandry departments. It combines on-device machine learning for disease detection with predictive microclimate outbreak modeling, digital farm bookkeeping, and national GIS outbreak surveillance.
+> **"Healthy Animals. Efficient Resources. Sustainable Livestock."**
 
 ---
 
-## 🌟 Key Features
+## 🌟 Overview & Product Purpose
 
-### 1. 🔬 AI-Powered Disease Detection (On-Device TensorFlow.js)
-* **Real-time Photo Analysis**: Classify poultry droppings and clinical symptoms for major poultry diseases:
-  * **Coccidiosis** (*Eimeria tenella / necatrix*)
-  * **Salmonella / Pullorum Disease**
-  * **Newcastle Disease / Ranikhet (ND)**
-  * **Avian Influenza (H5N1)**
-  * **Healthy Intestinal Sample**
-* **Instant Remedy Protocols**: Actionable medication guidance, dosage recommendations (e.g. Amprolium, Toltrazuril, electrolytes), and biosecurity disinfection measures in both English and Hindi.
-* **Dual Capture**: Upload photos from gallery or capture live frames using mobile/webcam.
+**SwasthFarm** is an advanced, production-grade livestock management and intelligent analytics web application designed for farmers, farm managers, veterinarians, and livestock officers.
 
-### 2. 📊 Digital Farm Register & FCR Analytics
-* **Automated FCR Engine**: Real-time Feed Conversion Ratio ($FCR = \frac{\text{Feed Intake}}{\text{Weight Gain}}$) monitoring to help farmers lower production costs.
-* **Mortality Rate Tracking**: Daily mortality log with automated threshold alerts ($<2.5\%$ normal vs elevated risk).
-* **Financial Ledger**: Track daily feed expenses, medication costs, and bird/egg sales revenue.
-* **Export**: Instant 1-click **CSV Download** and printable **Farm Health PDF Certificate**.
-
-### 3. ⛅ Poultry Weather & Outbreak Risk Matrix
-* **Microclimate Vulnerability Engine**: Integrates live temperature, humidity, and heat index across major Indian poultry hubs (*Kanpur, Namakkal, Pune, Hyderabad, Karnal, Anand, Bareilly, Bengaluru*).
-* **Predictive Outbreak Warnings**:
-  * **Heat Stress Warning** ($>32^\circ\text{C}$): Fogger protocols, water electrolyte additions.
-  * **Litter Moisture / Coccidia Alert** ($>65\%$ humidity): Litter raking and lime application alerts.
-  * **Night Drop / CRD Risk**: Side curtain and ventilation adjustments.
-
-### 4. 🇮🇳 Government GIS Disease Surveillance & Alert Broadcast
-* **Interactive Hotspot Heatmap**: Real-time GIS map for animal husbandry officials with disease-coded risk perimeters (Red = Confirmed Outbreak, Yellow = 10km Cordon, Green = Biosecure).
-* **Emergency Farmer Alert Broadcast**: Allows district veterinary officers to draft and push emergency advisory SMS / alerts directly to registered farmers in high-risk zones.
-* **Official Export**: Generates standardized state and national surveillance PDF reports.
-
-### 5. 🎓 Video Training & Official Biosecurity Certification
-* **Masterclass Library**: Curated video lessons by senior veterinarians on brooding management, cold-chain vaccination, biosecurity barriers, and feed formulation.
-* **Dynamic Certificate Generator**: Farmers earn an official, verifiable **SwasthFarm Biosecurity Certificate** with custom name, farm credentials, and digital seal.
-
-### 6. 💬 "Kisan Mitra" 24/7 AI Veterinary Assistant
-* **Offline Knowledge Base**: Instant answers to common poultry questions (reducing FCR, vaccination timetable, coccidiosis medication, heat stress remedies).
-* **Voice & Multilingual**: Supports English and Hindi voice reading.
+The platform unifies:
+- **Multi-Farm Management**: Easily create and switch between multiple farms (e.g. Dairy Cattle facilities, Poultry Layer houses, Goat/Sheep paddocks).
+- **Multi-Animal Registry**: Deep lifecycle records for Cows, Buffalo, Goats, Sheep, Poultry, Swine/Pigs, and Custom Livestock.
+- **Animal 360° Profile**: 8-tab comprehensive dashboard displaying physiological vitals, temperature, daily yields, feed rations, water intake, vaccines, treatments, and an interactive historical event timeline.
+- **Statistical Analytics & Anomaly Detection**: Moving averages, rolling baselines, Interquartile Range (IQR), and Z-score deviation tests to detect production drops (e.g. -18.2% drop) and health risks.
+- **Predictive Analytics**: 5-day predictive yield forecasting and Average Daily Gain (ADG) growth trajectories.
+- **Explainable Health-Risk Scoring**: Multi-signal composite risk scoring (Core Temp, Feed variance, Yield trends, Symptoms, and Environmental THI) with veterinary clinical disclaimers.
+- **Centralized Alert Center**: Notifications for upcoming vaccines, overdue treatments, heat stress, and sudden production dips.
+- **AI Farm Assistant**: Conversational assistant that queries real Firestore/farm data using structured tool calling (no hallucinated statistics).
+- **Bilingual Interface**: Seamless instant toggle between **English** and **हिंदी (Hindi)**.
+- **Biosecurity & Risk Assessment**: 15-point biosecurity audit checklist with real-time compliance score gauge (preserved from legacy SwasthFarm).
+- **Training Videos**: Farmer video masterclasses on biosecurity, heat mitigation, and herd nutrition.
 
 ---
 
-## 🚀 Quick Start & Local Setup
+## 🏗️ Technology Stack
 
-SwasthFarm is built as a zero-dependency, lightning-fast static web application that can run on any web server, mobile browser, or cloud host.
+### Frontend
+- **React 18 + TypeScript + Vite**: Blazing fast client bundle with strict type safety.
+- **Tailwind CSS**: Modern green & emerald branding (`#047857`, `#059669`, `#10b981`), glassmorphism, and responsive cards.
+- **Recharts**: Interactive line, area, and bar charts for milk yields, egg counts, and moving averages.
+- **Lucide React**: Clean, intuitive icon system.
 
-### 1. Clone the Repository
+### Backend & Cloud Storage
+- **Firebase Authentication**: Phone OTP (with preserved test OTP `123456`), Email/Password, and Google OAuth.
+- **Cloud Firestore**: Hierarchical multi-tenant database structure with strict security rules (`firestore.rules`).
+- **Firebase Storage**: Secure storage for animal identification photos and farm documents.
+
+### Analytics & Prediction Microservice
+- **Python 3 + FastAPI**: High-performance REST service.
+- **Pandas, NumPy, SciPy, Scikit-learn**: Rolling moving averages, IQR & Z-score anomaly detection, ordinary least squares linear regression, and damped forecasting.
+
+---
+
+## 📂 Firestore Data Architecture
+
+```text
+users/{userId}/
+  profile
+  farms/{farmId}/
+    details (name, location, state, sizeCategory, primaryType, totalAnimals)
+    animals/{animalId}/
+      profile (tagId, name, species, breed, gender, dob, weightKg, healthStatus, photoUrl)
+      healthRecords/{recordId}        (temperature, symptoms, appetite, water, observations)
+      feedRecords/{recordId}          (feedType, quantityKg, waterConsumptionLiters, cost)
+      productionRecords/{recordId}    (morningMilk, eveningMilk, totalMilk, eggCount, fatPct)
+      vaccinations/{vaccinationId}    (vaccineName, targetDisease, nextDueDate, status)
+      treatments/{treatmentId}        (condition, medication, dosage, veterinarian, outcome)
+      activityRecords/{recordId}      (activityScore, movementHours, restHours)
+    environment/{timestamp}          (temp, humidity, thiIndex, stressLevel)
+    alerts/{alertId}                  (type, severity, reason, read, actionUrl)
+    analytics/summary                 (aggregated rolling averages, anomaly flags)
+    predictions/latest                (projected yields, growth trajectories)
+```
+
+---
+
+## 🚀 Quick Start Guide
+
+### 1. Clone & Install Dependencies
+
 ```bash
 git clone https://github.com/Siddhartha39/SwasthFarm.git
 cd SwasthFarm
+
+# Install frontend dependencies
+npm install
 ```
 
-### 2. Run Local Server
-You can launch SwasthFarm instantly using Python, Node.js, or Live Server:
+### 2. Run the React Frontend
 
 ```bash
-# Using Python 3
-python3 -m http.server 8000
+npm run dev
 ```
-or
+Navigate to **`http://localhost:3000`** in your browser.
+
+### 3. Run the Python Analytics API (Optional / Recommended)
+
 ```bash
-# Using npx serve
-npx serve .
+# In a separate terminal
+uvicorn analytics_api.main:app --reload --port 8000
 ```
-
-### 3. Open in Browser
-Visit **`http://localhost:8000`** to access the landing page and portals.
+API Swagger documentation is accessible at **`http://localhost:8000/docs`**.
 
 ---
 
-## 🔐 Credentials & Demo Logins
+## 🧪 Demo Credentials & Test Data
 
-| User Type | Access Route | Login Method / Credentials |
-| :--- | :--- | :--- |
-| **Farmer** | Landing Page / Modal | Any 10-digit Indian Mobile Number (1-click auto-verified OTP) |
-| **Government Official** | `government.html` or Govt Modal | Username: `government`<br>Password: `psit` |
-
----
-
-## 📂 Project Architecture
-
-```
-SwasthFarm/
-├── index.html               # Modern Landing Page + Dual Auth Modals
-├── dashboard.html           # Farmer Health Dashboard + TensorFlow.js Scanner
-├── weather.html             # 7-Day Weather & Outbreak Risk Matrix
-├── digitalrecord.html       # Poultry Farm Register, FCR Ledger & CSV Export
-├── manualrisk.html          # 15-Point Biosecurity Risk Assessment & Score Gauge
-├── government.html          # Government Disease GIS Surveillance & Alert System
-├── videos.html              # Training Video Masterclasses & Certificate Generator
-├── styles/
-│   └── main.css             # Global Stylesheet, Glassmorphism, Theme & Print Rules
-├── models/
-│   └── poultry_disease_tfjs/# TensorFlow.js Neural Network Model & Weight Shards
-└── README.md                # Project Documentation & Architecture
-```
+The application includes high-fidelity pre-seeded data for instant evaluation:
+- **Farm 1**: *Greenfield Dairy & Livestock Farm (Kanpur, UP)* — 4 animals (Cow #023, Cow #018 with -18% milk anomaly, Murrah Buffalo #001, Dairy Goat #001).
+- **Farm 2**: *Sunrise Layer & Small Ruminants Farm (Karnal, Haryana)* — 3 animals (500-bird Layer Flock, Boer Meat Goat #002, Dorper Sheep #001).
+- **Test Phone Login**: Enter any 10-digit Indian phone number with OTP: **`123456`**.
 
 ---
 
-## 🌐 Multi-Language Support
-SwasthFarm is localized for India's diverse farming communities:
-* 🌐 **English**
-* 🌐 **हिंदी (Hindi)**
-* 🌐 **ਪੰਜਾਬੀ (Punjabi)**
-* 🌐 **বাংলা (Bengali)**
+## 🛡️ License
 
----
-
-## 🛡️ Alignment with National Initiatives
-* **Digital Agriculture Mission (Govt. of India)**
-* **Department of Animal Husbandry & Dairying (DAHD)**
-* **ICAR - Central Avian Research Institute (CARI)**
-* **One Health Livestock Epidemic Preparedness**
-
----
-
-## 📄 License
-This project is open-source under the [MIT License](LICENSE).
+This project is licensed under the MIT License.

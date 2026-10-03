@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to verify authenticated user
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if the user is owner of the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    // User profile document
+    match /users/{userId} {
+      allow read, write: if isOwner(userId);
+
+      // Farms subcollection under user
+      match /farms/{farmId} {
+        allow read, write: if isOwner(userId);
+
+        // Animals subcollection under farm
+        match /animals/{animalId} {
+          allow read, write: if isOwner(userId);
+
+          // Deep historical records subcollections
+          match /healthRecords/{recordId} {
+            allow read, write: if isOwner(userId);
+          }
+          match /feedRecords/{recordId} {
+            allow read, write: if isOwner(userId);
+          }
+          match /productionRecords/{recordId} {
+            allow read, write: if isOwner(userId);
+          }
+          match /vaccinations/{recordId} {
+            allow read, write: if isOwner(userId);
+          }
+          match /treatments/{recordId} {
+            allow read, write: if isOwner(userId);
+          }
+          match /activityRecords/{recordId} {
+            allow read, write: if isOwner(userId);
+          }
+        }
+
+        // Farm-level subcollections
+        match /environment/{envId} {
+          allow read, write: if isOwner(userId);
+        }
+        match /alerts/{alertId} {
+          allow read, write: if isOwner(userId);
+        }
+        match /analytics/{analyticsId} {
+          allow read, write: if isOwner(userId);
+        }
+        match /predictions/{predId} {
+          allow read, write: if isOwner(userId);
+        }
+      }
+    }
+  }
+}
