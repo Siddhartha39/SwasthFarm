@@ -216,8 +216,81 @@ flowchart TD
 
 ## ⚙️ Tech Stack & Why We Chose It
 
-| Layer | Technology | Why We Chose It |
-|---|---|---|
+### 🗺️ Visual Tech Stack Architecture Chart
+
+```mermaid
+graph TB
+    subgraph ClientLayer ["🖥️ PRESENTATION & CLIENT LAYER"]
+        direction TB
+        React["⚛️ React 18<br/><b>Concurrent UI Rendering</b><br/>Component-driven architecture"]
+        TS["📘 TypeScript 5<br/><b>Strict Type Contracts</b><br/>Zero runtime type bugs"]
+        Vite["⚡ Vite 5<br/><b>Next-Gen Tooling</b><br/>Sub-second HMR & Rollup"]
+        Tailwind["🎨 Tailwind CSS 3<br/><b>Forest Green UI Tokens</b><br/>Glassmorphism & animations"]
+        Recharts["📊 Recharts<br/><b>SVG Data Visualizations</b><br/>Fluid timeseries curves"]
+        Lucide["✨ Lucide React<br/><b>Intuitive Iconography</b><br/>Clean visual cues"]
+        
+        React --- TS
+        React --- Vite
+        React --- Tailwind
+        React --- Recharts
+        React --- Lucide
+    end
+
+    subgraph BackendLayer ["☁️ BACKEND & CLOUD STORAGE LAYER"]
+        direction TB
+        Auth["🔐 Firebase Auth<br/><b>Multi-Provider Identity</b><br/>Phone OTP, Email, Google"]
+        Firestore["🗄️ Cloud Firestore<br/><b>NoSQL Realtime DB</b><br/>Multi-tenant subcollections"]
+        Storage["📦 Firebase Storage<br/><b>Secure Blob Store</b><br/>Animal ID photos & logs"]
+        Security["🛡️ Firestore Rules<br/><b>Tenant Isolation</b><br/>User-scoped access control"]
+        
+        Firestore --- Security
+        Auth --- Firestore
+        Firestore --- Storage
+    end
+
+    subgraph AnalyticsLayer ["🧠 STATISTICAL & ML ANALYTICS MICROSERVICE"]
+        direction TB
+        FastAPI["⚡ Python 3 + FastAPI<br/><b>Async REST Gateway</b><br/>Automatic OpenAPI /docs"]
+        PandasNumPy["🐼 Pandas & 🔢 NumPy<br/><b>Matrix Vectorization</b><br/>Rolling stats & moving avgs"]
+        SciPyStats["📐 SciPy & Statsmodels<br/><b>Statistical Tests</b><br/>IQR & Z-score anomaly flags"]
+        Scikit["🤖 Scikit-Learn<br/><b>Predictive Modeling</b><br/>Damped OLS yield & ADG"]
+        Pydantic["📖 Pydantic v2<br/><b>Data Validation</b><br/>Schema enforcement"]
+        
+        FastAPI --- PandasNumPy
+        FastAPI --- SciPyStats
+        FastAPI --- Scikit
+        FastAPI --- Pydantic
+    end
+
+    subgraph ExternalLayer ["🌐 EXTERNAL TELEMETRY & GEO SERVICES"]
+        direction TB
+        Weather["🌤️ OpenWeather API<br/><b>Microclimate Telemetry</b><br/>Temp, Humidity, Wind"]
+        THI["🌡️ NRC THI Formula<br/><b>Livestock Heat Stress</b><br/>Thermal comfort index"]
+        Maps["🗺️ OpenStreetMap / Leaflet<br/><b>Farm Geolocation</b><br/>GIS spatial context"]
+        
+        Weather --- THI
+    end
+
+    %% Layer Interconnections
+    ClientLayer <==>|"REST APIs (JSON / Async)"| AnalyticsLayer
+    ClientLayer <==>|"Live Realtime Listeners & CRUD"| BackendLayer
+    ClientLayer <==>|"HTTP Weather Fetch"| ExternalLayer
+    AnalyticsLayer -.->|"Thermal Correlation"| ExternalLayer
+
+    classDef client fill:#f0fdf4,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef cloud fill:#eff6ff,stroke:#2563eb,stroke-width:2px,color:#1e3a8a;
+    classDef analytics fill:#fffbeb,stroke:#d97706,stroke-width:2px,color:#78350f;
+    classDef external fill:#fdf4ff,stroke:#c026d3,stroke-width:2px,color:#701a75;
+
+    class React,TS,Vite,Tailwind,Recharts,Lucide client;
+    class Auth,Firestore,Storage,Security cloud;
+    class FastAPI,PandasNumPy,SciPyStats,Scikit,Pydantic analytics;
+    class Weather,THI,Maps external;
+```
+
+---
+
+### 🔍 Technology Evaluation & Rationale Table
 | **Frontend Framework** | **React 18** | High-performance component-based architecture, concurrent rendering, and clean separation between presentation and state. |
 | **Language** | **TypeScript 5** | Strict type safety across complex biological schemas (milk solids, egg batches, gestation, vaccination statuses), preventing runtime regressions. |
 | **Build Tool** | **Vite 5** | Sub-second Hot Module Replacement (HMR), optimized Rollup tree-shaking, and immediate local boot compared to legacy Webpack configurations. |
