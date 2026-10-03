@@ -2,20 +2,33 @@ import React, { useState } from 'react';
 import { useFarm } from '@/context/FarmContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
-import { Building2, Plus, Bell, Globe, ChevronDown, Check, AlertTriangle, ShieldAlert } from 'lucide-react';
+import { Building2, Plus, Bell, Globe, ChevronDown, Check, AlertTriangle, ShieldAlert, LogOut, ExternalLink, User } from 'lucide-react';
 
 interface HeaderProps {
   onOpenAddFarm: () => void;
   onOpenAuth: () => void;
+  onGoToFrontPage?: () => void;
+  onLogout?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoToFrontPage, onLogout }) => {
   const { farms, selectedFarm, switchFarm, alerts, weather, markAlertRead } = useFarm();
   const { language, toggleLanguage, t } = useLanguage();
-  const { user } = useAuth();
+  const { user, logout: authLogout } = useAuth();
 
   const [farmDropdownOpen, setFarmDropdownOpen] = useState(false);
   const [alertsDropdownOpen, setAlertsDropdownOpen] = useState(false);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+
+  const handleLogoutClick = () => {
+    setUserDropdownOpen(false);
+    if (onLogout) {
+      onLogout();
+    } else {
+      authLogout();
+      if (onGoToFrontPage) onGoToFrontPage();
+    }
+  };
 
   const unreadAlerts = alerts.filter(a => !a.read);
 
@@ -176,18 +189,88 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth }) => 
             )}
           </div>
 
-          {/* User Profile Avatar */}
-          <button 
-            onClick={onOpenAuth}
-            className="flex items-center space-x-2 p-1.5 rounded-xl hover:bg-gray-100 transition-colors"
-          >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-green-600 to-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
-              {user?.name ? user.name.slice(0, 2).toUpperCase() : 'SF'}
-            </div>
-            <span className="hidden sm:inline text-xs font-semibold text-gray-700 max-w-[100px] truncate">
-              {user?.name || 'Farmer'}
-            </span>
-          </button>
+          {/* Visit Front Page quick link */}
+          {onGoToFrontPage && (
+            <button
+              onClick={onGoToFrontPage}
+              className="hidden md:flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors"
+              title="Return to SwasthFarm Front / Landing Page"
+            >
+              <ExternalLink className="w-3.5 h-3.5" />
+              <span>Front Page</span>
+            </button>
+          )}
+
+          {/* User Profile Menu & Dropdown */}
+          <div className="relative">
+            <button 
+              onClick={() => setUserDropdownOpen(!userDropdownOpen)}
+              className="flex items-center space-x-2 p-1.5 rounded-xl hover:bg-gray-100 border border-transparent hover:border-gray-200 transition-all"
+              title="User Account Menu"
+            >
+              <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-green-600 to-emerald-500 text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                {user?.name ? user.name.slice(0, 2).toUpperCase() : 'SF'}
+              </div>
+              <span className="hidden sm:inline text-xs font-semibold text-gray-700 max-w-[100px] truncate">
+                {user?.name || 'Farmer'}
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+            </button>
+
+            {/* Profile Dropdown */}
+            {userDropdownOpen && (
+              <div 
+                className="absolute right-0 mt-2 w-64 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+                onMouseLeave={() => setUserDropdownOpen(false)}
+              >
+                <div className="px-4 py-3 border-b border-gray-100">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-bold text-gray-900 truncate">{user?.name || 'Swasth Farmer'}</span>
+                    <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
+                      {user?.role || 'Farmer'}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 truncate mt-0.5">{user?.email || user?.phone || 'Standard User'}</p>
+                </div>
+
+                <div className="py-1">
+                  {onGoToFrontPage && (
+                    <button
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        onGoToFrontPage();
+                      }}
+                      className="w-full flex items-center space-x-2.5 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors"
+                    >
+                      <ExternalLink className="w-4 h-4 text-emerald-600" />
+                      <span>Visit Front Page</span>
+                    </button>
+                  )}
+
+                  <button
+                    onClick={() => {
+                      setUserDropdownOpen(false);
+                      onOpenAuth();
+                    }}
+                    className="w-full flex items-center space-x-2.5 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <User className="w-4 h-4 text-gray-500" />
+                    <span>Switch Account / Manage Login</span>
+                  </button>
+                </div>
+
+                <div className="border-t border-gray-100 pt-1 mt-1">
+                  <button
+                    onClick={handleLogoutClick}
+                    className="w-full flex items-center space-x-2.5 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
+                  >
+                    <LogOut className="w-4 h-4 text-red-500" />
+                    <span>{t.logout} (Sign Out)</span>
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
         </div>
       </div>

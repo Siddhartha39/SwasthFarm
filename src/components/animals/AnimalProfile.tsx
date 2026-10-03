@@ -17,7 +17,8 @@ import {
   Scale,
   MapPin,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Trash2
 } from 'lucide-react';
 import {
   LineChart,
@@ -52,6 +53,7 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
     productionRecords,
     vaccinations,
     treatments,
+    deleteAnimal,
     getAnimalTimeline
   } = useFarm();
   const { t } = useLanguage();
@@ -60,6 +62,7 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
 
   // Filter records for this specific animal
   const myHealth = healthRecords.filter(h => h.animalId === animal.id);
+  const myFeed = feedRecords.filter(f => f.animalId === animal.id);
   const myProduction = productionRecords.filter(p => p.animalId === animal.id);
   const myVaccines = vaccinations.filter(v => v.animalId === animal.id);
   const myTreatments = treatments.filter(t => t.animalId === animal.id);
@@ -76,13 +79,28 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
       
       {/* Top Back Navigation and Header Card */}
       <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center space-x-1.5 text-xs font-bold text-gray-500 hover:text-green-700 transition-colors mb-4"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Animals List</span>
-        </button>
+        <div className="flex items-center justify-between mb-4">
+          <button
+            onClick={onBack}
+            className="inline-flex items-center space-x-1.5 text-xs font-bold text-gray-500 hover:text-green-700 transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back to Animals List</span>
+          </button>
+          
+          <button
+            onClick={() => {
+              if (window.confirm(`Are you sure you want to remove ${animal.tagId} (${animal.name}) from farm records?`)) {
+                deleteAnimal(animal.id);
+                onBack();
+              }
+            }}
+            className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
+          >
+            <Trash2 className="w-3.5 h-3.5 text-red-600" />
+            <span>Delete Animal</span>
+          </button>
+        </div>
 
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="flex items-center space-x-5">
@@ -328,7 +346,10 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
       {activeTab === 'feed' && (
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold text-gray-900">Feed & Water Intake Tracking</h2>
+            <div>
+              <h2 className="text-base font-bold text-gray-900">Feed & Water Intake Tracking</h2>
+              <p className="text-xs text-gray-500">Nutritional formulations, silage, and trough volume logs</p>
+            </div>
             <button
               onClick={onOpenLogFeed}
               className="inline-flex items-center space-x-1.5 bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold"
@@ -337,6 +358,7 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
               <span>Log Intake</span>
             </button>
           </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="p-4 bg-amber-50 rounded-xl border border-amber-100">
               <span className="text-xs font-bold text-amber-800 uppercase">Current Daily Ration</span>
@@ -348,6 +370,43 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
               <div className="text-2xl font-bold text-gray-900 mt-1">{animal.dailyWaterLiters} Liters</div>
               <p className="text-xs text-gray-600 mt-1">Automatic fresh flow trough</p>
             </div>
+          </div>
+
+          {/* Detailed Feed Logs Table */}
+          <div className="pt-2">
+            <h3 className="text-xs font-bold text-gray-700 uppercase tracking-wider mb-2">Historical Ingestion Logs</h3>
+            {myFeed.length === 0 ? (
+              <p className="text-xs text-gray-500 py-4 text-center bg-gray-50 rounded-xl">No historical feed logs recorded yet. Click &apos;Log Intake&apos; to add one.</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="text-gray-500 uppercase border-b border-gray-100">
+                    <tr>
+                      <th className="py-2">Date</th>
+                      <th className="py-2">Ration Type</th>
+                      <th className="py-2">Quantity</th>
+                      <th className="py-2">Water</th>
+                      <th className="py-2">Frequency</th>
+                      <th className="py-2">Cost</th>
+                      <th className="py-2">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50 font-medium">
+                    {myFeed.map(f => (
+                      <tr key={f.id} className="hover:bg-gray-50">
+                        <td className="py-2.5 font-bold text-gray-900">{f.date}</td>
+                        <td className="py-2.5 text-gray-800 max-w-xs truncate">{f.feedType}</td>
+                        <td className="py-2.5 font-bold text-amber-900">{f.quantityKg} kg</td>
+                        <td className="py-2.5 text-sky-800 font-bold">{f.waterConsumptionLiters} L</td>
+                        <td className="py-2.5 text-gray-500">{f.frequency}</td>
+                        <td className="py-2.5 text-gray-700 font-semibold">{f.feedCostInr ? `₹${f.feedCostInr}` : '-'}</td>
+                        <td className="py-2.5 text-gray-500">{f.notes || '-'}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -23,9 +23,10 @@ interface SidebarProps {
   isOpenMobile: boolean;
   onCloseMobile: () => void;
   onGoToFrontPage?: () => void;
+  onLogout?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile, onGoToFrontPage }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile, onGoToFrontPage, onLogout }) => {
   const { activeTab, setActiveTab, selectedFarm, animals, alerts } = useFarm();
   const { t } = useLanguage();
   const { logout } = useAuth();
@@ -129,10 +130,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile, o
           )}
           <button
             onClick={() => {
-              logout();
-              if (onGoToFrontPage) {
-                onGoToFrontPage();
+              if (onCloseMobile) onCloseMobile();
+              if (onLogout) {
+                onLogout();
+              } else {
+                logout();
+                if (onGoToFrontPage) {
+                  onGoToFrontPage();
+                }
               }
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }}
             className="w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl text-sm font-semibold text-green-300 hover:bg-red-900/60 hover:text-red-200 transition-colors"
           >

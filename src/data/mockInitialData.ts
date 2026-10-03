@@ -262,6 +262,61 @@ export const INITIAL_HEALTH_RECORDS: HealthRecord[] = [
   }
 ];
 
+export const INITIAL_FEED_RECORDS: FeedRecord[] = [
+  {
+    id: 'feed-1',
+    farmId: 'farm-kanpur-01',
+    animalId: 'cow-023',
+    animalTag: 'COW-023',
+    date: '2026-10-01',
+    feedType: 'Silage (Maize) + Dairy Balanced Concentrate (20% CP)',
+    quantityKg: 22.0,
+    frequency: 'Twice daily (06:00 & 16:30)',
+    waterConsumptionLiters: 65.0,
+    feedCostInr: 210,
+    notes: 'Ate full ration voraciously. Clean trough.'
+  },
+  {
+    id: 'feed-2',
+    farmId: 'farm-kanpur-01',
+    animalId: 'cow-018',
+    animalTag: 'COW-018',
+    date: '2026-10-01',
+    feedType: 'Green Lucerne + Dry Straw + Buffer Probiotic Paste',
+    quantityKg: 17.5,
+    frequency: 'Split 3x daily feeding',
+    waterConsumptionLiters: 54.0,
+    feedCostInr: 185,
+    notes: 'Appetite reduced by ~20%. Left residual straw. Buffer administered.'
+  },
+  {
+    id: 'feed-3',
+    farmId: 'farm-kanpur-01',
+    animalId: 'buf-001',
+    animalTag: 'BUF-001',
+    date: '2026-10-01',
+    feedType: 'Green Barseem + Cotton Seed Cake + Mineral Mix (50g)',
+    quantityKg: 26.0,
+    frequency: 'Twice daily',
+    waterConsumptionLiters: 78.0,
+    feedCostInr: 245,
+    notes: 'Good appetite. Mineral supplement accepted in concentrate.'
+  },
+  {
+    id: 'feed-4',
+    farmId: 'farm-kanpur-01',
+    animalId: 'goat-001',
+    animalTag: 'GOAT-001',
+    date: '2026-10-01',
+    feedType: 'Tree loppings (Subabul) + Crushed Gram/Maize',
+    quantityKg: 3.2,
+    frequency: 'Morning & evening stall browse',
+    waterConsumptionLiters: 6.5,
+    feedCostInr: 45,
+    notes: 'Active grazing behavior. Clean water intake.'
+  }
+];
+
 export const INITIAL_PRODUCTION_RECORDS: ProductionRecord[] = [
   // COW-018 daily history (demonstrating the 18% drop for anomaly detection)
   { id: 'pr-1', farmId: 'farm-kanpur-01', animalId: 'cow-018', animalTag: 'COW-018', species: 'cow', date: '2026-09-24', morningMilkLiters: 9.2, eveningMilkLiters: 9.0, totalMilkLiters: 18.2, qualityGrade: 'Grade A', fatPercentage: 4.2 },
