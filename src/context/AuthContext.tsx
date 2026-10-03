@@ -7,11 +7,12 @@ interface AuthContextType {
   loginWithPhone: (phone: string, otp: string) => Promise<boolean>;
   loginWithEmail: (email: string, pass: string) => Promise<boolean>;
   loginWithGoogle: () => Promise<boolean>;
+  loginAsDemo: () => void;
   logout: () => void;
   updateUser: (profile: Partial<UserProfile>) => void;
 }
 
-const DEFAULT_USER: UserProfile = {
+export const DEFAULT_USER: UserProfile = {
   id: 'usr-farmer-01',
   name: 'Rajesh Sharma',
   phone: '+91 9876543210',
@@ -23,19 +24,25 @@ const DEFAULT_USER: UserProfile = {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<UserProfile | null>(DEFAULT_USER);
+  const [user, setUser] = useState<UserProfile | null>(() => {
+    try {
+      const stored = localStorage.getItem('swasth_auth_user');
+      return stored ? JSON.parse(stored) : DEFAULT_USER; // Default to demo user if first time
+    } catch (e) {
+      return DEFAULT_USER;
+    }
+  });
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem('swasth_auth_user');
-      if (stored) {
+      if (stored === 'null' || stored === null && localStorage.getItem('swasth_user_logged_out') === 'true') {
+        setUser(null);
+      } else if (stored) {
         setUser(JSON.parse(stored));
-      } else {
-        setUser(DEFAULT_USER);
-        localStorage.setItem('swasth_auth_user', JSON.stringify(DEFAULT_USER));
       }
     } catch (e) {
-      setUser(DEFAULT_USER);
+      setUser(null);
     }
   }, []);
 
@@ -50,6 +57,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         createdAt: new Date().toISOString()
       };
       setUser(newUser);
+      localStorage.removeItem('swasth_user_logged_out');
       localStorage.setItem('swasth_auth_user', JSON.stringify(newUser));
       return true;
     }
@@ -65,6 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date().toISOString()
     };
     setUser(newUser);
+    localStorage.removeItem('swasth_user_logged_out');
     localStorage.setItem('swasth_auth_user', JSON.stringify(newUser));
     return true;
   };
@@ -78,12 +87,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       createdAt: new Date().toISOString()
     };
     setUser(newUser);
+    localStorage.removeItem('swasth_user_logged_out');
     localStorage.setItem('swasth_auth_user', JSON.stringify(newUser));
     return true;
   };
 
+  const loginAsDemo = () => {
+    setUser(DEFAULT_USER);
+    localStorage.removeItem('swasth_user_logged_out');
+    localStorage.setItem('swasth_auth_user', JSON.stringify(DEFAULT_USER));
+  };
+
   const logout = () => {
     setUser(null);
+    localStorage.setItem('swasth_user_logged_out', 'true');
     localStorage.removeItem('swasth_auth_user');
   };
 
@@ -101,6 +118,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       loginWithPhone,
       loginWithEmail,
       loginWithGoogle,
+      loginAsDemo,
       logout,
       updateUser
     }}>

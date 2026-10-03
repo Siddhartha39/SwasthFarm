@@ -14,16 +14,18 @@ import {
   Video,
   Settings,
   LogOut,
-  Building2
+  Building2,
+  ExternalLink
 } from 'lucide-react';
 
 interface SidebarProps {
   onOpenAddFarm: () => void;
   isOpenMobile: boolean;
   onCloseMobile: () => void;
+  onGoToFrontPage?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile, onGoToFrontPage }) => {
   const { activeTab, setActiveTab, selectedFarm, animals, alerts } = useFarm();
   const { t } = useLanguage();
   const { logout } = useAuth();
@@ -114,11 +116,25 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile })
           })}
         </nav>
 
-        {/* Footer / Logout */}
-        <div className="p-4 border-t border-green-800/80">
+        {/* Footer / Front Page & Logout */}
+        <div className="p-4 border-t border-green-800/80 space-y-1">
+          {onGoToFrontPage && (
+            <button
+              onClick={onGoToFrontPage}
+              className="w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-300 hover:bg-green-800/80 hover:text-white transition-colors"
+            >
+              <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
+              <span>Visit Front Page</span>
+            </button>
+          )}
           <button
-            onClick={logout}
-            className="w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl text-sm text-green-300 hover:bg-green-800 hover:text-white transition-colors"
+            onClick={() => {
+              logout();
+              if (onGoToFrontPage) {
+                onGoToFrontPage();
+              }
+            }}
+            className="w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl text-sm font-semibold text-green-300 hover:bg-red-900/60 hover:text-red-200 transition-colors"
           >
             <LogOut className="w-4 h-4 text-green-400" />
             <span>{t.logout}</span>

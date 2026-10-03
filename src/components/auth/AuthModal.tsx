@@ -81,6 +81,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose }) => {
               onClick={() => {
                 logout();
                 setMsg('Logged out.');
+                setTimeout(() => {
+                  setMsg('');
+                  onClose();
+                }, 300);
               }}
               className="mt-3 w-full py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs shadow-sm transition-colors"
             >

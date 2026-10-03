@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFarm } from '@/context/FarmContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { Header } from '@/components/common/Header';
 import { Sidebar } from '@/components/common/Sidebar';
+import { LandingPage } from '@/components/landing/LandingPage';
 import { ExecutiveDashboard } from '@/components/dashboard/ExecutiveDashboard';
 import { AnimalList } from '@/components/animals/AnimalList';
 import { AnimalProfile } from '@/components/animals/AnimalProfile';
@@ -33,7 +35,17 @@ export const App: React.FC = () => {
     vaccinations
   } = useFarm();
   const { t } = useLanguage();
+  const { isAuthenticated } = useAuth();
 
+  const [viewMode, setViewMode] = useState<'dashboard' | 'landing'>(isAuthenticated ? 'dashboard' : 'landing');
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      setViewMode('dashboard');
+    } else {
+      setViewMode('landing');
+    }
+  }, [isAuthenticated]);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [addAnimalModalOpen, setAddAnimalModalOpen] = useState(false);
   const [addFarmModalOpen, setAddFarmModalOpen] = useState(false);
@@ -48,6 +60,22 @@ export const App: React.FC = () => {
   // Target animal for logging modal
   const targetAnimal = selectedAnimal || animals[0];
 
+  // If user is not authenticated or explicitly navigated to landing page, show Front/Landing Page
+  if (!isAuthenticated || viewMode === 'landing') {
+    return (
+      <>
+        <LandingPage
+          onOpenAuth={() => setAuthModalOpen(true)}
+          onEnterDashboard={() => setViewMode('dashboard')}
+        />
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+        />
+      </>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       
@@ -56,6 +84,7 @@ export const App: React.FC = () => {
         isOpenMobile={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
         onOpenAddFarm={() => setAddFarmModalOpen(true)}
+        onGoToFrontPage={() => setViewMode('landing')}
       />
 
       {/* Main Layout Area */}
