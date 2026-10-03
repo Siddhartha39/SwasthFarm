@@ -12,7 +12,7 @@ interface ChatMessage {
 }
 
 export const AIFarmAssistant: React.FC = () => {
-  const { farms, animals, vaccinations, productionRecords, feedRecords, healthRecords, selectedFarm, weather, biosecurity } = useFarm();
+  const { farms, animals, vaccinations, productionRecords, feedRecords, healthRecords, selectedFarm, weather, biosecurity, alerts } = useFarm();
   const { t } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -29,10 +29,11 @@ export const AIFarmAssistant: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const suggestedQuestions = [
+    "What is today's total milk production?",
     "Which animal had the largest production decrease?",
     "Which animals need attention right now?",
+    "Show feed & water consumption",
     "Which vaccinations are due soon?",
-    "Show herd count by species",
     "What is current Heat Stress (THI)?"
   ];
 
@@ -54,7 +55,6 @@ export const AIFarmAssistant: React.FC = () => {
     );
 
     if (matchedAnimal) {
-      const animProduction = productionRecords.filter(p => p.animalId === matchedAnimal.id);
       const animVaccines = vaccinations.filter(v => v.animalId === matchedAnimal.id);
       const nextVac = animVaccines.find(v => v.status === 'upcoming') || animVaccines[0];
 
@@ -71,9 +71,8 @@ export const AIFarmAssistant: React.FC = () => {
       };
     }
 
-    // 2. Largest Production Decrease
-    if (q.includes('largest production decrease') || q.includes('production drop') || q.includes('milk drop') || q.includes('decrease') || q.includes('drop')) {
-      // Find animal with status attention or largest drop in currentDailyProduction vs first production record
+    // 2. Largest Production Decrease / Drop / Anomaly
+    if (q.includes('largest production decrease') || q.includes('production drop') || q.includes('milk drop') || q.includes('decrease') || q.includes('drop') || q.includes('decline')) {
       const attentionCows = animals.filter(a => a.healthStatus === 'attention');
       const target = attentionCows[0] || animals.find(a => a.productionType === 'milk');
 
@@ -82,24 +81,67 @@ export const AIFarmAssistant: React.FC = () => {
           toolUsed: 'query_production_anomaly_detector()',
           reply: `Based on verified production records for **${selectedFarm?.name}**, **${target.tagId} (${target.name})** experienced the most notable yield decrease:\n\n` +
             `• **Recorded Output:** ${target.currentDailyProduction} ${target.productionUnit}\n` +
-            `• **Health Indicator:** ${target.healthStatus === 'attention' ? '⚠️ Under Attention' : 'Healthy'}\n` +
+            `• **Health Indicator:** ${target.healthStatus === 'attention' ? '⚠️ Under Clinical Attention' : 'Healthy'}\n` +
             `• **Body Temperature:** ${target.currentTemperature}°C\n` +
             `• **Clinical Note:** ${target.notes || 'Sub-baseline yield deviation detected.'}\n\n` +
-            `*Recommendation:* Verify hydration and rumen buffer intake.`
+            `*Veterinary Action:* Verify hydration, rumen buffer intake, and conduct mastitis strip-cup testing.`
         };
       }
     }
 
-    // 3. Animals needing attention
-    if (q.includes('need attention') || q.includes('attention') || q.includes('sick') || q.includes('unhealthy') || q.includes('fever')) {
+    // 3. Milk Production / Overall Yield Query (e.g. "milk production", "milk", "yield", "today's milk")
+    if (q.includes('milk') || q.includes('production') || q.includes('yield') || q.includes('doodh') || q.includes('output') || q.includes('egg')) {
+      const producingAnimals = animals.filter(a => (a.currentDailyProduction || 0) > 0 || a.productionType !== 'none');
+      const totalDailyOutput = producingAnimals.reduce((acc, a) => acc + (a.currentDailyProduction || 0), 0);
+      const isEggFarm = selectedFarm?.primaryType === 'Poultry' || animals.some(a => a.productionType === 'eggs');
+
+      const breakdownLines = producingAnimals.map(a => {
+        const flag = a.healthStatus === 'attention' ? ' ⚠️ (Yield Drop)' : '';
+        return `• **${a.tagId} (${a.name} - ${a.species.toUpperCase()}):** **${a.currentDailyProduction} ${a.productionUnit}**${flag}`;
+      }).join('\n');
+
+      return {
+        toolUsed: 'query_production_telemetry()',
+        reply: `**Live Daily Production Report for ${selectedFarm?.name}**:\n\n` +
+          `• **Total Daily Output:** **${totalDailyOutput.toFixed(1)} ${isEggFarm ? 'Eggs / Day' : 'Liters / Day'}**\n` +
+          `• **Active Contributing Livestock:** ${producingAnimals.length} head\n` +
+          `• **Average Per Animal:** ${(producingAnimals.length > 0 ? (totalDailyOutput / producingAnimals.length).toFixed(1) : '0')} ${isEggFarm ? 'Eggs' : 'Liters'}\n\n` +
+          `**Individual Animal Breakdown:**\n${breakdownLines}\n\n` +
+          `*Farm Status:* Records synced in real-time. Head to the **Production** tab for 7-day moving averages and morning/evening distribution.`
+      };
+    }
+
+    // 4. Feed, Water & Nutrition (e.g. "feed", "water", "nutrition", "ration", "chara")
+    if (q.includes('feed') || q.includes('water') || q.includes('nutrition') || q.includes('ration') || q.includes('chara') || q.includes('diet') || q.includes('cost') || q.includes('expense')) {
+      const totalFeedKg = animals.reduce((sum, a) => sum + (a.dailyFeedKg || 0), 0);
+      const totalWaterL = animals.reduce((sum, a) => sum + (a.dailyWaterLiters || 0), 0);
+      const estimatedCost = feedRecords.reduce((sum, f) => sum + (f.feedCostInr || 0), 0) || Math.round(totalFeedKg * 22);
+
+      const feedBreakdown = animals.slice(0, 5).map(a => 
+        `• **${a.tagId} (${a.name}):** ${a.dailyFeedKg} kg Feed | ${a.dailyWaterLiters} L Water`
+      ).join('\n');
+
+      return {
+        toolUsed: 'query_nutrition_telemetry()',
+        reply: `**Daily Nutrition & Water Consumption for ${selectedFarm?.name}**:\n\n` +
+          `• **Total Daily Feed Intake:** **${totalFeedKg} kg** dry matter / silage\n` +
+          `• **Total Daily Water Intake:** **${totalWaterL} Liters** clean hydration\n` +
+          `• **Estimated Daily Feed Expenditure:** **₹${estimatedCost.toLocaleString()} INR**\n\n` +
+          `**Ration Allocation by Animal:**\n${feedBreakdown}\n\n` +
+          `*Management Tip:* Maintain 10-15% surplus trough water during hot afternoons to counteract heat stress.`
+      };
+    }
+
+    // 5. Animals Needing Clinical Attention / Fever
+    if (q.includes('need attention') || q.includes('attention') || q.includes('sick') || q.includes('unhealthy') || q.includes('fever') || q.includes('ill')) {
       const attentionList = animals.filter(a => a.healthStatus === 'attention');
       if (attentionList.length > 0) {
         const listText = attentionList
-          .map(a => `• **${a.tagId} (${a.name} - ${a.species.toUpperCase()}):** ${a.currentDailyProduction} ${a.productionUnit}, Temp: ${a.currentTemperature}°C. (${a.notes || 'Under review'})`)
+          .map(a => `• **${a.tagId} (${a.name} - ${a.species.toUpperCase()}):** Core Temp: **${a.currentTemperature}°C**, Output: ${a.currentDailyProduction} ${a.productionUnit}. (${a.notes || 'Under clinical review'})`)
           .join('\n');
         return {
           toolUsed: 'query_animals_by_status("attention")',
-          reply: `Currently, **${attentionList.length} animal(s)** in **${selectedFarm?.name}** require active clinical attention:\n\n${listText}\n\nAll other ${animals.length - attentionList.length} animals are within normal physiological baselines.`
+          reply: `Currently, **${attentionList.length} animal(s)** in **${selectedFarm?.name}** require active clinical attention:\n\n${listText}\n\nAll other ${animals.length - attentionList.length} animals are within standard physiological baselines.`
         };
       } else {
         return {
@@ -109,8 +151,24 @@ export const AIFarmAssistant: React.FC = () => {
       }
     }
 
-    // 4. Vaccinations due
-    if (q.includes('vaccin') || q.includes('due') || q.includes('shot') || q.includes('immuniz') || q.includes('deworm')) {
+    // 6. Clinical Health & Vitals Overview
+    if (q.includes('health') || q.includes('vital') || q.includes('temperature') || q.includes('temp') || q.includes('clinical') || q.includes('bimar')) {
+      const healthyCount = animals.filter(a => a.healthStatus === 'healthy').length;
+      const attentionCount = animals.filter(a => a.healthStatus === 'attention').length;
+      const avgTemp = (animals.reduce((sum, a) => sum + (a.currentTemperature || 38.5), 0) / (animals.length || 1)).toFixed(1);
+
+      return {
+        toolUsed: 'query_herd_health_index()',
+        reply: `**Herd Health & Vitals Index for ${selectedFarm?.name}**:\n\n` +
+          `• **Healthy Stock:** **${healthyCount} / ${animals.length} head** (${Math.round((healthyCount / (animals.length || 1)) * 100)}%)\n` +
+          `• **Requiring Monitoring:** **${attentionCount} head**\n` +
+          `• **Average Rectal Core Temperature:** **${avgTemp}°C** (Species Normal: 38.0°C - 39.2°C)\n\n` +
+          `*Clinical Protocol:* Any rectal reading exceeding 39.5°C automatically logs a Critical Fever Alert.`
+      };
+    }
+
+    // 7. Vaccinations Due / Schedule
+    if (q.includes('vaccin') || q.includes('due') || q.includes('shot') || q.includes('immuniz') || q.includes('deworm') || q.includes('tika')) {
       const upcoming = vaccinations.filter(v => v.status === 'upcoming' || v.status === 'overdue');
       if (upcoming.length > 0) {
         const vText = upcoming
@@ -118,7 +176,7 @@ export const AIFarmAssistant: React.FC = () => {
           .join('\n');
         return {
           toolUsed: 'query_vaccination_schedule()',
-          reply: `Here are the upcoming and overdue vaccinations across your livestock:\n\n${vText}\n\nEnsure cold-chain vial storage (2°C - 8°C) prior to inoculation.`
+          reply: `Here are the scheduled vaccinations across your livestock:\n\n${vText}\n\nEnsure cold-chain vial storage (2°C - 8°C) prior to inoculation.`
         };
       } else {
         return {
@@ -128,8 +186,8 @@ export const AIFarmAssistant: React.FC = () => {
       }
     }
 
-    // 5. Species breakdown / herd count
-    if (q.includes('species') || q.includes('count') || q.includes('how many') || q.includes('total animal')) {
+    // 8. Species Breakdown / Herd Census
+    if (q.includes('species') || q.includes('count') || q.includes('how many') || q.includes('total animal') || q.includes('herd')) {
       const speciesCounts: Record<string, number> = {};
       animals.forEach(a => {
         speciesCounts[a.species] = (speciesCounts[a.species] || 0) + 1;
@@ -145,8 +203,8 @@ export const AIFarmAssistant: React.FC = () => {
       };
     }
 
-    // 6. Weather & Heat Stress / THI
-    if (q.includes('weather') || q.includes('thi') || q.includes('heat') || q.includes('temperature') || q.includes('stress')) {
+    // 9. Weather & Heat Stress / THI
+    if (q.includes('weather') || q.includes('thi') || q.includes('heat') || q.includes('stress') || q.includes('humidity') || q.includes('mausam')) {
       return {
         toolUsed: 'query_microclimate_thi()',
         reply: `**Current Microclimate & Thermal Comfort for ${weather.city}**:\n\n` +
@@ -158,8 +216,8 @@ export const AIFarmAssistant: React.FC = () => {
       };
     }
 
-    // 7. Biosecurity
-    if (q.includes('biosecurity') || q.includes('audit') || q.includes('hygiene') || q.includes('score')) {
+    // 10. Biosecurity
+    if (q.includes('biosecurity') || q.includes('audit') || q.includes('hygiene') || q.includes('score') || q.includes('disinfection')) {
       const completed = biosecurity.checklist.filter(c => c.completed).length;
       return {
         toolUsed: 'query_biosecurity_audit()',
@@ -171,7 +229,7 @@ export const AIFarmAssistant: React.FC = () => {
       };
     }
 
-    // 8. Compare farms
+    // 11. Multi-Farm Comparison
     if (q.includes('compare') || q.includes('farms') || q.includes('two farm')) {
       return {
         toolUsed: 'query_multi_farm_aggregate()',
@@ -180,10 +238,34 @@ export const AIFarmAssistant: React.FC = () => {
       };
     }
 
+    // 12. Active Alerts & Notifications
+    if (q.includes('alert') || q.includes('warning') || q.includes('notification')) {
+      const activeAlerts = (selectedFarm ? alerts.filter(a => a.farmId === selectedFarm.id) : alerts).slice(0, 4);
+      if (activeAlerts.length > 0) {
+        const aText = activeAlerts.map(a => `• **${a.type.replace('_', ' ').toUpperCase()}**: ${a.reason} (${a.severity})`).join('\n');
+        return {
+          toolUsed: 'query_active_alerts()',
+          reply: `**Active Alerts for ${selectedFarm?.name}**:\n\n${aText}`
+        };
+      }
+      return {
+        toolUsed: 'query_active_alerts()',
+        reply: `All clear! No critical alerts are pending for **${selectedFarm?.name}**.`
+      };
+    }
+
+    // 13. Friendly Greetings
+    if (q === 'hi' || q === 'hello' || q === 'namaste' || q === 'hey' || q === 'help') {
+      return {
+        toolUsed: 'query_general_knowledge_base()',
+        reply: `Namaste! I am your **Kisan Mitra AI Assistant** for **${selectedFarm?.name}**.\n\nI can answer questions about:\n• **Milk Production & Yields** (e.g. *"milk production"*, *"how much milk today"*, *"largest production decrease"*)\n• **Herd Health & Vitals** (e.g. *"which animals need attention"*, *"what are Gauri's vitals"*)\n• **Feed & Water** (e.g. *"show feed consumption"*)\n• **Vaccine Schedules** (e.g. *"which vaccinations are due soon"*)\n• **Microclimate & Heat Stress** (e.g. *"current heat stress"*)\n\nWhat would you like to check?`
+      };
+    }
+
     // Fallback based on real herd data
     return {
       toolUsed: 'query_general_knowledge_base()',
-      reply: `I verified your farm records for **${selectedFarm?.name}**. Currently managing **${animals.length} animals** with **${vaccinations.length} vaccination records**.\n\nYou can ask me specific questions like:\n- *"Which animal had the largest production decrease?"*\n- *"What are Gauri's vitals?"*\n- *"Which vaccinations are due soon?"*\n- *"Show herd count by species"*`
+      reply: `I verified your farm records for **${selectedFarm?.name}** (${animals.length} animals, ${vaccinations.length} vaccines).\n\nTry asking:\n- *"What is today's total milk production?"*\n- *"Which animal had the largest production decrease?"*\n- *"Show feed & water consumption"*\n- *"Which animals need attention right now?"*\n- *"What are Gauri's vitals?"*`
     };
   };
 
