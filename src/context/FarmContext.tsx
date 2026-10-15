@@ -25,6 +25,7 @@ import {
   INITIAL_WEATHER,
   INITIAL_BIOSECURITY
 } from '@/data/mockInitialData';
+import { FirestoreSyncService } from '@/services/firestoreSync';
 
 interface FarmContextType {
   // Farms
@@ -185,35 +186,53 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
 
   const [activeTab, setActiveTab] = useState<string>('dashboard');
 
-  // Persistence helpers
+  // Initial cloud sync
+  useEffect(() => {
+    FirestoreSyncService.seedInitialDataIfEmpty(
+      farms,
+      allAnimals,
+      allProduction,
+      allFeed,
+      allHealth,
+      allVaccinations
+    );
+  }, []);
+
+  // Persistence helpers with Firestore Cloud Sync
   const saveFarms = (data: Farm[]) => {
     setFarms(data);
     localStorage.setItem('swasth_farms', JSON.stringify(data));
+    data.forEach(f => FirestoreSyncService.syncFarm(f));
   };
 
   const saveAnimals = (data: Animal[]) => {
     setAllAnimals(data);
     localStorage.setItem('swasth_animals', JSON.stringify(data));
+    data.forEach(a => FirestoreSyncService.syncAnimal(a));
   };
 
   const saveHealth = (data: HealthRecord[]) => {
     setAllHealth(data);
     localStorage.setItem('swasth_health_records', JSON.stringify(data));
+    data.forEach(h => FirestoreSyncService.syncHealth(h));
   };
 
   const saveFeed = (data: FeedRecord[]) => {
     setAllFeed(data);
     localStorage.setItem('swasth_feed_records', JSON.stringify(data));
+    data.forEach(f => FirestoreSyncService.syncFeed(f));
   };
 
   const saveProduction = (data: ProductionRecord[]) => {
     setAllProduction(data);
     localStorage.setItem('swasth_production_records', JSON.stringify(data));
+    data.forEach(p => FirestoreSyncService.syncProduction(p));
   };
 
   const saveVaccinations = (data: VaccinationRecord[]) => {
     setAllVaccinations(data);
     localStorage.setItem('swasth_vaccinations', JSON.stringify(data));
+    data.forEach(v => FirestoreSyncService.syncVaccination(v));
   };
 
   const saveTreatments = (data: TreatmentRecord[]) => {
@@ -280,6 +299,7 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
     saveFarms(updatedFarms);
     const updatedAnimals = allAnimals.filter(a => a.farmId !== farmId);
     saveAnimals(updatedAnimals);
+    FirestoreSyncService.deleteFarm(farmId);
     if (selectedFarmId === farmId) {
       const nextFarmId = updatedFarms[0]?.id || null;
       setSelectedFarmId(nextFarmId);
@@ -353,8 +373,12 @@ export function FarmProvider({ children }: { children: React.ReactNode }) {
   };
 
   const deleteAnimal = (id: string) => {
+    const target = allAnimals.find(a => a.id === id);
     const updated = allAnimals.filter(a => a.id !== id);
     saveAnimals(updated);
+    if (target) {
+      FirestoreSyncService.deleteAnimal(target.farmId, target.id);
+    }
     if (selectedAnimalId === id) setSelectedAnimalId(null);
     const updatedFarms = farms.map(f => f.id === effectiveFarmId ? { ...f, totalAnimals: Math.max(0, f.totalAnimals - 1) } : f);
     saveFarms(updatedFarms);
