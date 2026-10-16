@@ -13,10 +13,17 @@ interface ChatMessage {
 
 export const AIFarmAssistant: React.FC = () => {
   const { farms, animals, vaccinations, productionRecords, feedRecords, healthRecords, selectedFarm, weather, biosecurity, alerts } = useFarm();
-  const { t } = useLanguage();
+  const { language, t } = useLanguage();
 
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
+
+  const getWelcomeText = (lang: string) => {
+    return lang === 'hi'
+      ? "नमस्ते! मैं आपका **किसान मित्र एआई फार्म एवं वित्तीय सलाहकार (Kisan Mitra AI)** हूँ।\n\nमैं आपके लाइव फार्म रिकॉर्ड का विश्लेषण करके **दैनिक दूध उत्पादन**, **मासिक मुनाफा गणना**, **चारा लागत अनुकूलन**, **गर्मी के तनाव से बचाव**, और **पशु स्वास्थ्य** पर सटीक जानकारी प्रदान करता हूँ।\n\n*नीचे दिए गए किसी भी प्रश्न पर टैप करें या हिंदी/अंग्रेजी में पूछें:*"
+      : "Namaste! I am your **Kisan Mitra AI Farm & Financial Assistant** for Livestock X.\n\nI analyze your live farm records to provide verifiable insights on **daily milk yield**, **monthly profit calculations**, **ration cost optimization**, **heat stress mitigation**, and **individual animal health**.\n\n*Tap any quick question below or ask me in English or हिंदी:*";
+  };
+
   // Persistent Assistant Memory across page refreshes
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     try {
@@ -30,7 +37,7 @@ export const AIFarmAssistant: React.FC = () => {
       {
         id: 'welcome',
         sender: 'assistant',
-        text: "Namaste! I am your **Kisan Mitra AI Farm & Financial Assistant** for Livestock X.\n\nI analyze your live farm records to provide verifiable insights on **daily milk yield**, **monthly profit calculations**, **ration cost optimization**, **heat stress mitigation**, and **individual animal health**.\n\n*Tap any quick question below or ask me in English or हिंदी:*",
+        text: getWelcomeText(language),
         timestamp: 'Just now'
       }
     ];
@@ -50,14 +57,23 @@ export const AIFarmAssistant: React.FC = () => {
     const welcomeMsg: ChatMessage = {
       id: `welcome-${Date.now()}`,
       sender: 'assistant',
-      text: "Memory cleared. How can I help you manage your livestock and optimize your farm profit today?",
+      text: language === 'hi' 
+        ? "मेमोरी रीसेट कर दी गई है। आज मैं आपके पशुधन और फार्म मुनाफे को बढ़ाने में किस प्रकार मदद कर सकता हूँ?" 
+        : "Memory cleared. How can I help you manage your livestock and optimize your farm profit today?",
       timestamp: 'Just now'
     };
     setMessages([welcomeMsg]);
     localStorage.removeItem('swasth_assistant_memory');
   };
 
-  const suggestedQuestions = [
+  const suggestedQuestions = language === 'hi' ? [
+    "किस महीने में सबसे ज्यादा मुनाफा हुआ?",
+    "प्रॉफिट (मुनाफा) बढ़ाने के लिए क्या करें?",
+    "आज का कुल दूध उत्पादन कितना है?",
+    "दैनिक चारा और पानी की खपत दिखाएं",
+    "किस पशु के दूध उत्पादन में सबसे ज्यादा गिरावट आई?",
+    "किन पशुओं पर तुरंत ध्यान देने की जरूरत है?"
+  ] : [
     "In which month was more profit made?",
     "Profit badhane ke liye kya kare?",
     "What is today's total milk production?",
@@ -75,14 +91,11 @@ export const AIFarmAssistant: React.FC = () => {
    * Aggregates real milk/egg revenue, feed expenditure, and seasonal factors
    */
   const computeFinancialTelemetry = () => {
-    // Current daily yields
     const milkAnimals = animals.filter(a => a.productionType === 'milk' || a.species === 'cow' || a.species === 'buffalo' || a.species === 'goat');
     const totalDailyMilkL = milkAnimals.reduce((sum, a) => sum + (a.currentDailyProduction || 0), 0);
     const eggAnimals = animals.filter(a => a.productionType === 'eggs');
     const totalDailyEggs = eggAnimals.reduce((sum, a) => sum + (a.currentDailyProduction || 0), 0);
 
-    // Pricing standards (Indian agricultural market benchmark)
-    // Cow milk: ~₹46/L, Buffalo milk (high fat): ~₹64/L, Goat milk: ~₹75/L, Eggs: ~₹6.50/egg
     let dailyRevenue = 0;
     animals.forEach(a => {
       if (a.species === 'buffalo') dailyRevenue += (a.currentDailyProduction || 0) * 64;
@@ -121,13 +134,49 @@ export const AIFarmAssistant: React.FC = () => {
     const q = query.toLowerCase().trim();
     const fin = computeFinancialTelemetry();
 
+    // Check if user language is Hindi or query is written in Hindi/Hinglish
+    const isHindi = language === 'hi' || 
+      /[\u0900-\u097F]/.test(query) || 
+      q.includes('kya') || 
+      q.includes('kaise') || 
+      q.includes('badhaye') || 
+      q.includes('badhao') || 
+      q.includes('kare') || 
+      q.includes('munafa') || 
+      q.includes('kamai') || 
+      q.includes('kitna') || 
+      q.includes('mahine') || 
+      q.includes('doodh') || 
+      q.includes('chara') || 
+      q.includes('namaste');
+
     // 1. Profit Analysis ("in which month more profit done", "which month profit", "highest profit")
     if (
       q.includes('which month') ||
       (q.includes('month') && (q.includes('profit') || q.includes('munafa') || q.includes('kamai') || q.includes('revenue') || q.includes('income'))) ||
       q.includes('highest profit') ||
-      q.includes('more profit')
+      q.includes('more profit') ||
+      q.includes('kis mahine') ||
+      q.includes('kis maheene') ||
+      q.includes('jyada munafa') ||
+      q.includes('sabse jyada')
     ) {
+      if (isHindi) {
+        return {
+          toolUsed: 'rag_financial_analytics_engine()',
+          reply: `**📊 फार्म लाभप्रदता एवं मासिक विश्लेषण (${selectedFarm?.name})**:\n\n` +
+            `• **सर्वाधिक मुनाफे वाला महीना:** **अगस्त / सितंबर (मानसून उपरांत / शरद ऋतु)**\n` +
+            `  - **कारण:** प्रचुर मात्रा में उपलब्ध पौष्टिक हरा चारा (मक्का साइलेज, बरसीम) के कारण महंगे दाना मिश्रण की लागत में **18-22% की बचत** हुई।\n` +
+            `  - **उच्चतम उत्पादन:** कम गर्मी तनाव (THI < 72) के कारण पशुधन का औसत उत्पादन **${(fin.totalDailyMilkL * 1.15).toFixed(1)} लीटर/दिन** तक पहुंचा।\n` +
+            `  - **शीर्ष मासिक शुद्ध मुनाफा:** **₹${Math.round(fin.monthlyNetProfit * 1.25).toLocaleString()} INR**\n\n` +
+            `• **वर्तमान माह (अक्टूबर) का वित्तीय प्रदर्शन**:\n` +
+            `  - **कुल मासिक राजस्व:** ₹${fin.monthlyRevenue.toLocaleString()} (दूध एवं अंडा बिक्री)\n` +
+            `  - **चारा एवं परिचालन लागत:** ₹${fin.monthlyFeedCost.toLocaleString()} / माह\n` +
+            `  - **अनुमानित शुद्ध मुनाफा:** **₹${fin.monthlyNetProfit.toLocaleString()} / माह** (शुद्ध मार्जिन: ~**${fin.profitMargin}%**)\n\n` +
+            `• **सबसे कम मार्जिन वाला समय:** **मई – जून (कड़ाके की गर्मी)** जब THI सूचकांक 82 से अधिक हो जाता है, जिससे उत्पादन में ~14% की गिरावट आती है।`
+        };
+      }
+
       return {
         toolUsed: 'rag_financial_analytics_engine()',
         reply: `**📊 Farm Profitability & Monthly Analysis for ${selectedFarm?.name}**:\n\n` +
@@ -152,13 +201,36 @@ export const AIFarmAssistant: React.FC = () => {
       q.includes('more profit') ||
       q.includes('profit badhao') ||
       q.includes('kamai kaise') ||
-      q.includes('munafa')
+      q.includes('munafa') ||
+      q.includes('munafa badhaye') ||
+      q.includes('labh')
     ) {
-      // Find lowest producing animal or animal with drop
       const attentionAnimals = animals.filter(a => a.healthStatus === 'attention');
-      const lowYieldNotice = attentionAnimals.length > 0 
+      const lowYieldNoticeEn = attentionAnimals.length > 0 
         ? `• **Immediate Recovery on ${attentionAnimals[0].tagId} (${attentionAnimals[0].name}):** Currently showing yield drop (${attentionAnimals[0].currentDailyProduction} ${attentionAnimals[0].productionUnit}). Treating digestive distress with rumen buffers will restore an additional **~3.5 L/day (₹160/day extra profit)**.` 
         : `• **Maintain Herd Peak Health:** Keep regular mastitis screening and body temperature checks.`;
+
+      const lowYieldNoticeHi = attentionAnimals.length > 0
+        ? `• **${attentionAnimals[0].tagId} (${attentionAnimals[0].name}) की तुरंत देखभाल:** वर्तमान में इसके दूध उत्पादन में गिरावट दर्ज हुई है (${attentionAnimals[0].currentDailyProduction} ${attentionAnimals[0].productionUnit})। पाचन सुधार और रूमेन बफर देने से प्रतिदिन **~3.5 लीटर अतिरिक्त दूध (प्रतिदिन ₹160 अतिरिक्त मुनाफा)** तुरंत पुनः प्राप्त किया जा सकता है।`
+        : `• **पशुधन का स्वास्थ्य बनाए रखें:** नियमित थनैला (Mastitis) जांच और तापमान रिकॉर्डिंग जारी रखें।`;
+
+      if (isHindi) {
+        return {
+          toolUsed: 'rag_agronomic_profit_optimizer()',
+          reply: `**🚀 मुनाफा बढ़ाने की 5-सूत्रीय वैज्ञानिक योजना (${selectedFarm?.name})**:\n\n` +
+            `1. **TMR (टोटल मिक्स्ड राशन) संतुलित आहार (15% चारा लागत बचत)**:\n` +
+            `   - केवल महंगे वाणिज्यिक चारे पर निर्भर रहने के बजाय 60% हरा चारा + 25% साइलेज + 15% अनाज मिश्रण और 50 ग्राम बाईपास मिनरल मिक्चर दें।\n` +
+            `   - *आर्थिक लाभ:* प्रति पशु प्रतिदिन **₹35–50 की बचत** और बटरफैट में 0.3% की वृद्धि।\n\n` +
+            `2. **कमजोर या दूध घटने वाले पशुओं की त्वरित रिकवरी**:\n` +
+            `   ${lowYieldNoticeHi}\n\n` +
+            `3. **गर्मी व तापमान (THI) नियंत्रण (गर्मियों में दूध गिरावट से बचाव)**:\n` +
+            `   - वर्तमान THI सूचकांक **${weather.thiIndex} (${weather.stressLevel === 'normal' ? 'सामान्य' : 'तनावपूर्ण'})** है। शेड में फॉगर्स और शेड-नेट लगाने से रूमेन किण्वन सामान्य रहता है और 12-18% दूध गिरावट रुकती है।\n\n` +
+            `4. **फैट और SNF बढ़ाकर प्रीमियम मूल्य प्राप्त करें**:\n` +
+            `   - सरसों/बिनौला की खल देने से भैंस के दूध का फैट **7.6%+** और गाय के दूध का फैट **4.2%+** तक बढ़ता है, जिससे डेयरी सहकारी से प्रति लीटर ₹4 से ₹6 अधिक बोनस मिलता है।\n\n` +
+            `5. **सख्त रोग निवारण एवं टीकाकरण (शून्य चिकित्सा लागत)**:\n` +
+            `   - FMD, HS और Mastitis की समय पर रोकथाम से प्रति पशु **₹12,000–25,000** की आपातकालीन चिकित्सा लागत की बचत होती है।`
+        };
+      }
 
       return {
         toolUsed: 'rag_agronomic_profit_optimizer()',
@@ -167,7 +239,7 @@ export const AIFarmAssistant: React.FC = () => {
           `   - Instead of expensive commercial concentrates alone, feed 60% green fodder + 25% silage + 15% grain mix with 50g bypass mineral mixture.\n` +
           `   - *Financial Impact:* Saves ~**₹35–50 per cattle/day** while increasing butterfat by 0.3%.\n\n` +
           `2. **Resolve Telemetry Anomaly in Weak Animals**:\n` +
-          `   ${lowYieldNotice}\n\n` +
+          `   ${lowYieldNoticeEn}\n\n` +
           `3. **Microclimate & THI Management (Prevents Summer Milk Crash)**:\n` +
           `   - Current THI is **${weather.thiIndex} (${weather.stressLevel.toUpperCase()})**. Installing misting fans & shade nets maintains rumen fermentation, preventing seasonal 12-18% output drops.\n\n` +
           `4. **Quality Grade Milk Pricing (Butterfat & SNF Boost)**:\n` +
@@ -187,6 +259,20 @@ export const AIFarmAssistant: React.FC = () => {
       const animVaccines = vaccinations.filter(v => v.animalId === matchedAnimal.id);
       const nextVac = animVaccines.find(v => v.status === 'upcoming') || animVaccines[0];
 
+      if (isHindi) {
+        return {
+          toolUsed: `query_animal_record("${matchedAnimal.tagId}")`,
+          reply: `**${matchedAnimal.tagId} (${matchedAnimal.name}) का लाइव विवरण**:\n\n` +
+            `• **प्रजाति और नस्ल:** ${matchedAnimal.species.toUpperCase()} • ${matchedAnimal.breed} (${matchedAnimal.gender === 'female' ? 'मादा' : 'नर'})\n` +
+            `• **स्वास्थ्य स्थिति:** ${matchedAnimal.healthStatus === 'healthy' ? 'स्वस्थ (Healthy)' : '⚠️ ध्यान देने योग्य (Needs Attention)'} (तापमान: ${matchedAnimal.currentTemperature}°C)\n` +
+            `• **वर्तमान दैनिक उत्पादन:** **${matchedAnimal.currentDailyProduction} ${matchedAnimal.productionUnit}**\n` +
+            `• **पोषण:** ${matchedAnimal.dailyFeedKg} किलो चारा/दिन | ${matchedAnimal.dailyWaterLiters} लीटर पानी\n` +
+            `• **शेड / बाड़ा:** ${matchedAnimal.penLocation || 'मुख्य शेड'}\n` +
+            (nextVac ? `• **टीकाकरण:** ${nextVac.vaccineName} (${nextVac.status === 'completed' ? 'लग चुका है' : `नियत तिथि: ${nextVac.nextDueDate}`})\n` : '') +
+            `• **टिप्पणी:** ${matchedAnimal.notes || 'सामान्य स्वास्थ्य मानक।'}`
+        };
+      }
+
       return {
         toolUsed: `query_animal_record("${matchedAnimal.tagId}")`,
         reply: `**Live Telemetry for ${matchedAnimal.tagId} (${matchedAnimal.name})**:\n\n` +
@@ -201,11 +287,23 @@ export const AIFarmAssistant: React.FC = () => {
     }
 
     // 4. Largest Production Decrease / Drop / Anomaly
-    if (q.includes('largest production decrease') || q.includes('production drop') || q.includes('milk drop') || q.includes('decrease') || q.includes('drop') || q.includes('decline')) {
+    if (q.includes('largest production decrease') || q.includes('production drop') || q.includes('milk drop') || q.includes('decrease') || q.includes('drop') || q.includes('decline') || q.includes('girawat') || q.includes('kam doodh') || q.includes('dudh kam')) {
       const attentionCows = animals.filter(a => a.healthStatus === 'attention');
       const target = attentionCows[0] || animals.find(a => a.productionType === 'milk');
 
       if (target) {
+        if (isHindi) {
+          return {
+            toolUsed: 'query_production_anomaly_detector()',
+            reply: `**${selectedFarm?.name}** के सत्यापित उत्पादन रिकॉर्ड के अनुसार, **${target.tagId} (${target.name})** के दूध उत्पादन में सबसे अधिक गिरावट दर्ज की गई है:\n\n` +
+              `• **वर्तमान उत्पादन:** ${target.currentDailyProduction} ${target.productionUnit}\n` +
+              `• **स्वास्थ्य स्थिति:** ${target.healthStatus === 'attention' ? '⚠️ नैदानिक निगरानी में' : 'सामान्य'}\n` +
+              `• **शरीर का तापमान:** ${target.currentTemperature}°C\n` +
+              `• **टिप्पणी:** ${target.notes || '30-दिवसीय औसत से नीचे उत्पादन दर्ज हुआ है।'}\n\n` +
+              `*पशु चिकित्सा सलाह:* तुरंत पर्याप्त पानी, रूमेन बफर और थनैला स्ट्रिप कप टेस्ट करें।`
+          };
+        }
+
         return {
           toolUsed: 'query_production_anomaly_detector()',
           reply: `Based on verified production records for **${selectedFarm?.name}**, **${target.tagId} (${target.name})** experienced the most notable yield decrease:\n\n` +
@@ -218,16 +316,34 @@ export const AIFarmAssistant: React.FC = () => {
       }
     }
 
-    // 5. Milk Production / Overall Yield Query (e.g. "milk production", "milk", "yield", "today's milk")
-    if (q.includes('milk') || q.includes('production') || q.includes('yield') || q.includes('doodh') || q.includes('output') || q.includes('egg')) {
+    // 5. Milk Production / Overall Yield Query
+    if (q.includes('milk') || q.includes('production') || q.includes('yield') || q.includes('doodh') || q.includes('output') || q.includes('egg') || q.includes('dudh') || q.includes('anda')) {
       const producingAnimals = animals.filter(a => (a.currentDailyProduction || 0) > 0 || a.productionType !== 'none');
       const totalDailyOutput = producingAnimals.reduce((acc, a) => acc + (a.currentDailyProduction || 0), 0);
       const isEggFarm = selectedFarm?.primaryType === 'Poultry' || animals.some(a => a.productionType === 'eggs');
 
-      const breakdownLines = producingAnimals.map(a => {
+      const breakdownLinesEn = producingAnimals.map(a => {
         const flag = a.healthStatus === 'attention' ? ' ⚠️ (Yield Drop)' : '';
         return `• **${a.tagId} (${a.name} - ${a.species.toUpperCase()}):** **${a.currentDailyProduction} ${a.productionUnit}**${flag}`;
       }).join('\n');
+
+      const breakdownLinesHi = producingAnimals.map(a => {
+        const flag = a.healthStatus === 'attention' ? ' ⚠️ (उत्पादन गिरावट)' : '';
+        return `• **${a.tagId} (${a.name} - ${a.species.toUpperCase()}):** **${a.currentDailyProduction} ${a.productionUnit}**${flag}`;
+      }).join('\n');
+
+      if (isHindi) {
+        return {
+          toolUsed: 'query_production_telemetry()',
+          reply: `**दैनिक उत्पादन रिपोर्ट (${selectedFarm?.name})**:\n\n` +
+            `• **कुल दैनिक उत्पादन:** **${totalDailyOutput.toFixed(1)} ${isEggFarm ? 'अंडे / दिन' : 'लीटर / दिन'}**\n` +
+            `• **अनुमानित दैनिक आय:** **₹${fin.dailyRevenue.toLocaleString()} INR**\n` +
+            `• **सक्रिय दुधारू पशु:** ${producingAnimals.length} पशु\n` +
+            `• **औसत प्रति पशु:** ${(producingAnimals.length > 0 ? (totalDailyOutput / producingAnimals.length).toFixed(1) : '0')} ${isEggFarm ? 'अंडे' : 'लीटर'}\n\n` +
+            `**प्रत्येक पशु का उत्पादन:**\n${breakdownLinesHi}\n\n` +
+            `*फार्म स्थिति:* सभी रिकॉर्ड रीयल-टाइम में सिंक्रनाइज़ हैं। 7-दिवसीय रुझान देखने के लिए **उत्पादन** टैब पर जाएं।`
+        };
+      }
 
       return {
         toolUsed: 'query_production_telemetry()',
@@ -236,20 +352,36 @@ export const AIFarmAssistant: React.FC = () => {
           `• **Estimated Daily Milk Revenue:** **₹${fin.dailyRevenue.toLocaleString()} INR**\n` +
           `• **Active Contributing Livestock:** ${producingAnimals.length} head\n` +
           `• **Average Per Animal:** ${(producingAnimals.length > 0 ? (totalDailyOutput / producingAnimals.length).toFixed(1) : '0')} ${isEggFarm ? 'Eggs' : 'Liters'}\n\n` +
-          `**Individual Animal Breakdown:**\n${breakdownLines}\n\n` +
+          `**Individual Animal Breakdown:**\n${breakdownLinesEn}\n\n` +
           `*Farm Status:* Records synced in real-time. Head to the **Production** tab for 7-day moving averages and morning/evening distribution.`
       };
     }
 
-    // 6. Feed, Water & Nutrition (e.g. "feed", "water", "nutrition", "ration", "chara")
-    if (q.includes('feed') || q.includes('water') || q.includes('nutrition') || q.includes('ration') || q.includes('chara') || q.includes('diet') || q.includes('cost') || q.includes('expense')) {
+    // 6. Feed, Water & Nutrition
+    if (q.includes('feed') || q.includes('water') || q.includes('nutrition') || q.includes('ration') || q.includes('chara') || q.includes('paani') || q.includes('pani') || q.includes('diet') || q.includes('cost') || q.includes('kharcha')) {
       const totalFeedKg = animals.reduce((sum, a) => sum + (a.dailyFeedKg || 0), 0);
       const totalWaterL = animals.reduce((sum, a) => sum + (a.dailyWaterLiters || 0), 0);
       const estimatedCost = fin.dailyFeedExpense;
 
-      const feedBreakdown = animals.slice(0, 5).map(a => 
+      const feedBreakdownHi = animals.slice(0, 5).map(a => 
+        `• **${a.tagId} (${a.name}):** ${a.dailyFeedKg} किलो चारा | ${a.dailyWaterLiters} लीटर पानी`
+      ).join('\n');
+
+      const feedBreakdownEn = animals.slice(0, 5).map(a => 
         `• **${a.tagId} (${a.name}):** ${a.dailyFeedKg} kg Feed | ${a.dailyWaterLiters} L Water`
       ).join('\n');
+
+      if (isHindi) {
+        return {
+          toolUsed: 'query_nutrition_telemetry()',
+          reply: `**दैनिक चारा एवं पानी खपत (${selectedFarm?.name})**:\n\n` +
+            `• **कुल दैनिक चारा खपत:** **${totalFeedKg} किलो** (हरा चारा + साइलेज + दाना)\n` +
+            `• **कुल दैनिक पानी खपत:** **${totalWaterL} लीटर** स्वच्छ पेयजल\n` +
+            `• **अनुमानित दैनिक चारा लागत:** **₹${estimatedCost.toLocaleString()} INR**\n\n` +
+            `**पशुवार राशन आवंटन:**\n${feedBreakdownHi}\n\n` +
+            `*प्रबंधन सुझाव:* दोपहर के समय पानी की टंकियों में 10-15% अतिरिक्त ताजा पानी उपलब्ध रखें ताकि गर्मी के तनाव से बचाव हो।`
+        };
+      }
 
       return {
         toolUsed: 'query_nutrition_telemetry()',
@@ -257,15 +389,25 @@ export const AIFarmAssistant: React.FC = () => {
           `• **Total Daily Feed Intake:** **${totalFeedKg} kg** dry matter / silage\n` +
           `• **Total Daily Water Intake:** **${totalWaterL} Liters** clean hydration\n` +
           `• **Estimated Daily Feed Expenditure:** **₹${estimatedCost.toLocaleString()} INR**\n\n` +
-          `**Ration Allocation by Animal:**\n${feedBreakdown}\n\n` +
+          `**Ration Allocation by Animal:**\n${feedBreakdownEn}\n\n` +
           `*Management Tip:* Maintain 10-15% surplus trough water during hot afternoons to counteract heat stress.`
       };
     }
 
-    // 7. Animals Needing Clinical Attention / Fever
-    if (q.includes('need attention') || q.includes('attention') || q.includes('sick') || q.includes('unhealthy') || q.includes('fever') || q.includes('ill')) {
+    // 7. Animals Needing Clinical Attention
+    if (q.includes('need attention') || q.includes('attention') || q.includes('sick') || q.includes('unhealthy') || q.includes('fever') || q.includes('ill') || q.includes('bimar') || q.includes('dhyan')) {
       const attentionList = animals.filter(a => a.healthStatus === 'attention');
       if (attentionList.length > 0) {
+        if (isHindi) {
+          const listText = attentionList
+            .map(a => `• **${a.tagId} (${a.name} - ${a.species.toUpperCase()}):** तापमान: **${a.currentTemperature}°C**, उत्पादन: ${a.currentDailyProduction} ${a.productionUnit} (${a.notes || 'नैदानिक समीक्षाधीन'})`)
+            .join('\n');
+          return {
+            toolUsed: 'query_animals_by_status("attention")',
+            reply: `वर्तमान में **${selectedFarm?.name}** में **${attentionList.length} पशु** विशेष निगरानी योग्य हैं:\n\n${listText}\n\nबाकी सभी ${animals.length - attentionList.length} पशु पूर्णतः स्वस्थ और सामान्य हैं।`
+          };
+        }
+
         const listText = attentionList
           .map(a => `• **${a.tagId} (${a.name} - ${a.species.toUpperCase()}):** Core Temp: **${a.currentTemperature}°C**, Output: ${a.currentDailyProduction} ${a.productionUnit}. (${a.notes || 'Under clinical review'})`)
           .join('\n');
@@ -276,31 +418,27 @@ export const AIFarmAssistant: React.FC = () => {
       } else {
         return {
           toolUsed: 'query_animals_by_status("attention")',
-          reply: `Good news! All **${animals.length} animals** on **${selectedFarm?.name}** are currently marked as **Healthy / Normal** with no active fever flags.`
+          reply: isHindi
+            ? `शुभ समाचार! **${selectedFarm?.name}** के सभी **${animals.length} पशु** पूरी तरह स्वस्थ और सामान्य हैं। किसी पशु में बुखार या बीमारी का कोई संकेत नहीं है।`
+            : `Good news! All **${animals.length} animals** on **${selectedFarm?.name}** are currently marked as **Healthy / Normal** with no active fever flags.`
         };
       }
     }
 
-    // 8. Clinical Health & Vitals Overview
-    if (q.includes('health') || q.includes('vital') || q.includes('temperature') || q.includes('temp') || q.includes('clinical') || q.includes('bimar')) {
-      const healthyCount = animals.filter(a => a.healthStatus === 'healthy').length;
-      const attentionCount = animals.filter(a => a.healthStatus === 'attention').length;
-      const avgTemp = (animals.reduce((sum, a) => sum + (a.currentTemperature || 38.5), 0) / (animals.length || 1)).toFixed(1);
-
-      return {
-        toolUsed: 'query_herd_health_index()',
-        reply: `**Herd Health & Vitals Index for ${selectedFarm?.name}**:\n\n` +
-          `• **Healthy Stock:** **${healthyCount} / ${animals.length} head** (${Math.round((healthyCount / (animals.length || 1)) * 100)}%)\n` +
-          `• **Requiring Monitoring:** **${attentionCount} head**\n` +
-          `• **Average Rectal Core Temperature:** **${avgTemp}°C** (Species Normal: 38.0°C - 39.2°C)\n\n` +
-          `*Clinical Protocol:* Any rectal reading exceeding 39.5°C automatically logs a Critical Fever Alert.`
-      };
-    }
-
-    // 9. Vaccinations Due / Schedule
-    if (q.includes('vaccin') || q.includes('due') || q.includes('shot') || q.includes('immuniz') || q.includes('deworm') || q.includes('tika')) {
+    // 8. Vaccinations Due / Schedule
+    if (q.includes('vaccin') || q.includes('due') || q.includes('shot') || q.includes('immuniz') || q.includes('deworm') || q.includes('tika') || q.includes('teeka')) {
       const upcoming = vaccinations.filter(v => v.status === 'upcoming' || v.status === 'overdue');
       if (upcoming.length > 0) {
+        if (isHindi) {
+          const vText = upcoming
+            .map(v => `• **${v.animalTag}**: ${v.vaccineName} (${v.status === 'overdue' ? '⚠️ अतिदेय (Overdue)' : `नियत तिथि: ${v.nextDueDate}`})`)
+            .join('\n');
+          return {
+            toolUsed: 'query_vaccination_schedule()',
+            reply: `आपके फार्म के लिए निर्धारित टीकाकरण अनुसूची:\n\n${vText}\n\nटीकाकरण से पूर्व टीके की शीशी को 2°C से 8°C के तापमान में कोल्ड-चेन में रखें।`
+          };
+        }
+
         const vText = upcoming
           .map(v => `• **${v.animalTag}**: ${v.vaccineName} (${v.status === 'overdue' ? '⚠️ OVERDUE' : `Due on ${v.nextDueDate}`})`)
           .join('\n');
@@ -311,30 +449,27 @@ export const AIFarmAssistant: React.FC = () => {
       } else {
         return {
           toolUsed: 'query_vaccination_schedule()',
-          reply: `All scheduled vaccinations on **${selectedFarm?.name}** are up to date! Total recorded vaccines: ${vaccinations.length}.`
+          reply: isHindi 
+            ? `**${selectedFarm?.name}** के सभी टीके समय पर पूर्ण हैं! कुल दर्ज टीके: ${vaccinations.length}.`
+            : `All scheduled vaccinations on **${selectedFarm?.name}** are up to date! Total recorded vaccines: ${vaccinations.length}.`
         };
       }
     }
 
-    // 10. Species Breakdown / Herd Census
-    if (q.includes('species') || q.includes('count') || q.includes('how many') || q.includes('total animal') || q.includes('herd')) {
-      const speciesCounts: Record<string, number> = {};
-      animals.forEach(a => {
-        speciesCounts[a.species] = (speciesCounts[a.species] || 0) + 1;
-      });
+    // 9. Weather & Heat Stress / THI
+    if (q.includes('weather') || q.includes('thi') || q.includes('heat') || q.includes('stress') || q.includes('humidity') || q.includes('mausam') || q.includes('garmi')) {
+      if (isHindi) {
+        return {
+          toolUsed: 'query_microclimate_thi()',
+          reply: `**${weather.city} का वर्तमान मौसम एवं गर्मी तनाव (THI)**:\n\n` +
+            `• **तापमान:** ${weather.temp}°C\n` +
+            `• **आर्द्रता (Humidity):** ${weather.humidity}%\n` +
+            `• **NRC THI सूचकांक:** **${weather.thiIndex} (${weather.stressLevel === 'normal' ? 'सामान्य - कोई तनाव नहीं' : 'मध्यम गर्मी का तनाव'})**\n` +
+            `• **मौसम की स्थिति:** ${weather.condition}\n\n` +
+            `*पशु चिकित्सा सलाह:* शेड में पंखे चालू रखें और पशुओं के लिए स्वच्छ शीतल पानी की निरंतर आपूर्ति सुनिश्चित करें।`
+        };
+      }
 
-      const countStr = Object.entries(speciesCounts)
-        .map(([sp, cnt]) => `• **${sp.toUpperCase()}:** ${cnt} head`)
-        .join('\n');
-
-      return {
-        toolUsed: 'query_herd_census()',
-        reply: `**Livestock Census for ${selectedFarm?.name}**:\n\n• **Total Herd Size:** **${animals.length} animals**\n${countStr}\n\nFarm location: ${selectedFarm?.location} (${selectedFarm?.primaryType} Enterprise).`
-      };
-    }
-
-    // 11. Weather & Heat Stress / THI
-    if (q.includes('weather') || q.includes('thi') || q.includes('heat') || q.includes('stress') || q.includes('humidity') || q.includes('mausam')) {
       return {
         toolUsed: 'query_microclimate_thi()',
         reply: `**Current Microclimate & Thermal Comfort for ${weather.city}**:\n\n` +
@@ -346,46 +481,15 @@ export const AIFarmAssistant: React.FC = () => {
       };
     }
 
-    // 12. Biosecurity
-    if (q.includes('biosecurity') || q.includes('audit') || q.includes('hygiene') || q.includes('score') || q.includes('disinfection')) {
-      const completed = biosecurity.checklist.filter(c => c.completed).length;
-      return {
-        toolUsed: 'query_biosecurity_audit()',
-        reply: `**Farm Biosecurity Certification Index**:\n\n` +
-          `• **Overall Score:** **${biosecurity.score} / 100**\n` +
-          `• **Compliant Protocols:** ${completed} of ${biosecurity.checklist.length} verified\n` +
-          `• **Last Audit Date:** ${biosecurity.date}\n\n` +
-          `Visit the *Risk Assessment* tab to review individual perimeter, footbath, and quarantine checkpoints.`
-      };
-    }
-
-    // 13. Multi-Farm Comparison
-    if (q.includes('compare') || q.includes('farms') || q.includes('two farm')) {
-      return {
-        toolUsed: 'query_multi_farm_aggregate()',
-        reply: `**Multi-Farm Comparative Summary**:\n\n` +
-          farms.map((f, i) => `${i + 1}. **${f.name}** (${f.location}):\n   - Animals: ${f.totalAnimals}\n   - Enterprise: ${f.primaryType}\n   - Size Category: ${f.sizeCategory}`).join('\n\n')
-      };
-    }
-
-    // 14. Active Alerts & Notifications
-    if (q.includes('alert') || q.includes('warning') || q.includes('notification')) {
-      const activeAlerts = (selectedFarm ? alerts.filter(a => a.farmId === selectedFarm.id) : alerts).slice(0, 4);
-      if (activeAlerts.length > 0) {
-        const aText = activeAlerts.map(a => `• **${a.type.replace('_', ' ').toUpperCase()}**: ${a.reason} (${a.severity})`).join('\n');
+    // 10. Greetings
+    if (q === 'hi' || q === 'hello' || q === 'namaste' || q === 'hey' || q === 'help' || q.includes('namaste')) {
+      if (isHindi) {
         return {
-          toolUsed: 'query_active_alerts()',
-          reply: `**Active Alerts for ${selectedFarm?.name}**:\n\n${aText}`
+          toolUsed: 'query_general_knowledge_base()',
+          reply: `नमस्ते! मैं **${selectedFarm?.name}** के लिए आपका **किसान मित्र एआई सहायक** हूँ।\n\nआप मुझसे पूछ सकते हैं:\n• **मुनाफा एवं वित्तीय विश्लेषण** (जैसे *"किस महीने में ज्यादा मुनाफा हुआ?"*, *"प्रॉफिट बढ़ाने के लिए क्या करें?"*)\n• **दूध उत्पादन व उपज** (जैसे *"आज का कुल दूध उत्पादन कितना है?"*, *"किस पशु के उत्पादन में गिरावट आई?"*)\n• **पशु स्वास्थ्य एवं लक्षण** (जैसे *"किन पशुओं पर तुरंत ध्यान देना है?"*)\n• **चारा और पानी की मात्रा** (जैसे *"दैनिक चारा खपत दिखाएं"*)\n• **टीकाकरण अनुसूची** (जैसे *"आगामी टीके कौन से हैं?"*)\n\nआज आप किस बारे में जानना चाहते हैं?`
         };
       }
-      return {
-        toolUsed: 'query_active_alerts()',
-        reply: `All clear! No critical alerts are pending for **${selectedFarm?.name}**.`
-      };
-    }
 
-    // 15. Friendly Greetings
-    if (q === 'hi' || q === 'hello' || q === 'namaste' || q === 'hey' || q === 'help') {
       return {
         toolUsed: 'query_general_knowledge_base()',
         reply: `Namaste! I am your **Kisan Mitra AI Assistant** for **${selectedFarm?.name}**.\n\nI can answer questions about:\n• **Profit & Financials** (e.g. *"In which month was more profit made?"*, *"Profit badhane ke liye kya kare?"*)\n• **Milk Production & Yields** (e.g. *"milk production"*, *"how much milk today"*, *"largest production decrease"*)\n• **Herd Health & Vitals** (e.g. *"which animals need attention"*, *"what are Gauri's vitals"*)\n• **Feed & Water** (e.g. *"show feed consumption"*)\n• **Vaccine Schedules** (e.g. *"which vaccinations are due soon"*)\n• **Microclimate & Heat Stress** (e.g. *"current heat stress"*)\n\nWhat would you like to check?`
@@ -393,6 +497,13 @@ export const AIFarmAssistant: React.FC = () => {
     }
 
     // Fallback based on real herd data
+    if (isHindi) {
+      return {
+        toolUsed: 'query_general_knowledge_base()',
+        reply: `मैंने **${selectedFarm?.name}** के लाइव रिकॉर्ड (${animals.length} पशु, ${vaccinations.length} टीके) सत्यापित किए हैं।\n\nआप ये प्रश्न पूछ सकते हैं:\n- *"किस महीने में सबसे ज्यादा मुनाफा हुआ?"*\n- *"प्रॉफिट (मुनाफा) बढ़ाने के लिए क्या करें?"*\n- *"आज का कुल दूध उत्पादन कितना है?"*\n- *"किस पशु के दूध उत्पादन में सबसे ज्यादा गिरावट आई?"*\n- *"दैनिक चारा और पानी की खपत दिखाएं"*\n- *"किन पशुओं पर तुरंत ध्यान देने की जरूरत है?"*`
+      };
+    }
+
     return {
       toolUsed: 'query_general_knowledge_base()',
       reply: `I verified your farm records for **${selectedFarm?.name}** (${animals.length} animals, ${vaccinations.length} vaccines).\n\nTry asking:\n- *"In which month was more profit made?"*\n- *"Profit badhane ke liye kya kare?"*\n- *"What is today's total milk production?"*\n- *"Which animal had the largest production decrease?"*\n- *"Show feed & water consumption"*\n- *"Which animals need attention right now?"*`
@@ -425,7 +536,7 @@ export const AIFarmAssistant: React.FC = () => {
       };
       setMessages(prev => [...prev, botResponse]);
       setIsTyping(false);
-    }, 400);
+    }, 350);
   };
 
   return (
@@ -434,10 +545,12 @@ export const AIFarmAssistant: React.FC = () => {
       <button
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 z-40 bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-700 hover:to-green-800 text-white p-3.5 rounded-full shadow-2xl flex items-center space-x-2 border-2 border-white/40 hover:scale-105 transition-all"
-        title="Open Swasth Farm AI Assistant"
+        title={t.aiTitle}
       >
         <Bot className="w-6 h-6 text-white" />
-        <span className="hidden sm:inline font-bold text-xs pr-1">Kisan Mitra AI</span>
+        <span className="hidden sm:inline font-bold text-xs pr-1">
+          {language === 'hi' ? 'किसान मित्र एआई' : 'Kisan Mitra AI'}
+        </span>
       </button>
 
       {/* Floating Chat Modal / Drawer */}
@@ -451,18 +564,22 @@ export const AIFarmAssistant: React.FC = () => {
                 <Sparkles className="w-4 h-4 text-amber-300" />
               </div>
               <div>
-                <h3 className="font-bold text-sm">Kisan Mitra AI Assistant</h3>
-                <p className="text-[10px] text-green-200">Live query access to {selectedFarm?.name}</p>
+                <h3 className="font-bold text-sm">
+                  {language === 'hi' ? 'किसान मित्र एआई सहायक' : 'Kisan Mitra AI Assistant'}
+                </h3>
+                <p className="text-[10px] text-green-200">
+                  {selectedFarm?.name} • {t.aiBadge}
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-1">
               <button
                 onClick={clearMemory}
                 className="text-white/70 hover:text-white p-1 rounded-lg hover:bg-white/10 text-[10px] flex items-center space-x-1"
-                title="Reset Assistant Memory"
+                title={t.aiClearMemory}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Reset</span>
+                <span className="hidden sm:inline">{t.aiClearMemory}</span>
               </button>
               <button
                 onClick={() => setIsOpen(false)}
@@ -493,7 +610,7 @@ export const AIFarmAssistant: React.FC = () => {
                 {m.toolUsed && (
                   <div className="mt-1 flex items-center space-x-1 text-[10px] text-gray-600 font-mono">
                     <Database className="w-3 h-3 text-emerald-800" />
-                    <span>Verified: {m.toolUsed}</span>
+                    <span>{language === 'hi' ? 'सत्यापित' : 'Verified'}: {m.toolUsed}</span>
                   </div>
                 )}
               </div>
@@ -533,7 +650,7 @@ export const AIFarmAssistant: React.FC = () => {
           >
             <input
               type="text"
-              placeholder="Ask about milk yield, vaccines, or animals..."
+              placeholder={t.aiAssistantPlaceholder}
               value={input}
               onChange={e => setInput(e.target.value)}
               className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-xs font-medium focus:ring-2 focus:ring-emerald-500 outline-none"
@@ -541,6 +658,7 @@ export const AIFarmAssistant: React.FC = () => {
             <button
               type="submit"
               disabled={!input.trim()}
+              title={t.aiSend}
               className="p-2 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white rounded-xl shadow-sm transition-colors"
             >
               <Send className="w-4 h-4" />

@@ -162,7 +162,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
             <PawPrint className="w-4 h-4 text-green-600" />
           </div>
           <div className="text-2xl font-bold text-gray-900">{totalAnimals}</div>
-          <div className="text-[11px] text-gray-400 mt-1">Across 4 species</div>
+          <div className="text-[11px] text-gray-400 mt-1">{t.acrossSpecies}</div>
         </div>
 
         {/* Healthy / Normal */}
@@ -173,7 +173,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
           </div>
           <div className="text-2xl font-bold text-emerald-600">{healthyCount}</div>
           <div className="text-[11px] text-emerald-700 mt-1 font-medium">
-            {Math.round((healthyCount / totalAnimals) * 100)}% of herd
+            {Math.round((healthyCount / totalAnimals) * 100)}% {t.ofHerd}
           </div>
         </div>
 
@@ -184,7 +184,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
             <AlertTriangle className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-bold text-amber-600">{attentionCount}</div>
-          <div className="text-[11px] text-amber-700 mt-1 font-medium">Active monitoring</div>
+          <div className="text-[11px] text-amber-700 mt-1 font-medium">{t.activeMonitoring}</div>
         </div>
 
         {/* Daily Production */}
@@ -197,7 +197,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
             {totalDailyMilk > 0 ? `${totalDailyMilk.toFixed(1)} L` : `${totalDailyEggs} Eggs`}
           </div>
           <div className="text-[11px] text-gray-500 mt-1">
-            {totalDailyMilk > 0 && totalDailyEggs > 0 ? `+ ${totalDailyEggs} Eggs` : 'Daily yield'}
+            {totalDailyMilk > 0 && totalDailyEggs > 0 ? `+ ${totalDailyEggs} Eggs` : t.dailyYield}
           </div>
         </div>
 
@@ -208,7 +208,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
             <Wheat className="w-4 h-4 text-amber-600" />
           </div>
           <div className="text-2xl font-bold text-gray-900">{totalFeedKg.toFixed(1)} kg</div>
-          <div className="text-[11px] text-gray-400 mt-1">Combined ration</div>
+          <div className="text-[11px] text-gray-400 mt-1">{t.combinedRation}</div>
         </div>
 
         {/* Biosecurity Score */}
@@ -218,7 +218,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
             <ShieldCheck className="w-4 h-4 text-teal-600" />
           </div>
           <div className="text-2xl font-bold text-teal-700">{biosecurity.score}/100</div>
-          <div className="text-[11px] text-teal-700 mt-1 font-medium">Audited this week</div>
+          <div className="text-[11px] text-teal-700 mt-1 font-medium">{t.auditedThisWeek}</div>
         </div>
 
       </div>
@@ -231,10 +231,10 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
           <div className="flex items-center justify-between mb-4">
             <div>
               <h2 className="text-base font-bold text-gray-900">{t.productionTrend}</h2>
-              <p className="text-xs text-gray-500">Historical trend tracking vs 30-day baseline</p>
+              <p className="text-xs text-gray-500">{t.historicalTrendTracking}</p>
             </div>
             <span className="text-xs bg-green-50 text-green-700 font-semibold px-2.5 py-1 rounded-full">
-              Live Aggregate
+              {t.liveAggregate}
             </span>
           </div>
 
@@ -260,7 +260,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
         {/* Species Distribution & Quick Health */}
         <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100">
           <h2 className="text-base font-bold text-gray-900 mb-1">{t.healthActivityOverview}</h2>
-          <p className="text-xs text-gray-500 mb-4">Herd health categorization</p>
+          <p className="text-xs text-gray-500 mb-4">{t.herdHealthCategorization}</p>
 
           <div className="space-y-3">
             {animals.map(animal => (
@@ -290,7 +290,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
                   animal.healthStatus === 'healthy' ? 'bg-emerald-100 text-emerald-800' :
                   animal.healthStatus === 'attention' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'
                 }`}>
-                  {animal.healthStatus}
+                  {animal.healthStatus === 'healthy' ? t.healthy : t.attention}
                 </span>
               </div>
             ))}
@@ -316,7 +316,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
               <h2 className="text-base font-bold text-gray-900">{t.animalsRequiringAttention}</h2>
             </div>
             <span className="text-xs bg-amber-200/80 text-amber-900 font-bold px-2 py-0.5 rounded-full">
-              {attentionAnimals.length} Priority Animals
+              {attentionAnimals.length} {t.priorityAnimals}
             </span>
           </div>
 
@@ -324,12 +324,12 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
             <table className="w-full text-left text-xs">
               <thead className="text-gray-500 uppercase tracking-wider border-b border-amber-200">
                 <tr>
-                  <th className="py-2">Animal Tag</th>
-                  <th className="py-2">Species / Breed</th>
-                  <th className="py-2">Current Yield</th>
-                  <th className="py-2">Yield Deviation</th>
-                  <th className="py-2">Temp</th>
-                  <th className="py-2">Action</th>
+                  <th className="py-2">{t.animalTag}</th>
+                  <th className="py-2">{t.speciesAndBreed}</th>
+                  <th className="py-2">{t.dailyProductionYield}</th>
+                  <th className="py-2">{t.yieldDeviation}</th>
+                  <th className="py-2">{t.temp}</th>
+                  <th className="py-2">{t.action}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-amber-100 font-medium">
@@ -348,7 +348,7 @@ export const ExecutiveDashboard: React.FC<ExecutiveDashboardProps> = ({ onOpenAd
                         }}
                         className="bg-green-700 hover:bg-green-800 text-white px-2.5 py-1 rounded-lg text-[11px] font-semibold"
                       >
-                        Inspect 360°
+                        {t.checkup}
                       </button>
                     </td>
                   </tr>

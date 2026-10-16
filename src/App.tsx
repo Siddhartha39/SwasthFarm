@@ -226,8 +226,8 @@ export const App: React.FC = () => {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.production} Records</h1>
-                  <p className="text-xs text-gray-500 mt-0.5">Comprehensive daily milking and egg yield tracking</p>
+                  <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.productionTitle}</h1>
+                  <p className="text-xs text-gray-500 mt-0.5">{t.productionSubtitle}</p>
                 </div>
                 {targetAnimal && (
                   <button
@@ -235,7 +235,7 @@ export const App: React.FC = () => {
                     className="inline-flex items-center space-x-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>+ Log Daily Yield</span>
+                    <span>{t.logDailyYield}</span>
                   </button>
                 )}
               </div>
@@ -243,19 +243,19 @@ export const App: React.FC = () => {
               {/* Summary Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                  <span className="text-xs font-bold text-gray-500 uppercase">Recent Total Daily Milk</span>
+                  <span className="text-xs font-bold text-gray-500 uppercase">{t.recentTotalDailyMilk}</span>
                   <div className="text-2xl font-extrabold text-emerald-800 mt-1">{totalDailyMilk.toFixed(1)} L</div>
-                  <p className="text-[11px] text-gray-400 mt-0.5">Morning & evening combined output</p>
+                  <p className="text-[11px] text-gray-400 mt-0.5">{t.morningMilk} & {t.eveningMilk}</p>
                 </div>
                 <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                  <span className="text-xs font-bold text-gray-500 uppercase">Milking Livestock</span>
+                  <span className="text-xs font-bold text-gray-500 uppercase">{t.milkingLivestock}</span>
                   <div className="text-2xl font-extrabold text-gray-900 mt-1">
                     {animals.filter(a => a.productionType === 'milk').length} Head
                   </div>
                   <p className="text-[11px] text-gray-400 mt-0.5">Dairy cattle & Murrah buffaloes</p>
                 </div>
                 <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                  <span className="text-xs font-bold text-gray-500 uppercase">Total Logged Entries</span>
+                  <span className="text-xs font-bold text-gray-500 uppercase">{t.totalLoggedEntries}</span>
                   <div className="text-2xl font-extrabold text-sky-800 mt-1">{productionRecords.length} Records</div>
                   <p className="text-[11px] text-gray-400 mt-0.5">Stored in local database</p>
                 </div>
@@ -266,14 +266,14 @@ export const App: React.FC = () => {
                 <table className="w-full text-left text-xs">
                   <thead className="text-gray-500 uppercase border-b border-gray-100">
                     <tr>
-                      <th className="py-2.5">Date</th>
-                      <th className="py-2.5">Animal / Tag</th>
-                      <th className="py-2.5">Species</th>
-                      <th className="py-2.5">Morning Milk</th>
-                      <th className="py-2.5">Evening Milk</th>
-                      <th className="py-2.5">Total Yield</th>
-                      <th className="py-2.5">Fat % / Quality</th>
-                      <th className="py-2.5">Notes</th>
+                      <th className="py-2.5">{t.date}</th>
+                      <th className="py-2.5">{t.animalTag}</th>
+                      <th className="py-2.5">{t.species}</th>
+                      <th className="py-2.5">{t.morningMilk}</th>
+                      <th className="py-2.5">{t.eveningMilk}</th>
+                      <th className="py-2.5">{t.totalYield}</th>
+                      <th className="py-2.5">{t.fatQuality}</th>
+                      <th className="py-2.5">{t.notes}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50 font-medium">
@@ -300,8 +300,8 @@ export const App: React.FC = () => {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.feedAndWater}</h1>
-                  <p className="text-xs text-gray-500 mt-0.5">Nutritional rations, silage usage, and trough hydration logs</p>
+                  <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.feedTitle}</h1>
+                  <p className="text-xs text-gray-500 mt-0.5">{t.feedSubtitle}</p>
                 </div>
                 {targetAnimal && (
                   <button
@@ -309,7 +309,7 @@ export const App: React.FC = () => {
                     className="inline-flex items-center space-x-2 px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>+ Log Feed & Water</span>
+                    <span>{t.logFeedWater}</span>
                   </button>
                 )}
               </div>
@@ -317,17 +317,17 @@ export const App: React.FC = () => {
               {/* Feed Totals */}
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                  <span className="text-xs font-bold text-amber-800 uppercase">Herd Daily Dry Matter / Ration</span>
+                  <span className="text-xs font-bold text-amber-800 uppercase">{t.herdDailyFeed}</span>
                   <div className="text-2xl font-extrabold text-gray-900 mt-1">{totalDailyFeedKg.toFixed(1)} kg</div>
                   <p className="text-[11px] text-gray-400 mt-0.5">Silage + dairy protein concentrate</p>
                 </div>
                 <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                  <span className="text-xs font-bold text-sky-800 uppercase">Herd Daily Water Intake</span>
+                  <span className="text-xs font-bold text-sky-800 uppercase">{t.herdDailyWater}</span>
                   <div className="text-2xl font-extrabold text-gray-900 mt-1">{totalDailyWaterL.toFixed(1)} Liters</div>
                   <p className="text-[11px] text-gray-400 mt-0.5">Fresh automatic trough flow</p>
                 </div>
                 <div className="p-5 bg-white rounded-2xl border border-gray-100 shadow-sm">
-                  <span className="text-xs font-bold text-emerald-800 uppercase">Est. Daily Ration Cost</span>
+                  <span className="text-xs font-bold text-emerald-800 uppercase">{t.estDailyRationCost}</span>
                   <div className="text-2xl font-extrabold text-gray-900 mt-1">₹{Math.round(totalDailyFeedKg * 9.5)}</div>
                   <p className="text-[11px] text-gray-400 mt-0.5">Calculated at current fodder rates</p>
                 </div>
@@ -341,7 +341,7 @@ export const App: React.FC = () => {
                       <div className="font-bold text-sm text-gray-900">{a.tagId} ({a.name})</div>
                       <div className="text-xs text-gray-500">{a.breed} • {a.species.toUpperCase()}</div>
                       <div className="mt-2 text-xs text-gray-700">
-                        <strong>Daily Ration:</strong> {a.dailyFeedKg} kg | <strong>Water:</strong> {a.dailyWaterLiters} L
+                        <strong>{t.dailyRation}:</strong> {a.dailyFeedKg} kg | <strong>{t.water}:</strong> {a.dailyWaterLiters} L
                       </div>
                     </div>
                     <button
@@ -351,7 +351,7 @@ export const App: React.FC = () => {
                       }}
                       className="px-3.5 py-2 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 text-xs font-bold border border-amber-200"
                     >
-                      Update Feed
+                      {t.updateFeed}
                     </button>
                   </div>
                 ))}
@@ -359,18 +359,18 @@ export const App: React.FC = () => {
 
               {/* Detailed Feed Logs Table */}
               <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm overflow-x-auto">
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Recent Ingestion & Water Logs</h3>
+                <h3 className="text-sm font-bold text-gray-900 mb-3">{t.recentIngestionLogs}</h3>
                 <table className="w-full text-left text-xs">
                   <thead className="text-gray-500 uppercase border-b border-gray-100">
                     <tr>
-                      <th className="py-2.5">Date</th>
-                      <th className="py-2.5">Animal</th>
-                      <th className="py-2.5">Ration Formulation</th>
-                      <th className="py-2.5">Feed (kg)</th>
-                      <th className="py-2.5">Water (L)</th>
-                      <th className="py-2.5">Frequency</th>
-                      <th className="py-2.5">Cost</th>
-                      <th className="py-2.5">Notes</th>
+                      <th className="py-2.5">{t.date}</th>
+                      <th className="py-2.5">{t.animalTag}</th>
+                      <th className="py-2.5">{t.rationFormulation}</th>
+                      <th className="py-2.5">{t.quantity}</th>
+                      <th className="py-2.5">{t.water} (L)</th>
+                      <th className="py-2.5">{t.frequency}</th>
+                      <th className="py-2.5">{t.cost}</th>
+                      <th className="py-2.5">{t.notes}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50 font-medium">
@@ -397,8 +397,8 @@ export const App: React.FC = () => {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.healthAndVitals}</h1>
-                  <p className="text-xs text-gray-500 mt-0.5">Empirical vitals logs, temperatures, and veterinary clinical observations</p>
+                  <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.healthTitle}</h1>
+                  <p className="text-xs text-gray-500 mt-0.5">{t.healthSubtitle}</p>
                 </div>
                 {targetAnimal && (
                   <button
@@ -406,7 +406,7 @@ export const App: React.FC = () => {
                     className="inline-flex items-center space-x-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>+ Log Clinical Vitals</span>
+                    <span>{t.logClinicalVitals}</span>
                   </button>
                 )}
               </div>
@@ -421,10 +421,10 @@ export const App: React.FC = () => {
                         <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                           a.healthStatus === 'healthy' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                         }`}>
-                          {a.healthStatus}
+                          {a.healthStatus === 'healthy' ? t.healthy : t.attention}
                         </span>
                       </div>
-                      <div className="text-xs text-gray-500 mt-0.5">{a.species.toUpperCase()} • Last Temp: {a.currentTemperature}°C</div>
+                      <div className="text-xs text-gray-500 mt-0.5">{a.species.toUpperCase()} • {t.temp}: {a.currentTemperature}°C</div>
                     </div>
                     <button
                       onClick={() => {
@@ -433,7 +433,7 @@ export const App: React.FC = () => {
                       }}
                       className="px-3.5 py-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200"
                     >
-                      Log Vitals
+                      {t.logHealth}
                     </button>
                   </div>
                 ))}
@@ -441,17 +441,17 @@ export const App: React.FC = () => {
 
               {/* Clinical Records Table */}
               <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm overflow-x-auto">
-                <h3 className="text-sm font-bold text-gray-900 mb-3">Historical Clinical Checkups</h3>
+                <h3 className="text-sm font-bold text-gray-900 mb-3">{t.historicalCheckups}</h3>
                 <table className="w-full text-left text-xs">
                   <thead className="text-gray-500 uppercase border-b border-gray-100">
                     <tr>
-                      <th className="py-2.5">Date</th>
-                      <th className="py-2.5">Animal</th>
-                      <th className="py-2.5">Temp (°C)</th>
-                      <th className="py-2.5">Symptoms</th>
+                      <th className="py-2.5">{t.date}</th>
+                      <th className="py-2.5">{t.animalTag}</th>
+                      <th className="py-2.5">{t.tempC}</th>
+                      <th className="py-2.5">{t.symptoms}</th>
                       <th className="py-2.5">Appetite</th>
                       <th className="py-2.5">Observations</th>
-                      <th className="py-2.5">Recorded By</th>
+                      <th className="py-2.5">{t.veterinarian}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-50 font-medium">
@@ -483,8 +483,8 @@ export const App: React.FC = () => {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.vaccination} & Protocols</h1>
-                  <p className="text-xs text-gray-500 mt-0.5">Herd immunization schedule, batch records, and due date alerts</p>
+                  <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.vaccineTitle}</h1>
+                  <p className="text-xs text-gray-500 mt-0.5">{t.vaccineSubtitle}</p>
                 </div>
                 {targetAnimal && (
                   <button
@@ -492,7 +492,7 @@ export const App: React.FC = () => {
                     className="inline-flex items-center space-x-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all"
                   >
                     <Plus className="w-4 h-4" />
-                    <span>+ Schedule / Record Vaccine</span>
+                    <span>{t.scheduleVaccine}</span>
                   </button>
                 )}
               </div>
@@ -509,7 +509,7 @@ export const App: React.FC = () => {
                         : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-200'
                     }`}
                   >
-                    {tabKey} ({tabKey === 'all' ? vaccinations.length : vaccinations.filter(v => v.status === tabKey).length})
+                    {tabKey === 'all' ? t.filterAll : tabKey === 'upcoming' ? t.filterUpcoming : tabKey === 'overdue' ? t.filterOverdue : t.filterCompleted} ({tabKey === 'all' ? vaccinations.length : vaccinations.filter(v => v.status === tabKey).length})
                   </button>
                 ))}
               </div>
@@ -527,7 +527,7 @@ export const App: React.FC = () => {
                         <div>
                           <div className="font-bold text-sm text-gray-900">{v.vaccineName}</div>
                           <div className="text-xs text-gray-500 mt-0.5">
-                            Target Animal: <span className="font-bold text-gray-800">{v.animalTag}</span> • Disease: {v.targetDisease} • Dose: {v.dose}
+                            {t.targetAnimal}: <span className="font-bold text-gray-800">{v.animalTag}</span> • {t.targetDisease}: {v.targetDisease} • {t.dose}: {v.dose}
                           </div>
                           {v.notes && <p className="text-[11px] text-gray-400 mt-1">{v.notes}</p>}
                         </div>
@@ -537,7 +537,7 @@ export const App: React.FC = () => {
                             v.status === 'completed' ? 'bg-emerald-100 text-emerald-800' :
                             v.status === 'upcoming' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800'
                           }`}>
-                            {v.status === 'completed' ? `Given on ${v.administeredDate}` : `Due on ${v.nextDueDate}`}
+                            {v.status === 'completed' ? `${t.givenOn} ${v.administeredDate}` : `${t.dueOn} ${v.nextDueDate}`}
                           </span>
 
                           {v.status !== 'completed' && (
@@ -545,7 +545,7 @@ export const App: React.FC = () => {
                               onClick={() => markVaccineAdministered(v.id)}
                               className="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 transition-colors"
                             >
-                              ✓ Mark as Given
+                              {t.markGiven}
                             </button>
                           )}
                         </div>
@@ -570,8 +570,8 @@ export const App: React.FC = () => {
           {activeTab === 'settings' && (
             <div className="space-y-6 max-w-3xl">
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.settings} & Enterprise Controls</h1>
-                <p className="text-xs text-gray-500 mt-0.5">Farm details, farmer profile, data export, and database tools</p>
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.settingsTitle}</h1>
+                <p className="text-xs text-gray-500 mt-0.5">{t.settingsSubtitle}</p>
               </div>
 
               {settingsStatus && (
@@ -585,12 +585,12 @@ export const App: React.FC = () => {
               <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
                 <div className="flex items-center space-x-2 text-emerald-800 font-bold text-sm">
                   <Building2 className="w-4 h-4" />
-                  <span>Active Farm Information</span>
+                  <span>{t.activeFarmInfo}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">Farm Name</label>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">{t.farmNameLabel}</label>
                     <input
                       type="text"
                       value={farmNameEdit}
@@ -599,7 +599,7 @@ export const App: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">Location / District</label>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">{t.locationLabel}</label>
                     <input
                       type="text"
                       value={farmLocationEdit}
@@ -610,7 +610,7 @@ export const App: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-700 mb-1">Primary Enterprise Focus</label>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">{t.primaryEnterprise}</label>
                   <select
                     value={farmTypeEdit}
                     onChange={e => setFarmTypeEdit(e.target.value as any)}
@@ -633,14 +633,14 @@ export const App: React.FC = () => {
                           location: farmLocationEdit,
                           primaryType: farmTypeEdit
                         });
-                        setSettingsStatus('✅ Farm information updated successfully!');
+                        setSettingsStatus(`✅ ${t.farmUpdated}`);
                         setTimeout(() => setSettingsStatus(''), 2500);
                       }
                     }}
                     className="flex items-center space-x-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
                   >
                     <Save className="w-3.5 h-3.5" />
-                    <span>Save Farm Changes</span>
+                    <span>{t.saveFarm}</span>
                   </button>
                 </div>
               </div>
@@ -649,12 +649,12 @@ export const App: React.FC = () => {
               <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-4">
                 <div className="flex items-center space-x-2 text-gray-900 font-bold text-sm">
                   <UserCheck className="w-4 h-4 text-emerald-600" />
-                  <span>Farmer / User Profile</span>
+                  <span>{t.farmerProfile}</span>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">{t.fullName}</label>
                     <input
                       type="text"
                       value={userNameEdit}
@@ -663,7 +663,7 @@ export const App: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-gray-700 mb-1">Phone Number</label>
+                    <label className="block text-xs font-bold text-gray-700 mb-1">{t.phoneNumber}</label>
                     <input
                       type="text"
                       value={userPhoneEdit}
@@ -681,38 +681,34 @@ export const App: React.FC = () => {
                         phone: userPhoneEdit,
                         role: userRoleEdit as any
                       });
-                      setSettingsStatus('✅ User profile updated successfully!');
+                      setSettingsStatus(`✅ ${t.profileUpdated}`);
                       setTimeout(() => setSettingsStatus(''), 2500);
                     }}
                     className="flex items-center space-x-1.5 px-4 py-2 bg-gray-800 hover:bg-gray-900 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
                   >
                     <Save className="w-3.5 h-3.5" />
-                    <span>Save Profile Changes</span>
+                    <span>{t.saveProfile}</span>
                   </button>
                 </div>
               </div>
 
               {/* Data Backup & Export */}
               <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-3">
-                <h3 className="text-sm font-bold text-gray-800">Export & Backup Farm Records</h3>
-                <p className="text-xs text-gray-500">
-                  Export all herd telemetry, milk production history, feed logs, and vaccination charts into a standard JSON backup file.
-                </p>
+                <h3 className="text-sm font-bold text-gray-800">{t.exportData}</h3>
+                <p className="text-xs text-gray-500">{t.exportDataDesc}</p>
                 <button
                   onClick={exportFarmData}
                   className="flex items-center space-x-2 px-4 py-2.5 bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 rounded-xl text-xs font-bold transition-colors"
                 >
                   <Download className="w-4 h-4 text-sky-600" />
-                  <span>Download Complete Farm Data (.JSON)</span>
+                  <span>{t.downloadJson}</span>
                 </button>
               </div>
 
               {/* Reset Database */}
               <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm space-y-3">
-                <h3 className="text-sm font-bold text-gray-800">Demo Database Factory Reset</h3>
-                <p className="text-xs text-gray-500">
-                  Restore all records back to the original Kanpur dairy herd and Karnal poultry farm benchmarks.
-                </p>
+                <h3 className="text-sm font-bold text-gray-800">{t.factoryReset}</h3>
+                <p className="text-xs text-gray-500">{t.factoryResetDesc}</p>
                 <button
                   onClick={() => {
                     if (window.confirm("Reset all farm data back to defaults? Custom entries will be erased.")) {
@@ -723,7 +719,7 @@ export const App: React.FC = () => {
                   className="flex items-center space-x-1.5 px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 rounded-xl text-xs font-bold transition-colors"
                 >
                   <RotateCcw className="w-3.5 h-3.5 text-red-600" />
-                  <span>Restore Factory Defaults</span>
+                  <span>{t.restoreDemo}</span>
                 </button>
               </div>
 
@@ -746,7 +742,7 @@ export const App: React.FC = () => {
                     className="flex items-center space-x-2 px-4 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold shadow-sm transition-colors"
                   >
                     <LogOut className="w-4 h-4" />
-                    <span>Sign Out & Return to Front Page</span>
+                    <span>{t.logout} & {t.visitFrontPage}</span>
                   </button>
                 </div>
               </div>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useFarm } from '@/context/FarmContext';
+import { useLanguage } from '@/context/LanguageContext';
 import {
   BrainCircuit,
   TrendingDown,
@@ -25,6 +26,7 @@ import {
 
 export const AnalyticsView: React.FC = () => {
   const { animals, productionRecords, weather } = useFarm();
+  const { t } = useLanguage();
 
   const [selectedAnimalId, setSelectedAnimalId] = useState<string>(animals[0]?.id || '');
   const selectedAnimal = animals.find(a => a.id === selectedAnimalId) || animals[0];
@@ -86,10 +88,10 @@ export const AnalyticsView: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2">
             <BrainCircuit className="w-6 h-6 text-green-700" />
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Farm Analytics & Prediction Engine</h1>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.analyticsTitle}</h1>
           </div>
           <p className="text-xs text-gray-500 mt-0.5">
-            Statistical anomaly detection (IQR/Z-Score) & predictive time-series modeling
+            {t.analyticsSubtitle}
           </p>
         </div>
 

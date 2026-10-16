@@ -1,21 +1,23 @@
 import React, { useState } from 'react';
 import { useFarm } from '@/context/FarmContext';
+import { useLanguage } from '@/context/LanguageContext';
 import { ShieldCheck, CheckCircle2, XCircle, AlertCircle, RefreshCw, Award } from 'lucide-react';
 
 export const RiskAssessmentView: React.FC = () => {
   const { biosecurity, toggleBiosecurityCheck } = useFarm();
+  const { t } = useLanguage();
 
   const completedCount = biosecurity.checklist.filter(c => c.completed).length;
   const totalCount = biosecurity.checklist.length;
   const score = biosecurity.score;
 
-  let riskTier = 'Low Biosecurity Risk';
+  let riskTier = t.lowRisk;
   let tierColor = 'text-emerald-700 bg-emerald-100 border-emerald-300';
   if (score < 60) {
-    riskTier = 'High Biosecurity Risk - Action Needed';
+    riskTier = t.highRisk;
     tierColor = 'text-red-700 bg-red-100 border-red-300';
   } else if (score < 80) {
-    riskTier = 'Moderate Biosecurity Risk';
+    riskTier = t.moderateRisk;
     tierColor = 'text-amber-700 bg-amber-100 border-amber-300';
   }
 
@@ -26,10 +28,10 @@ export const RiskAssessmentView: React.FC = () => {
       <div>
         <div className="flex items-center space-x-2">
           <ShieldCheck className="w-6 h-6 text-green-700" />
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Biosecurity & Risk Assessment</h1>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.biosecurityTitle}</h1>
         </div>
         <p className="text-xs text-gray-500 mt-0.5">
-          Government & Veterinary Compliant Livestock Biosecurity Protocol (Preserved from Swasth Farm)
+          {t.biosecuritySubtitle}
         </p>
       </div>
 
@@ -38,7 +40,7 @@ export const RiskAssessmentView: React.FC = () => {
         <div>
           <div className="flex items-center space-x-2 text-green-200 text-xs font-bold uppercase tracking-wider">
             <Award className="w-4 h-4 text-amber-300" />
-            <span>Farm Biosecurity Certification Index</span>
+            <span>{t.certificationIndex}</span>
           </div>
           <div className="text-5xl font-extrabold mt-2 tracking-tight">{score} <span className="text-2xl text-green-300 font-medium">/ 100</span></div>
           <p className="text-xs text-green-200 mt-2 max-w-md">
@@ -51,7 +53,7 @@ export const RiskAssessmentView: React.FC = () => {
             {riskTier}
           </span>
           <span className="text-[11px] text-green-200 mt-2">
-            Last Audited: {biosecurity.date}
+            {t.lastAudited}: {biosecurity.date}
           </span>
         </div>
       </div>

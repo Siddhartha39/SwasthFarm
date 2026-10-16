@@ -125,7 +125,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile, o
               className="w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-emerald-300 hover:bg-green-800/80 hover:text-white transition-colors"
             >
               <ExternalLink className="w-3.5 h-3.5 text-emerald-400" />
-              <span>Visit Front Page</span>
+              <span>{t.visitFrontPage}</span>
             </button>
           )}
           <button

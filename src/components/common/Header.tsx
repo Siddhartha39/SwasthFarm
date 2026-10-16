@@ -153,7 +153,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoT
                     <span className="font-bold text-gray-800 text-sm">{t.alertCenter}</span>
                   </div>
                   <span className="text-xs bg-red-50 text-red-700 font-bold px-2 py-0.5 rounded-full">
-                    {unreadAlerts.length} Unread
+                    {unreadAlerts.length} {t.unread}
                   </span>
                 </div>
 
@@ -197,7 +197,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoT
               title="Return to SwasthFarm Front / Landing Page"
             >
               <ExternalLink className="w-3.5 h-3.5" />
-              <span>Front Page</span>
+              <span>{t.frontPage}</span>
             </button>
           )}
 
@@ -212,7 +212,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoT
                 {user?.name ? user.name.slice(0, 2).toUpperCase() : 'SF'}
               </div>
               <span className="hidden sm:inline text-xs font-semibold text-gray-700 max-w-[100px] truncate">
-                {user?.name || 'Farmer'}
+                {user?.name || t.farmer}
               </span>
               <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
             </button>
@@ -225,12 +225,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoT
               >
                 <div className="px-4 py-3 border-b border-gray-100">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-gray-900 truncate">{user?.name || 'Swasth Farmer'}</span>
+                    <span className="text-xs font-bold text-gray-900 truncate">{user?.name || t.farmer}</span>
                     <span className="text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800">
-                      {user?.role || 'Farmer'}
+                      {user?.role || t.farmer}
                     </span>
                   </div>
-                  <p className="text-[11px] text-gray-500 truncate mt-0.5">{user?.email || user?.phone || 'Standard User'}</p>
+                  <p className="text-[11px] text-gray-500 truncate mt-0.5">{user?.email || user?.phone || t.standardUser}</p>
                 </div>
 
                 <div className="py-1">
@@ -243,7 +243,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoT
                       className="w-full flex items-center space-x-2.5 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-emerald-800 transition-colors"
                     >
                       <ExternalLink className="w-4 h-4 text-emerald-600" />
-                      <span>Visit Front Page</span>
+                      <span>{t.visitFrontPage}</span>
                     </button>
                   )}
 
@@ -255,7 +255,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoT
                     className="w-full flex items-center space-x-2.5 px-4 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors"
                   >
                     <User className="w-4 h-4 text-gray-500" />
-                    <span>Switch Account / Manage Login</span>
+                    <span>{t.switchAccount}</span>
                   </button>
                 </div>
 
@@ -265,7 +265,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoT
                     className="w-full flex items-center space-x-2.5 px-4 py-2 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors"
                   >
                     <LogOut className="w-4 h-4 text-red-500" />
-                    <span>{t.logout} (Sign Out)</span>
+                    <span>{t.logout} ({t.signOut})</span>
                   </button>
                 </div>
               </div>

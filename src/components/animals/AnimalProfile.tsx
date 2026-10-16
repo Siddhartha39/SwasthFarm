@@ -85,7 +85,7 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
             className="inline-flex items-center space-x-1.5 text-xs font-bold text-gray-500 hover:text-green-700 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Back to Animals List</span>
+            <span>{t.backToAnimals}</span>
           </button>
           
           <button
@@ -98,7 +98,7 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
             className="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-red-700 bg-red-50 hover:bg-red-100 border border-red-200 transition-colors"
           >
             <Trash2 className="w-3.5 h-3.5 text-red-600" />
-            <span>Delete Animal</span>
+            <span>{t.deleteAnimal}</span>
           </button>
         </div>
 
@@ -119,20 +119,20 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
                 <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${
                   animal.healthStatus === 'healthy' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
                 }`}>
-                  {animal.healthStatus}
+                  {animal.healthStatus === 'healthy' ? t.healthy : t.attention}
                 </span>
               </div>
               <p className="text-sm font-semibold text-gray-700 mt-1">
-                {animal.name} • {animal.breed} ({animal.gender === 'female' ? 'Female' : 'Male'})
+                {animal.name} • {animal.breed} ({animal.gender === 'female' ? t.female : t.male})
               </p>
               <div className="flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-500">
                 <span className="flex items-center space-x-1">
                   <Calendar className="w-3.5 h-3.5 text-gray-400" />
-                  <span>Age: {animal.ageYears} years</span>
+                  <span>{t.age}: {animal.ageYears} {t.years}</span>
                 </span>
                 <span className="flex items-center space-x-1">
                   <Scale className="w-3.5 h-3.5 text-gray-400" />
-                  <span>Weight: {animal.weightKg} kg</span>
+                  <span>{t.weight}: {animal.weightKg} kg</span>
                 </span>
                 <span className="flex items-center space-x-1">
                   <MapPin className="w-3.5 h-3.5 text-gray-400" />
@@ -149,28 +149,28 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
               className="flex items-center space-x-1.5 bg-green-50 hover:bg-green-100 text-green-800 px-3 py-2 rounded-xl text-xs font-bold transition-colors border border-green-200"
             >
               <HeartPulse className="w-3.5 h-3.5 text-green-700" />
-              <span>Log Health</span>
+              <span>{t.logHealth}</span>
             </button>
             <button
               onClick={onOpenLogFeed}
               className="flex items-center space-x-1.5 bg-amber-50 hover:bg-amber-100 text-amber-800 px-3 py-2 rounded-xl text-xs font-bold transition-colors border border-amber-200"
             >
               <Wheat className="w-3.5 h-3.5 text-amber-700" />
-              <span>Log Feed</span>
+              <span>{t.logFeed}</span>
             </button>
             <button
               onClick={onOpenLogProduction}
               className="flex items-center space-x-1.5 bg-sky-50 hover:bg-sky-100 text-sky-800 px-3 py-2 rounded-xl text-xs font-bold transition-colors border border-sky-200"
             >
               <TrendingUp className="w-3.5 h-3.5 text-sky-700" />
-              <span>Log Production</span>
+              <span>{t.logProduction}</span>
             </button>
             <button
               onClick={onOpenLogVaccine}
               className="flex items-center space-x-1.5 bg-purple-50 hover:bg-purple-100 text-purple-800 px-3 py-2 rounded-xl text-xs font-bold transition-colors border border-purple-200"
             >
               <Syringe className="w-3.5 h-3.5 text-purple-700" />
-              <span>Log Vaccine</span>
+              <span>{t.logVaccine}</span>
             </button>
           </div>
         </div>
@@ -178,14 +178,14 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
         {/* Profile Tabs Navigation */}
         <div className="flex items-center space-x-1 overflow-x-auto mt-6 pt-4 border-t border-gray-100">
           {[
-            { id: 'overview', label: 'Overview', icon: FileText },
-            { id: 'health', label: `Health (${myHealth.length})`, icon: HeartPulse },
-            { id: 'feed', label: 'Feed & Water', icon: Wheat },
-            { id: 'production', label: `Production (${myProduction.length})`, icon: TrendingUp },
-            { id: 'vaccination', label: `Vaccinations (${myVaccines.length})`, icon: Syringe },
-            { id: 'treatment', label: `Treatments (${myTreatments.length})`, icon: Pill },
-            { id: 'analytics', label: 'Analytics & Signals', icon: Activity },
-            { id: 'history', label: `Timeline (${timelineEvents.length})`, icon: Clock }
+            { id: 'overview', label: t.overview, icon: FileText },
+            { id: 'health', label: `${t.healthRecords} (${myHealth.length})`, icon: HeartPulse },
+            { id: 'feed', label: t.feedAndWater, icon: Wheat },
+            { id: 'production', label: `${t.production} (${myProduction.length})`, icon: TrendingUp },
+            { id: 'vaccination', label: `${t.vaccination} (${myVaccines.length})`, icon: Syringe },
+            { id: 'treatment', label: `${t.vaccinationAndTreatment} (${myTreatments.length})`, icon: Pill },
+            { id: 'analytics', label: t.analytics, icon: Activity },
+            { id: 'history', label: `${t.eventTimeline} (${timelineEvents.length})`, icon: Clock }
           ].map(tab => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
@@ -212,22 +212,22 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {/* Vitals Summary Card */}
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4">
-            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Current Physiological Vitals</h2>
+            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">{t.currentPhysiologicalVitals}</h2>
             <div className="space-y-3">
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                <span className="text-xs text-gray-500">Core Body Temperature</span>
+                <span className="text-xs text-gray-500">{t.coreBodyTemp}</span>
                 <span className="text-sm font-bold text-gray-900">{animal.currentTemperature}°C</span>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                <span className="text-xs text-gray-500">Daily Production Yield</span>
+                <span className="text-xs text-gray-500">{t.dailyProductionYield}</span>
                 <span className="text-sm font-bold text-gray-900">{animal.currentDailyProduction} {animal.productionUnit}</span>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                <span className="text-xs text-gray-500">Daily Feed Ration</span>
+                <span className="text-xs text-gray-500">{t.dailyFeedRation}</span>
                 <span className="text-sm font-bold text-gray-900">{animal.dailyFeedKg} kg</span>
               </div>
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
-                <span className="text-xs text-gray-500">Daily Water Consumption</span>
+                <span className="text-xs text-gray-500">{t.dailyWaterConsumption}</span>
                 <span className="text-sm font-bold text-gray-900">{animal.dailyWaterLiters} L</span>
               </div>
             </div>
@@ -235,26 +235,26 @@ export const AnimalProfile: React.FC<AnimalProfileProps> = ({
 
           {/* Details & Origin */}
           <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm space-y-4">
-            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">Identification & Pedigree</h2>
+            <h2 className="text-sm font-bold text-gray-900 uppercase tracking-wider">{t.identificationAndPedigree}</h2>
             <div className="space-y-2 text-xs">
               <div className="flex justify-between py-1.5 border-b border-gray-50">
-                <span className="text-gray-500">Tag Number</span>
+                <span className="text-gray-500">{t.tagNumber}</span>
                 <span className="font-semibold text-gray-800">{animal.tagId}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-gray-50">
-                <span className="text-gray-500">Species & Breed</span>
+                <span className="text-gray-500">{t.speciesAndBreed}</span>
                 <span className="font-semibold text-gray-800">{animal.species.toUpperCase()} - {animal.breed}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-gray-50">
-                <span className="text-gray-500">Coat Color</span>
+                <span className="text-gray-500">{t.coatColor}</span>
                 <span className="font-semibold text-gray-800">{animal.color || 'Standard'}</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-gray-50">
-                <span className="text-gray-500">Acquisition Source</span>
+                <span className="text-gray-500">{t.acquisitionSource}</span>
                 <span className="font-semibold text-gray-800">{animal.source || 'Local Farm Herd'}</span>
               </div>
               <div className="flex justify-between py-1.5">
-                <span className="text-gray-500">Last Clinical Checkup</span>
+                <span className="text-gray-500">{t.lastClinicalCheckup}</span>
                 <span className="font-semibold text-gray-800">{animal.lastCheckupDate}</span>
               </div>
             </div>

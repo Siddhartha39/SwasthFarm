@@ -97,9 +97,9 @@ export const AnimalList: React.FC<AnimalListProps> = ({ onOpenAddAnimal }) => {
             onChange={(e) => setStatusFilter(e.target.value)}
             className="bg-white border border-gray-200 text-gray-700 text-xs font-semibold rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-green-500 shadow-sm"
           >
-            <option value="all">All Health Statuses</option>
-            <option value="healthy">Healthy / Normal</option>
-            <option value="attention">Needs Attention</option>
+            <option value="all">{t.allHealthStatuses}</option>
+            <option value="healthy">{t.healthy}</option>
+            <option value="attention">{t.attention}</option>
           </select>
         </div>
       </div>
@@ -135,7 +135,7 @@ export const AnimalList: React.FC<AnimalListProps> = ({ onOpenAddAnimal }) => {
                   <span className={`absolute top-3 right-3 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm ${
                     animal.healthStatus === 'healthy' ? 'bg-emerald-500 text-white' : 'bg-amber-500 text-white'
                   }`}>
-                    {animal.healthStatus}
+                    {animal.healthStatus === 'healthy' ? t.healthy : t.attention}
                   </span>
 
                   <span className="absolute bottom-3 left-3 bg-black/60 backdrop-blur-md text-white px-2.5 py-0.5 rounded-lg text-[11px] font-bold">

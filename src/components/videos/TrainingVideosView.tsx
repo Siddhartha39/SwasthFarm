@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useLanguage } from '@/context/LanguageContext';
 import { Video, Play, ExternalLink, BookOpen, CheckCircle } from 'lucide-react';
 
 interface VideoLesson {
@@ -12,6 +13,7 @@ interface VideoLesson {
 }
 
 export const TrainingVideosView: React.FC = () => {
+  const { t } = useLanguage();
   const [lessons, setLessons] = useState<VideoLesson[]>([
     {
       id: 'v1',
@@ -62,10 +64,10 @@ export const TrainingVideosView: React.FC = () => {
       <div>
         <div className="flex items-center space-x-2">
           <Video className="w-6 h-6 text-green-700" />
-          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Swasth Farm Training Videos</h1>
+          <h1 className="text-2xl font-bold text-gray-900 tracking-tight">{t.trainingTitle}</h1>
         </div>
         <p className="text-xs text-gray-500 mt-0.5">
-          Curated farmer capacity building lessons on biosecurity, preventive healthcare, and nutrition
+          {t.trainingSubtitle}
         </p>
       </div>
 
