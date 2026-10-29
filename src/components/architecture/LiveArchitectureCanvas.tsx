@@ -36,6 +36,7 @@ import {
   TrendingUp,
   UserCheck,
   Volume2,
+  Wheat,
   Wifi,
   X,
   Zap
@@ -66,20 +67,20 @@ export interface ArchitectureNode {
 }
 
 export const ARCHITECTURE_NODES: ArchitectureNode[] = [
-  // LEFT COLUMN: Edge & Presentation
+  // COLUMN 1: EDGE PRESENTATION & SENSORS
   {
     id: 'user_pwa',
-    nameEn: 'Farmer & Vet Edge PWA',
-    nameHi: 'किसान एवं वेट PWA',
-    subtitleEn: 'Manifest V3 Edge Sensor',
-    subtitleHi: 'फील्ड टेलीमेट्री सेंसर',
-    badge: 'Mobile / Offline PWA',
+    nameEn: 'Field Operations PWA',
+    nameHi: 'फील्ड ऑपरेशंस PWA',
+    subtitleEn: 'Mobile Barn Sensor & PWA',
+    subtitleHi: 'मोबाइल शेड डेटा प्रविष्टि',
+    badge: 'Touch & Bluetooth PWA',
     tier: 'Edge Presentation',
     color: 'border-rose-500/80 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.3)]',
     glowColor: '#F43F5E',
     icon: <Smartphone className="w-5 h-5 text-rose-400" />,
     x: 40,
-    y: 150,
+    y: 130,
     w: 220,
     h: 82,
     responsibilities: {
@@ -108,23 +109,23 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'farmer_session',
-    nameEn: 'Farmer / Vet Session',
-    nameHi: 'किसान / डॉक्टर सत्र',
-    subtitleEn: 'Browser & Field Session',
-    subtitleHi: 'प्रमाणीकृत सुरक्षित सत्र',
+    nameEn: 'Farmer & Vet Auth Portal',
+    nameHi: 'किसान एवं पशुचिकित्सक पोर्टल',
+    subtitleEn: 'Role-Based Access (Farmer/Vet)',
+    subtitleHi: 'भूमिका-आधारित सुरक्षित सत्र',
     badge: 'Authenticated RBAC',
     tier: 'User Session Layer',
     color: 'border-cyan-500/80 text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.3)]',
     glowColor: '#06B6D4',
     icon: <UserCheck className="w-5 h-5 text-cyan-400" />,
     x: 40,
-    y: 380,
+    y: 330,
     w: 220,
     h: 82,
     responsibilities: {
       en: [
         'Manages user credentials, OTP sessions, and Role-Based Access Control (Farmer vs Vet)',
-        'Authorizes multi-farm switching (Kanpur Dairy vs Karnal Layers)',
+        'Coordinates multi-farm switching (Kanpur Dairy vs Karnal Layers)',
         'Guarantees session persistence with secure biometric/token revalidation'
       ],
       hi: [
@@ -133,11 +134,11 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
         'सुरक्षित प्रमाणीकरण के साथ सत्र को सुरक्षित रखना'
       ]
     },
-    techStack: 'Firebase Auth, JWT Tokens, Secure Cookies',
+    techStack: 'Firebase Auth, JWT Tokens, Secure LocalStorage',
     keyFiles: ['src/context/AuthContext.tsx', 'src/components/auth/AuthModal.tsx'],
     inputsOutputs: {
-      en: 'Input: Credentials / OTP 123456 | Output: Bearer Token & User Profile',
-      hi: 'इनपुट: पासवर्ड या OTP | आउटपुट: अधिकृत सत्र एवं प्रोफाइल'
+      en: 'Input: Credentials / Phone OTP | Output: Bearer Token & User Profile',
+      hi: 'इनपुट: पासवर्ड या फोन OTP | आउटपुट: अधिकृत सत्र एवं प्रोफाइल'
     },
     faultTolerance: {
       en: 'Silent token refresh and graceful session recovery on network blips.',
@@ -146,47 +147,8 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     category: 'edge'
   },
   {
-    id: 'web_ui',
-    nameEn: 'Web UI Console',
-    nameHi: 'वेब कंसोल (डैशबोर्ड)',
-    subtitleEn: 'React 18 + Vite + Tailwind',
-    subtitleHi: 'रिएक्ट 18 + टेलविंड कंसोल',
-    badge: 'React 18 SPA',
-    tier: 'Executive Presentation',
-    color: 'border-cyan-400/90 text-cyan-200 shadow-[0_0_24px_rgba(6,182,212,0.45)]',
-    glowColor: '#00F0FF',
-    icon: <Layout className="w-5 h-5 text-cyan-300" />,
-    x: 295,
-    y: 380,
-    w: 220,
-    h: 84,
-    responsibilities: {
-      en: [
-        'Renders executive KPIs, Recharts telemetry curves, and 360° animal health cards',
-        '8-tab inspection deck: Overview, Vitals, Feed, Milk Yield, Vaccines, Treatments',
-        'Bilingual English / Hindi runtime text replacement with zero lag'
-      ],
-      hi: [
-        'कार्यकारी KPI, रीचार्ट्स उत्पादन वक्र और 360° पशु स्वास्थ्य कार्ड प्रस्तुत करता है',
-        '8-टैब निरीक्षण: अवलोकन, वाइटल्स, चारा, दूध उत्पादन, टीके, उपचार',
-        'अंग्रेजी एवं हिंदी के बीच बिना रीलोड के त्वरित भाषा परिवर्तन'
-      ]
-    },
-    techStack: 'React 18, Vite 5, Tailwind CSS, Recharts, Lucide Icons',
-    keyFiles: ['src/components/dashboard/ExecutiveDashboard.tsx', 'src/components/animals/AnimalProfile.tsx'],
-    inputsOutputs: {
-      en: 'Input: User clicks, forms, modals | Output: Reactive UI state & optimistic renders',
-      hi: 'इनपुट: यूजर क्लिक, फॉर्म, मोडल | आउटपुट: गतिशील UI और ग्राफिकल चार्ट्स'
-    },
-    faultTolerance: {
-      en: 'Graceful fallback states with empty placeholders and responsive breakpoints.',
-      hi: 'खाली डेटा होने पर भी सहज लेआउट और एरर फ्री डिस्प्ले।'
-    },
-    category: 'edge'
-  },
-  {
     id: 'offline_cache',
-    nameEn: 'Offline Resilience Engine',
+    nameEn: 'Offline Persistence Engine',
     nameHi: 'ऑफ़लाइन स्टोरेज इंजन',
     subtitleEn: 'LocalStorage Snapshot Cache',
     subtitleHi: 'स्थानीय ब्राउज़र स्नैपशॉट',
@@ -195,10 +157,10 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     color: 'border-amber-500/80 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.3)]',
     glowColor: '#F59E0B',
     icon: <HardDrive className="w-5 h-5 text-amber-400" />,
-    x: 295,
-    y: 545,
+    x: 40,
+    y: 530,
     w: 220,
-    h: 80,
+    h: 82,
     responsibilities: {
       en: [
         'Guarantees 100% full-featured operation even if rural power/internet is disconnected',
@@ -224,11 +186,91 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     category: 'edge'
   },
 
-  // CENTER CONTAINER: SwasthFarm Backend Core
+  // COLUMN 2: CLIENT APPLICATION & STATE COORDINATOR
+  {
+    id: 'web_ui',
+    nameEn: 'Web Management Console',
+    nameHi: 'वेब प्रबंधन कंसोल (डैशबोर्ड)',
+    subtitleEn: 'React 18 + Vite Executive View',
+    subtitleHi: 'कार्यकारी डैशबोर्ड एवं 360° प्रोफाइल',
+    badge: 'React 18 + FarmContext',
+    tier: 'Executive Presentation',
+    color: 'border-cyan-400/90 text-cyan-200 shadow-[0_0_24px_rgba(6,182,212,0.45)]',
+    glowColor: '#00F0FF',
+    icon: <Layout className="w-5 h-5 text-cyan-300" />,
+    x: 295,
+    y: 330,
+    w: 225,
+    h: 84,
+    responsibilities: {
+      en: [
+        'Renders executive KPIs, Recharts telemetry curves, and 360° animal health cards',
+        '8-tab inspection deck: Overview, Vitals, Feed, Milk Yield, Vaccines, Treatments',
+        'Bilingual English / Hindi runtime text replacement with zero lag'
+      ],
+      hi: [
+        'कार्यकारी KPI, रीचार्ट्स उत्पादन वक्र और 360° पशु स्वास्थ्य कार्ड प्रस्तुत करता है',
+        '8-टैब निरीक्षण: अवलोकन, वाइटल्स, चारा, दूध उत्पादन, टीके, उपचार',
+        'अंग्रेजी एवं हिंदी के बीच बिना रीलोड के त्वरित भाषा परिवर्तन'
+      ]
+    },
+    techStack: 'React 18, Vite 5, Tailwind CSS, Recharts, Lucide Icons',
+    keyFiles: ['src/components/dashboard/ExecutiveDashboard.tsx', 'src/components/animals/AnimalProfile.tsx'],
+    inputsOutputs: {
+      en: 'Input: User clicks, forms, modals | Output: Reactive UI state & optimistic renders',
+      hi: 'इनपुट: यूजर क्लिक, फॉर्म, मोडल | आउटपुट: गतिशील UI और ग्राफिकल चार्ट्स'
+    },
+    faultTolerance: {
+      en: 'Graceful fallback states with empty placeholders and responsive breakpoints.',
+      hi: 'खाली डेटा होने पर भी सहज लेआउट और एरर फ्री डिस्प्ले।'
+    },
+    category: 'edge'
+  },
+
+  // MIDDLE CONTAINER: SWASTHFARM CLOUD & ANALYTICS CORE
+  {
+    id: 'firestore_sync',
+    nameEn: 'Firestore Sync Service',
+    nameHi: 'क्लाउड फायरस्टोर सिंक सेवा',
+    subtitleEn: 'Bidirectional onSnapshot SDK',
+    subtitleHi: 'रीयल-टाइम दोतरफा सिंक',
+    badge: 'Firebase SDK v10 (TLS)',
+    tier: 'Cloud Persistence Core',
+    color: 'border-sky-500/80 text-sky-300 shadow-[0_0_20px_rgba(2,132,199,0.3)]',
+    glowColor: '#0284C7',
+    icon: <Cloud className="w-5 h-5 text-sky-400" />,
+    x: 575,
+    y: 130,
+    w: 195,
+    h: 82,
+    responsibilities: {
+      en: [
+        'Real-time multi-device synchronization via Firestore websocket listeners',
+        'Syncs `farms`, `animals`, `production_records`, `feed_records`, `health_records`',
+        'Atomic batch writes to prevent partial ledger corruption'
+      ],
+      hi: [
+        'फायरस्टोर वेबसोकेट श्रोताओं के माध्यम से रीयल-टाइम मल्टी-डिवाइस सिंक्रनाइज़ेशन',
+        '`farms`, `animals`, `production_records`, `health_records` का सुरक्षित प्रबंधन',
+        'आंशिक डेटा त्रुटियों को रोकने के लिए एटॉमिक बैच राइट्स'
+      ]
+    },
+    techStack: 'Firebase 10.12.5 (firebase/firestore), Google Cloud Security Rules',
+    keyFiles: ['src/services/firestoreSync.ts', 'src/lib/firebase.ts', 'firestore.rules'],
+    inputsOutputs: {
+      en: 'Input: Local farm state | Output: Remote Firestore documents & real-time broadcasts',
+      hi: 'इनपुट: स्थानीय बदलाव | आउटपुट: क्लाउड में दस्तावेज़ और रीयल-टाइम अपडेट'
+    },
+    faultTolerance: {
+      en: 'Automatic retry with exponential backoff on intermittent network disconnects.',
+      hi: 'नेटवर्क टूटने पर स्वतः पुनः प्रयास और कतार प्रबंधन।'
+    },
+    category: 'core'
+  },
   {
     id: 'fastapi_gateway',
-    nameEn: 'FastAPI Gateway',
-    nameHi: 'फास्टएपीआई गेटवे',
+    nameEn: 'FastAPI Analytics Gateway',
+    nameHi: 'फास्टएपीआई एनालिटिक्स गेटवे',
     subtitleEn: 'REST API & Batch Worker',
     subtitleHi: 'पायथन 3.11 माइक्रो-सर्विस',
     badge: 'Python 3.11 + FastAPI',
@@ -236,8 +278,8 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     color: 'border-emerald-500/90 text-emerald-300 shadow-[0_0_24px_rgba(16,185,129,0.4)]',
     glowColor: '#10B981',
     icon: <Code2 className="w-5 h-5 text-emerald-400" />,
-    x: 565,
-    y: 380,
+    x: 575,
+    y: 330,
     w: 195,
     h: 84,
     responsibilities: {
@@ -265,100 +307,61 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     category: 'core'
   },
   {
-    id: 'firestore_sync',
-    nameEn: 'Firestore Sync Service',
-    nameHi: 'क्लाउड फायरस्टोर सिंक',
-    subtitleEn: 'Bidirectional onSnapshot',
-    subtitleHi: 'रीयल-टाइम दोतरफा सिंक',
-    badge: 'Firebase SDK v10 (TLS)',
-    tier: 'Cloud Persistence Core',
-    color: 'border-sky-500/80 text-sky-300 shadow-[0_0_20px_rgba(2,132,199,0.3)]',
-    glowColor: '#0284C7',
-    icon: <Cloud className="w-5 h-5 text-sky-400" />,
-    x: 565,
-    y: 150,
+    id: 'herd_db',
+    nameEn: 'Cloud Firestore Database',
+    nameHi: 'क्लाउड फायरस्टोर डेटाबेस',
+    subtitleEn: 'Herd & Production Ledger',
+    subtitleHi: 'पशुधन उत्पादन एवं स्वास्थ्य लेजर',
+    badge: 'Firestore Collections',
+    tier: 'Cloud Persistence Store',
+    color: 'border-indigo-500/80 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)]',
+    glowColor: '#6366F1',
+    icon: <Database className="w-5 h-5 text-indigo-400" />,
+    x: 575,
+    y: 530,
     w: 195,
     h: 82,
     responsibilities: {
       en: [
-        'Real-time multi-client synchronization via Firestore websocket listeners',
-        'Syncs `farms`, `animals`, `production_records`, `feed_records`, `health_records`',
-        'Atomic batch writes to prevent partial ledger corruption'
-      ],
-      hi: [
-        'फायरस्टोर वेबसोकेट श्रोताओं के माध्यम से रीयल-टाइम मल्टी-डिवाइस सिंक्रनाइज़ेशन',
-        '`farms`, `animals`, `production_records`, `health_records` का सुरक्षित प्रबंधन',
-        'आंशिक डेटा त्रुटियों को रोकने के लिए एटॉमिक बैच राइट्स'
-      ]
-    },
-    techStack: 'Firebase 10.12.5 (firebase/firestore), Google Cloud Security Rules',
-    keyFiles: ['src/services/firestoreSync.ts', 'src/lib/firebase.ts', 'firestore.rules'],
-    inputsOutputs: {
-      en: 'Input: Local farm state | Output: Remote Firestore documents & real-time broadcasts',
-      hi: 'इनपुट: स्थानीय बदलाव | आउटपुट: क्लाउड में दस्तावेज़ और रीयल-टाइम अपडेट'
-    },
-    faultTolerance: {
-      en: 'Automatic retry with exponential backoff on intermittent network disconnects.',
-      hi: 'नेटवर्क टूटने पर स्वतः पुनः प्रयास और कतार प्रबंधन।'
-    },
-    category: 'core'
-  },
-  {
-    id: 'threat_intel_store',
-    nameEn: 'Farm Intel Store',
-    nameHi: 'फार्म डेटा लेजर स्टोर',
-    subtitleEn: 'Firestore + Snapshot',
-    subtitleHi: 'ऐतिहासिक रिकॉर्ड एवं ऑडिट लेजर',
-    badge: 'Immutable Ledger',
-    tier: 'Archival & Compliance Store',
-    color: 'border-indigo-500/80 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)]',
-    glowColor: '#6366F1',
-    icon: <Database className="w-5 h-5 text-indigo-400" />,
-    x: 565,
-    y: 545,
-    w: 195,
-    h: 80,
-    responsibilities: {
-      en: [
-        'Maintains immutable append-only records of production, clinical exams, and drug treatments',
+        'Cloud Firestore collections: `farms`, `animals`, `production`, `feed_logs`, `health`',
         'Enforces multi-tenant segregation by farm ID (Kanpur Dairy vs Karnal Layers)',
-        'Supplies historical grounding snapshots to the Kisan Mitra RAG pipeline'
+        'Maintains immutable clinical history and cooperative dairy milk receipts'
       ],
       hi: [
-        'उत्पादन, उपचार और टीकों के अपरिवर्तनीय ऐतिहासिक रिकॉर्ड बनाए रखना',
-        'फार्म आईडी के आधार पर अलग-अलग डेटा अलगाव (कानपुर डेयरी बनाम करनाल लेयर्स)',
-        'किसान मित्र AI को सत्यापित सत्य डेटा प्रदान करना'
+        'क्लाउड डेटाबेस संग्रह: फार्म, पशु, उत्पादन रिकॉर्ड, चारा लॉग, उपचार',
+        'फार्म आईडी के आधार पर अलग-अलग डेटा अलगाव',
+        'ऐतिहासिक उत्पादन और सहकारी डेयरी रसीदों का सुरक्षित रिकॉर्ड'
       ]
     },
-    techStack: 'Cloud Firestore Collections, IndexedDB / LocalStorage, JSON Schema',
-    keyFiles: ['src/services/firestoreSync.ts', 'src/types/index.ts'],
+    techStack: 'Google Cloud Firestore, NoSQL Document Collections, Security Rules',
+    keyFiles: ['src/services/firestoreSync.ts', 'src/types/index.ts', 'firestore.rules'],
     inputsOutputs: {
-      en: 'Input: Commits from sync engine | Output: Indexed historical records',
-      hi: 'इनपुट: सिंक किए गए रिकॉर्ड्स | आउटपुट: इंडेक्स किया गया ऐतिहासिक लेजर'
+      en: 'Input: Firestore document mutations | Output: Real-time snapshot updates',
+      hi: 'इनपुट: डेटाबेस दस्तावेज अपडेट | आउटपुट: रीयल-टाइम स्नैपशॉट'
     },
     faultTolerance: {
-      en: 'Multi-region replication with automatic local offline caching.',
-      hi: 'लोकल कैशिंग के साथ सुरक्षित मल्टी-रीजन रिप्लिकेशन।'
+      en: 'Google Cloud multi-region automatic replication with offline caching.',
+      hi: 'गूगल क्लाउड मल्टी-रीजन बैकअप और स्वतः डेटा सुरक्षा।'
     },
     category: 'core'
   },
 
-  // PIPELINE (Inside Clinical & Anomaly Box)
+  // SUB-CONTAINER INSIDE CORE: HERD HEALTH & TELEMETRY PIPELINE
   {
     id: 'iqr_engine',
-    nameEn: 'IQR Anomaly Model',
-    nameHi: 'IQR सांख्यिकीय विसंगति मॉडल',
-    subtitleEn: 'Z-Score (-18.2% Drop)',
-    subtitleHi: 'असामान्य उत्पादन गिरावट पहचान',
+    nameEn: 'IQR Anomaly Engine',
+    nameHi: 'IQR सांख्यिकीय विसंगति इंजन',
+    subtitleEn: '30-Day Baseline Outlier (-18.2%)',
+    subtitleHi: 'असामान्य दूध गिरावट पहचान',
     badge: 'IQR & Z-Score Tests',
-    tier: 'Statistical Anomaly Engine',
+    tier: 'Statistical Intelligence',
     color: 'border-purple-500/90 text-purple-300 shadow-[0_0_22px_rgba(168,85,247,0.4)]',
     glowColor: '#A855F7',
     icon: <Activity className="w-5 h-5 text-purple-400" />,
-    x: 795,
-    y: 110,
-    w: 180,
-    h: 75,
+    x: 805,
+    y: 130,
+    w: 165,
+    h: 80,
     responsibilities: {
       en: [
         'Calculates 30-day rolling mean, IQR, and standard deviation for individual milk yields',
@@ -385,19 +388,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'clinical_tracker',
-    nameEn: 'Clinical Inspector',
-    nameHi: 'नैदानिक स्वास्थ्य निरीक्षक',
-    subtitleEn: 'Core Temp °C + Vitals',
+    nameEn: 'Clinical Vitals Tracker',
+    nameHi: 'नैदानिक तापमान एवं लक्षण',
+    subtitleEn: 'Core Rectal Temp °C & Vitals',
     subtitleHi: 'शारीरिक तापमान एवं लक्षण',
-    badge: 'Rectal Temp & Signs',
-    tier: 'Clinical Telemetry',
+    badge: 'Core Temp °C Signs',
+    tier: 'Veterinary Telemetry',
     color: 'border-rose-500/80 text-rose-300 shadow-[0_0_20px_rgba(225,29,72,0.35)]',
     glowColor: '#E11D48',
     icon: <Thermometer className="w-5 h-5 text-rose-400" />,
     x: 805,
-    y: 235,
-    w: 160,
-    h: 72,
+    y: 260,
+    w: 165,
+    h: 74,
     responsibilities: {
       en: [
         'Monitors core rectal temperature (°C) against species physiological thresholds',
@@ -424,19 +427,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'thi_weather',
-    nameEn: 'THI Sandbox',
-    nameHi: 'THI मौसम बॉक्स',
-    subtitleEn: 'NRC Heat Stress',
+    nameEn: 'THI Heat Stress Engine',
+    nameHi: 'THI हीट स्ट्रेस इंडेक्स',
+    subtitleEn: 'Ambient Temp + RH (NRC)',
     subtitleHi: 'तापमान व आर्द्रता इंडेक्स',
-    badge: 'OpenWeather + NRC',
-    tier: 'Thermal Biometrics',
+    badge: 'NRC Formula (0-100)',
+    tier: 'Environmental Intelligence',
     color: 'border-teal-500/80 text-teal-300 shadow-[0_0_20px_rgba(20,184,166,0.35)]',
     glowColor: '#14B8A6',
     icon: <Sun className="w-5 h-5 text-teal-400" />,
     x: 805,
-    y: 335,
-    w: 160,
-    h: 72,
+    y: 390,
+    w: 165,
+    h: 74,
     responsibilities: {
       en: [
         'Pulls ambient temperature and relative humidity for farm geo-coordinates',
@@ -463,19 +466,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'biosecurity_scorer',
-    nameEn: '15-Pt Biosecurity',
-    nameHi: '15-सूत्रीय जैव-सुरक्षा',
-    subtitleEn: 'WHO/FAO Audit Protocol',
-    subtitleHi: 'मानक रिस्क इंडेक्स 0-100',
-    badge: 'Score: 0-100',
+    nameEn: '15-Pt Biosecurity Audit',
+    nameHi: '15-सूत्रीय जैव-सुरक्षा ऑडिट',
+    subtitleEn: 'WHO/FAO Farm Risk Protocol',
+    subtitleHi: 'मानक फार्म सुरक्षा ऑडिट',
+    badge: 'Score: 0-100 Index',
     tier: 'Preventive Compliance',
     color: 'border-emerald-500/80 text-emerald-300 shadow-[0_0_20px_rgba(5,150,105,0.3)]',
     glowColor: '#059669',
     icon: <ShieldCheck className="w-5 h-5 text-emerald-400" />,
     x: 805,
-    y: 435,
-    w: 160,
-    h: 72,
+    y: 520,
+    w: 165,
+    h: 74,
     responsibilities: {
       en: [
         'Evaluates 15 critical infection-control checkpoints: tire dip, footbaths, quarantine, fencing',
@@ -501,20 +504,20 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     category: 'pipeline'
   },
 
-  // RIGHT COLUMN: AI & Decision Systems
+  // COLUMN 4: AI INTELLIGENCE & AGRONOMIC DECISION CORE
   {
     id: 'kisan_copilot',
-    nameEn: 'Kisan Copilot',
-    nameHi: 'किसान कोपायलट AI',
-    subtitleEn: 'AI Threat & Farm Analyst',
-    subtitleHi: 'कृषि एवं पशुधन AI विश्लेषक',
-    badge: 'Domain AI RAG',
+    nameEn: 'Kisan Mitra AI Copilot',
+    nameHi: 'किसान मित्र एआई कोपायलट',
+    subtitleEn: 'Domain-Specific Farm RAG',
+    subtitleHi: 'सत्यापित फार्म RAG एवं कृषि सहायक',
+    badge: 'Zero-Hallucination AI',
     tier: 'AI Intelligence Core',
     color: 'border-amber-400/90 text-amber-200 shadow-[0_0_24px_rgba(234,179,8,0.45)]',
     glowColor: '#EAB308',
     icon: <Bot className="w-5 h-5 text-amber-300" />,
-    x: 1025,
-    y: 150,
+    x: 1040,
+    y: 130,
     w: 225,
     h: 84,
     responsibilities: {
@@ -542,37 +545,37 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     category: 'ai'
   },
   {
-    id: 'risk_fusion',
-    nameEn: 'Risk Fusion Engine',
-    nameHi: 'जोखिम संलयन इंजन',
-    subtitleEn: 'Bayesian Multi-Signal',
-    subtitleHi: 'बहु-संकेत सांख्यिकीय समन्वय',
-    badge: 'Bayesian Fusion',
+    id: 'diagnostic_evaluator',
+    nameEn: 'Herd Diagnostic Evaluator',
+    nameHi: 'पशुधन नैदानिक समन्वयक',
+    subtitleEn: 'Multi-Signal Causal Tree',
+    subtitleHi: 'तापमान + दूध + हीट स्ट्रेस समन्वय',
+    badge: 'Multi-Signal Evaluator',
     tier: 'Decision Synthesis Core',
     color: 'border-cyan-400/90 text-cyan-200 shadow-[0_0_24px_rgba(6,182,212,0.45)]',
     glowColor: '#00F0FF',
     icon: <Cpu className="w-5 h-5 text-cyan-300" />,
-    x: 1025,
-    y: 380,
+    x: 1040,
+    y: 330,
     w: 225,
     h: 84,
     responsibilities: {
       en: [
         'Fuses 4 disparate signal streams: Yield Drops (-18.2%) + Rectal Temp + Feed Cost + THI Stress',
         'Generates explainable causal diagnoses: "Subclinical Mastitis + Heat Stress exacerbation"',
-        'Feeds synthesized context summaries directly into Kisan Copilot'
+        'Feeds synthesized context summaries directly into Kisan Mitra'
       ],
       hi: [
         '4 विभिन्न संकेतों का एकीकरण: दूध गिरावट + शरीर का तापमान + चारा खर्च + THI हीट स्ट्रेस',
         'कारण-सहित व्याख्या प्रस्तुत करना: "सब-क्लिनिकल मैस्टाइटिस + गर्मी का तनाव"',
-        'किसान कोपायलट को सटीक संक्षेप विवरण प्रदान करना'
+        'किसान मित्र AI को सटीक संक्षेप विवरण प्रदान करना'
       ]
     },
-    techStack: 'Bayesian Signal Weighting, Causal Graph Evaluation',
+    techStack: 'Multi-Signal Decision Trees, Causal Health Graph Evaluation',
     keyFiles: ['src/components/analytics/AnalyticsView.tsx', 'src/components/ai/AIFarmAssistant.tsx'],
     inputsOutputs: {
-      en: 'Input: Anomalies, THI, Vitals | Output: Fused Risk Score & Cause Tree',
-      hi: 'इनपुट: विसंगतियां, मौसम, लक्षण | आउटपुट: एकीकृत जोखिम स्कोर'
+      en: 'Input: Anomalies, THI, Vitals | Output: Fused Health Status & Causal Assessment',
+      hi: 'इनपुट: विसंगतियां, मौसम, लक्षण | आउटपुट: एकीकृत स्वास्थ्य स्थिति'
     },
     faultTolerance: {
       en: 'Degrades smoothly if weather or sensor signals are missing.',
@@ -582,29 +585,29 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'action_engine',
-    nameEn: 'Action & Profit Engine',
-    nameHi: 'कार्ययोजना एवं लाभ संवर्धक',
-    subtitleEn: '5-Pt Protocol & TMR Balancing',
-    subtitleHi: 'TMR संतुलित पोषण एवं प्रबंधन',
-    badge: 'Agronomic Optimizer',
+    nameEn: 'Agronomic Profit & Nutrition',
+    nameHi: 'कृषि पोषण एवं लाभ संवर्धक',
+    subtitleEn: 'TMR Ration & Feed ROI Plan',
+    subtitleHi: 'संतुलित आहार एवं वित्तीय लाभ योजना',
+    badge: 'TMR & ROI Optimizer',
     tier: 'Intervention Execution',
     color: 'border-rose-500/80 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.3)]',
     glowColor: '#F43F5E',
     icon: <TrendingUp className="w-5 h-5 text-rose-400" />,
-    x: 1025,
-    y: 545,
+    x: 1040,
+    y: 530,
     w: 225,
-    h: 80,
+    h: 82,
     responsibilities: {
       en: [
         'Formulates 5-step concrete recovery actions: TMR mineral ration, water misting, mastitis isolation',
         'Projects financial returns on intervention: e.g. +14.5% yield recovery = +₹3,200/cow/month',
-        'Logs verified interventions into the Farm Intel Store for compliance'
+        'Logs verified interventions into the Herd Database for compliance'
       ],
       hi: [
         '5-चरणीय ठोस कार्ययोजना: TMR संतुलित आहार, मिस्टिंग पंखे, मैस्टाइटिस अलग करना',
         'वित्तीय लाभ का आकलन: +14.5% दूध सुधार = +₹3,200/गाय/माह अतिरिक्त आय',
-        'प्रबंधन रिकॉर्ड्स को फार्म स्टोर में सहेजना'
+        'प्रबंधन रिकॉर्ड्स को फार्म लेजर में सहेजना'
       ]
     },
     techStack: 'Feed Optimization Algorithms, Farm Financial Yield Calculators',
@@ -637,22 +640,37 @@ export interface ArchitectureEdge {
 }
 
 export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
-  // 1. Farmer Session -> Web UI (HTTPS)
+  // 1. Farmer Session -> Web UI (HTTPS Session)
   {
     id: 'e_session_ui',
     sourceId: 'farmer_session',
     targetId: 'web_ui',
-    labelEn: 'HTTPS',
-    labelHi: 'HTTPS',
+    labelEn: 'HTTPS Session',
+    labelHi: 'HTTPS सत्र',
     color: '#06B6D4',
     pulseColor: '#00F0FF',
     pulseDuration: '1.8s',
-    d: 'M 260 422 L 295 422',
+    d: 'M 260 372 L 295 372',
     labelX: 277,
-    labelY: 422,
+    labelY: 372,
     isPrimaryPath: true
   },
-  // 2. Web UI -> Offline Cache (Snapshot)
+  // 2. Field PWA -> Web UI (Mobile Field Entry)
+  {
+    id: 'e_pwa_ui',
+    sourceId: 'user_pwa',
+    targetId: 'web_ui',
+    labelEn: 'Field Telemetry',
+    labelHi: 'फील्ड टेलीमेट्री',
+    color: '#F43F5E',
+    pulseColor: '#10B981',
+    pulseDuration: '2.4s',
+    d: 'M 260 171 C 320 171, 320 330, 320 330',
+    labelX: 305,
+    labelY: 235,
+    isPrimaryPath: true
+  },
+  // 3. Web UI -> Offline Cache (Local Snapshot)
   {
     id: 'e_ui_cache',
     sourceId: 'web_ui',
@@ -662,24 +680,9 @@ export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
     color: '#F59E0B',
     pulseColor: '#F59E0B',
     pulseDuration: '2.2s',
-    d: 'M 405 464 L 405 545',
-    labelX: 405,
-    labelY: 504,
-    isPrimaryPath: true
-  },
-  // 3. User PWA -> FastAPI Gateway (Telemetry Ingest)
-  {
-    id: 'e_pwa_gateway',
-    sourceId: 'user_pwa',
-    targetId: 'fastapi_gateway',
-    labelEn: 'Telemetry',
-    labelHi: 'टेलीमेट्री',
-    color: '#F43F5E',
-    pulseColor: '#10B981',
-    pulseDuration: '2.5s',
-    d: 'M 260 191 C 410 191, 410 405, 565 405',
-    labelX: 375,
-    labelY: 280,
+    d: 'M 350 414 C 350 490, 260 550, 260 550',
+    labelX: 320,
+    labelY: 480,
     isPrimaryPath: true
   },
   // 4. Web UI -> FastAPI Gateway (POST /telemetry)
@@ -692,9 +695,9 @@ export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
     color: '#06B6D4',
     pulseColor: '#00F0FF',
     pulseDuration: '1.9s',
-    d: 'M 515 422 L 565 422',
-    labelX: 540,
-    labelY: 422,
+    d: 'M 520 372 L 575 372',
+    labelX: 547,
+    labelY: 372,
     isPrimaryPath: true
   },
   // 5. FastAPI Gateway -> Firestore Sync (Cloud Sync TLS)
@@ -707,172 +710,144 @@ export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
     color: '#0284C7',
     pulseColor: '#38BDF8',
     pulseDuration: '2.1s',
-    d: 'M 662 380 L 662 232',
-    labelX: 662,
-    labelY: 305,
+    d: 'M 672 330 L 672 212',
+    labelX: 672,
+    labelY: 270,
     isPrimaryPath: true
   },
-  // 6. FastAPI Gateway -> IQR Anomaly Engine (Timeseries)
+  // 6. Herd Database -> Firestore Sync (Bidirectional Sync)
   {
-    id: 'e_gateway_iqr',
+    id: 'e_db_sync',
+    sourceId: 'herd_db',
+    targetId: 'firestore_sync',
+    labelEn: 'onSnapshot Sync',
+    labelHi: 'रीयल-टाइम सिंक',
+    color: '#6366F1',
+    pulseColor: '#818CF8',
+    pulseDuration: '2.8s',
+    d: 'M 620 530 L 620 212',
+    labelX: 620,
+    labelY: 450
+  },
+  // 7. FastAPI Gateway -> Pipeline Dispatch
+  {
+    id: 'e_gateway_diag',
     sourceId: 'fastapi_gateway',
-    targetId: 'iqr_engine',
-    labelEn: 'Timeseries',
-    labelHi: 'समय श्रृंखला',
-    color: '#A855F7',
-    pulseColor: '#C084FC',
+    targetId: 'diagnostic_evaluator',
+    labelEn: 'Compute Batch',
+    labelHi: 'बैच विश्लेषण',
+    color: '#10B981',
+    pulseColor: '#34D399',
     pulseDuration: '2.2s',
-    d: 'M 760 395 C 778 395, 775 147, 795 147',
-    labelX: 778,
-    labelY: 200,
+    d: 'M 770 372 L 805 372',
+    labelX: 787,
+    labelY: 372,
     isPrimaryPath: true
   },
-  // 7. FastAPI Gateway -> Clinical Inspector (Vitals °C)
+  // 8. IQR Engine -> Kisan Mitra Copilot (Outlier Alert -18.2%)
   {
-    id: 'e_gateway_clinical',
-    sourceId: 'fastapi_gateway',
-    targetId: 'clinical_tracker',
-    labelEn: 'Vitals °C',
-    labelHi: 'वाइटल्स °C',
-    color: '#E11D48',
-    pulseColor: '#FB7185',
-    pulseDuration: '2.0s',
-    d: 'M 760 415 C 785 415, 785 271, 805 271',
-    labelX: 785,
-    labelY: 330,
-    isPrimaryPath: true
-  },
-  // 8. FastAPI Gateway -> THI Sandbox (Ambient Weather)
-  {
-    id: 'e_gateway_thi',
-    sourceId: 'fastapi_gateway',
-    targetId: 'thi_weather',
-    labelEn: 'Ambient',
-    labelHi: 'मौसम डेटा',
-    color: '#14B8A6',
-    pulseColor: '#2DD4BF',
-    pulseDuration: '2.4s',
-    d: 'M 760 435 C 785 435, 785 371, 805 371',
-    labelX: 785,
-    labelY: 410
-  },
-  // 9. THI Sandbox -> Biosecurity Scorer (Heat Index Factor)
-  {
-    id: 'e_thi_bio',
-    sourceId: 'thi_weather',
-    targetId: 'biosecurity_scorer',
-    labelEn: 'Heat Factor',
-    labelHi: 'हीट फैक्टर',
-    color: '#14B8A6',
-    pulseColor: '#2DD4BF',
-    pulseDuration: '2.6s',
-    d: 'M 885 407 L 885 435',
-    labelX: 885,
-    labelY: 421
-  },
-  // 10. IQR Engine -> Risk Fusion (Outlier Risk -18.2%)
-  {
-    id: 'e_iqr_fusion',
+    id: 'e_iqr_copilot',
     sourceId: 'iqr_engine',
-    targetId: 'risk_fusion',
-    labelEn: 'Outlier Risk (-18.2%)',
-    labelHi: 'गिरावट जोखिम (-18.2%)',
+    targetId: 'kisan_copilot',
+    labelEn: 'Outlier Flag (-18.2%)',
+    labelHi: 'उत्पादन गिरावट (-18.2%)',
     color: '#A855F7',
     pulseColor: '#F43F5E',
-    pulseDuration: '2.3s',
-    d: 'M 975 147 C 1005 147, 1005 395, 1025 395',
-    labelX: 1000,
-    labelY: 260,
+    pulseDuration: '2.0s',
+    d: 'M 970 170 L 1040 170',
+    labelX: 1005,
+    labelY: 170,
     isPrimaryPath: true
   },
-  // 11. Clinical Tracker -> Risk Fusion (Clinical Signs)
+  // 9. Clinical Tracker -> Diagnostic Evaluator (Fever & Mastitis Signs)
   {
-    id: 'e_clinical_fusion',
+    id: 'e_clinical_diag',
     sourceId: 'clinical_tracker',
-    targetId: 'risk_fusion',
-    labelEn: 'Clinical Signs',
-    labelHi: 'लक्षण संकेत',
+    targetId: 'diagnostic_evaluator',
+    labelEn: 'Core Temp °C',
+    labelHi: 'शारीरिक तापमान °C',
     color: '#E11D48',
     pulseColor: '#FB7185',
     pulseDuration: '2.1s',
-    d: 'M 965 271 C 1000 271, 1000 415, 1025 415',
-    labelX: 995,
-    labelY: 345,
+    d: 'M 970 297 C 1005 297, 1005 350, 1040 350',
+    labelX: 1005,
+    labelY: 310,
     isPrimaryPath: true
   },
-  // 12. Biosecurity Scorer -> Risk Fusion (Bio Score 0-100)
+  // 10. THI Weather -> Diagnostic Evaluator (Heat Stress Level)
   {
-    id: 'e_bio_fusion',
-    sourceId: 'biosecurity_scorer',
-    targetId: 'risk_fusion',
-    labelEn: 'Bio-Score 0-100',
-    labelHi: 'बायो-स्कोर 0-100',
-    color: '#059669',
-    pulseColor: '#34D399',
-    pulseDuration: '2.5s',
-    d: 'M 965 471 C 1000 471, 1000 435, 1025 435',
-    labelX: 995,
-    labelY: 453
+    id: 'e_thi_diag',
+    sourceId: 'thi_weather',
+    targetId: 'diagnostic_evaluator',
+    labelEn: 'THI Heat Index',
+    labelHi: 'THI हीट स्ट्रेस',
+    color: '#14B8A6',
+    pulseColor: '#2DD4BF',
+    pulseDuration: '2.3s',
+    d: 'M 970 427 C 1005 427, 1005 372, 1040 372',
+    labelX: 1005,
+    labelY: 410,
+    isPrimaryPath: true
   },
-  // 13. Risk Fusion -> Kisan Copilot (Risk Summary)
+  // 11. Diagnostic Evaluator -> Kisan Mitra Copilot (Clinical Grounding Summary)
   {
-    id: 'e_fusion_copilot',
-    sourceId: 'risk_fusion',
+    id: 'e_diag_copilot',
+    sourceId: 'diagnostic_evaluator',
     targetId: 'kisan_copilot',
-    labelEn: 'Risk Summary',
-    labelHi: 'जोखिम सारांश',
+    labelEn: 'Health Grounding',
+    labelHi: 'स्वास्थ्य सारांश',
     color: '#EAB308',
     pulseColor: '#FDE047',
     pulseDuration: '2.0s',
-    d: 'M 1137 380 L 1137 234',
-    labelX: 1137,
-    labelY: 305,
+    d: 'M 1152 330 L 1152 214',
+    labelX: 1152,
+    labelY: 270,
     isPrimaryPath: true
   },
-  // 14. Risk Fusion -> Action Engine (Protocol Matrix)
+  // 12. Diagnostic Evaluator -> Action Engine (Formulate Recovery Plan)
   {
-    id: 'e_fusion_action',
-    sourceId: 'risk_fusion',
+    id: 'e_diag_action',
+    sourceId: 'diagnostic_evaluator',
     targetId: 'action_engine',
-    labelEn: 'Protocol Matrix',
-    labelHi: 'प्रोटोकॉल मैट्रिक्स',
+    labelEn: 'Recovery Matrix',
+    labelHi: 'सुधार कार्ययोजना',
     color: '#06B6D4',
     pulseColor: '#22D3EE',
     pulseDuration: '2.2s',
-    d: 'M 1137 464 L 1137 545',
-    labelX: 1137,
-    labelY: 504,
+    d: 'M 1152 414 L 1152 530',
+    labelX: 1152,
+    labelY: 470,
     isPrimaryPath: true
   },
-  // 15. Risk Fusion -> Threat Intel Store (Store Audit)
+  // 13. Biosecurity Scorer -> Action Engine (Biosecurity Certification)
   {
-    id: 'e_fusion_store',
-    sourceId: 'risk_fusion',
-    targetId: 'threat_intel_store',
-    labelEn: 'Store Audit',
-    labelHi: 'ऑडिट रिकॉर्ड',
-    color: '#6366F1',
-    pulseColor: '#818CF8',
-    pulseDuration: '2.5s',
-    d: 'M 1025 450 C 900 450, 900 585, 760 585',
-    labelX: 890,
-    labelY: 520
+    id: 'e_bio_action',
+    sourceId: 'biosecurity_scorer',
+    targetId: 'action_engine',
+    labelEn: 'Bio-Audit Score',
+    labelHi: 'ऑडिट स्कोर 0-100',
+    color: '#059669',
+    pulseColor: '#34D399',
+    pulseDuration: '2.4s',
+    d: 'M 970 557 L 1040 557',
+    labelX: 1005,
+    labelY: 557
   },
-  // 16. Action Engine -> Threat Intel Store (Preserve History)
+  // 14. Action Engine -> Herd Database (Preserve Audit Records)
   {
-    id: 'e_action_store',
+    id: 'e_action_db',
     sourceId: 'action_engine',
-    targetId: 'threat_intel_store',
-    labelEn: 'Preserve Audit',
-    labelHi: 'इतिहास संरक्षण',
+    targetId: 'herd_db',
+    labelEn: 'Commit Records',
+    labelHi: 'रिकॉर्ड संरक्षण',
     color: '#F43F5E',
     pulseColor: '#FB7185',
-    pulseDuration: '2.4s',
-    d: 'M 1025 605 L 760 605',
-    labelX: 890,
-    labelY: 605
+    pulseDuration: '2.5s',
+    d: 'M 1040 585 L 770 585',
+    labelX: 905,
+    labelY: 585
   },
-  // 17. Kisan Copilot -> Web UI (Clean High Arc above yellow box)
+  // 15. Kisan Mitra Copilot -> Web UI Console (Verified Bilingual Advice Feed)
   {
     id: 'e_copilot_ui',
     sourceId: 'kisan_copilot',
@@ -882,9 +857,9 @@ export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
     color: '#EAB308',
     pulseColor: '#FDE047',
     pulseDuration: '3.2s',
-    d: 'M 1025 170 C 850 25, 450 25, 405 380',
-    labelX: 650,
-    labelY: 28,
+    d: 'M 1040 150 C 750 20, 410 20, 410 330',
+    labelX: 680,
+    labelY: 24,
     isPrimaryPath: true
   }
 ];
@@ -911,7 +886,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
   const [isExportMenuOpen, setIsExportMenuOpen] = useState<boolean>(false);
   const [copiedMermaid, setCopiedMermaid] = useState<boolean>(false);
 
-  // Pan and Zoom: Start perfectly centered and fit-to-view
+  // Pan and Zoom: Centered and fitted
   const [zoom, setZoom] = useState<number>(0.92);
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 20, y: 15 });
   const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
@@ -1054,7 +1029,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
     if (viewPreset === 'clinical' && !['clinical_tracker', 'iqr_engine', 'thi_weather', 'fastapi_gateway'].includes(node.id)) {
       return true;
     }
-    if (viewPreset === 'rag' && !['kisan_copilot', 'risk_fusion', 'action_engine', 'threat_intel_store', 'web_ui'].includes(node.id)) {
+    if (viewPreset === 'rag' && !['kisan_copilot', 'diagnostic_evaluator', 'action_engine', 'herd_db', 'web_ui'].includes(node.id)) {
       return true;
     }
     return false;
@@ -1081,7 +1056,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
         isFullscreen ? 'fixed inset-0 z-50' : 'rounded-2xl'
       }`}
     >
-      {/* TOP HEADER CONTROLS (Exact CyberGuard Style) */}
+      {/* TOP HEADER CONTROLS */}
       <div className="flex-shrink-0 z-30 px-5 py-3 bg-[#0B101D]/90 backdrop-blur-md border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
         {/* Left Title & Status Indicator */}
         <div className="flex items-center space-x-3">
@@ -1095,13 +1070,13 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                 <span>{language === 'hi' ? 'स्वस्थफार्म AI सिस्टम आर्किटेक्चर' : 'SwasthFarm AI System Architecture'}</span>
               </h1>
               <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
-                v2.17 Spec
+                Archify v2.17
               </span>
             </div>
             <p className="text-[11px] text-slate-400 hidden md:block">
               {language === 'hi'
-                ? 'मल्टी-एनिमल टेलीमेट्री, विसंगति पहचान और डोमेन RAG लाइव वर्कफ़्लो'
-                : 'End-to-End Multi-Signal Livestock Telemetry, Anomaly Intelligence & RAG Pipeline'}
+                ? 'पशुधन टेलीमेट्री, सांख्यिकीय विसंगति पहचान और डोमेन RAG लाइव आर्किटेक्चर'
+                : 'End-to-End Livestock Telemetry, Statistical Anomaly Intelligence & Kisan Mitra RAG Pipeline'}
             </p>
           </div>
         </div>
@@ -1120,9 +1095,9 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
               }}
               className="bg-slate-900/90 text-slate-200 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
             >
-              <option value="classic">⚡ {language === 'hi' ? 'क्लासिक (संपूर्ण 13 घटक)' : 'Classic (All Components)'}</option>
+              <option value="classic">⚡ {language === 'hi' ? 'क्लासिक (संपूर्ण 12 घटक)' : 'Classic (All Components)'}</option>
               <option value="primaryPath">🎯 {language === 'hi' ? 'मुख्य ऑपरेशनल पाथ' : 'Primary Operational Path'}</option>
-              <option value="clinical">🩺 {language === 'hi' ? 'नैदानिक एवं विसंगति पाइपलाइन' : 'Clinical & Anomaly Flow'}</option>
+              <option value="clinical">🩺 {language === 'hi' ? 'नैदानिक एवं विसंगति प्रवाह' : 'Clinical & Anomaly Flow'}</option>
               <option value="rag">🤖 {language === 'hi' ? 'किसान मित्र RAG परामर्श' : 'Kisan Mitra RAG Consultation'}</option>
             </select>
           </div>
@@ -1234,7 +1209,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 shadow-[0_0_10px_#00F0FF]"></span>
             </span>
             <div className="text-xs">
-              <span className="text-slate-400 text-[11px] font-mono">{language === 'hi' ? 'प्रवाह फोकस:' : 'Flow Stream:'} </span>
+              <span className="text-slate-400 text-[11px] font-mono">{language === 'hi' ? 'प्रवाह फोकस:' : 'Live Flow Focus:'} </span>
               <span className="font-extrabold text-white text-xs">{language === 'hi' ? focusedNode.nameHi : focusedNode.nameEn}</span>
               <span className="ml-2 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-[9.5px] border border-cyan-500/40">
                 {focusedIncomingEdges.length} {language === 'hi' ? 'आवक' : 'IN'} • {focusedOutgoingEdges.length} {language === 'hi' ? 'जावक' : 'OUT'}
@@ -1325,7 +1300,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
           style={{
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
             transition: isDragging ? 'none' : 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
-            width: '1320px',
+            width: '1340px',
             height: '730px'
           }}
         >
@@ -1333,7 +1308,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
           <svg
             id="live-arch-svg"
             className="absolute inset-0 w-full h-full pointer-events-none"
-            viewBox="0 0 1320 730"
+            viewBox="0 0 1340 730"
           >
             <defs>
               {/* Glow Filters */}
@@ -1390,44 +1365,44 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
               </marker>
             </defs>
 
-            {/* SUBGRAPH 1: SwasthFarm Backend Core (Yellow Border matching CyberGuard) */}
+            {/* SUBGRAPH 1: SwasthFarm Cloud & Analytics Core (Yellow Border) */}
             <rect
-              x="535"
-              y="60"
-              width="455"
-              height="605"
+              x="550"
+              y="55"
+              width="440"
+              height="600"
               rx="24"
-              fill="rgba(234, 179, 8, 0.018)"
+              fill="rgba(234, 179, 8, 0.015)"
               stroke="#EAB308"
               strokeWidth="1.5"
               strokeDasharray="6 6"
               className="transition-all"
             />
             {/* Subgraph Badge */}
-            <g transform="translate(555, 48)">
-              <rect x="0" y="0" width="220" height="24" rx="6" fill="#181509" stroke="#EAB308" strokeWidth="1" />
+            <g transform="translate(570, 43)">
+              <rect x="0" y="0" width="240" height="24" rx="6" fill="#181509" stroke="#EAB308" strokeWidth="1" />
               <text x="12" y="16" fill="#FDE047" fontSize="11" fontWeight="bold" fontFamily="monospace">
-                {language === 'hi' ? '⚡ स्वस्थफार्म बैकएंड कोर' : '⚡ SwasthFarm Backend Core'}
+                {language === 'hi' ? '⚡ स्वस्थफार्म क्लाउड एवं एनालिटिक्स कोर' : '⚡ SwasthFarm Cloud Core'}
               </text>
             </g>
 
-            {/* SUBGRAPH 2: Clinical & Anomaly Pipeline (Pink dashed container) */}
+            {/* SUBGRAPH 2: Herd Telemetry & Diagnostic Pipeline (Pink dashed container) */}
             <rect
-              x="780"
-              y="198"
+              x="785"
+              y="90"
               width="195"
-              height="330"
+              height="535"
               rx="18"
-              fill="rgba(244, 63, 94, 0.025)"
+              fill="rgba(244, 63, 94, 0.02)"
               stroke="#F43F5E"
               strokeWidth="1.2"
               strokeDasharray="5 5"
               className="transition-all"
             />
-            <g transform="translate(790, 186)">
-              <rect x="0" y="0" width="175" height="22" rx="5" fill="#1C0E14" stroke="#F43F5E" strokeWidth="1" />
+            <g transform="translate(795, 78)">
+              <rect x="0" y="0" width="185" height="22" rx="5" fill="#1C0E14" stroke="#F43F5E" strokeWidth="1" />
               <text x="8" y="15" fill="#FDA4AF" fontSize="10" fontWeight="bold" fontFamily="monospace">
-                {language === 'hi' ? '🩺 नैदानिक पाइपलाइन' : '🩺 Inspection Pipeline'}
+                {language === 'hi' ? '🩺 पशुधन टेलीमेट्री पाइपलाइन' : '🩺 Herd Health Pipeline'}
               </text>
             </g>
 
@@ -1458,7 +1433,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                     fill="none"
                     stroke={edge.color}
                     strokeWidth={isFocusEdge ? '3.2' : highlighted ? '2.5' : '1.8'}
-                    strokeDasharray={edge.id === 'e_pwa_gateway' || edge.id === 'e_copilot_ui' ? '4 4' : 'none'}
+                    strokeDasharray={edge.id === 'e_pwa_ui' || edge.id === 'e_copilot_ui' ? '4 4' : 'none'}
                     markerEnd={`url(#arrow-${
                       edge.color === '#10B981' || edge.color === '#059669'
                         ? 'green'
@@ -1474,7 +1449,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                     })`}
                   />
 
-                  {/* LIVE ANIMATED FLOW PACKET (Glowing Capsule Traveling along Path) */}
+                  {/* LIVE ANIMATED FLOW PACKET */}
                   {isLive && (
                     <g>
                       {/* Primary Leading Flow Particle */}
@@ -1582,7 +1557,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
             })}
           </svg>
 
-          {/* HTML CARDS (EXACT CYBERGUARD STYLE NEON CARDS) */}
+          {/* HTML CARDS */}
           {ARCHITECTURE_NODES.map(node => {
             const isFocused = focusedNodeId === node.id;
             const isSelected = selectedNodeId === node.id || isFocused;
@@ -1666,7 +1641,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
             </div>
             <div>
               <h3 className="font-extrabold text-sm text-white">
-                {language === 'hi' ? 'सिस्टम कंपोनेंट इंडेक्स' : 'Component Index & Archify Cards'}
+                {language === 'hi' ? 'सिस्टम घटक इंडेक्स (Archify)' : 'Component Index & Archify Cards'}
               </h3>
               <p className="text-[11px] text-slate-400">
                 {language === 'hi' ? 'विस्तृत तकनीकी आर्किटेक्चर विनिर्देश' : 'Detailed system architecture specifications'}
