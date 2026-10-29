@@ -914,11 +914,39 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
   // Pan and Zoom: Start perfectly centered and fit-to-view
   const [zoom, setZoom] = useState<number>(0.92);
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 20, y: 15 });
+  const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedNode = ARCHITECTURE_NODES.find(n => n.id === selectedNodeId) || ARCHITECTURE_NODES[0];
+  const focusedNode = ARCHITECTURE_NODES.find(n => n.id === focusedNodeId) || null;
+
+  const handleNodeClick = (node: ArchitectureNode, e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (focusedNodeId === node.id) {
+      // Toggle off / return to global overview
+      handleResetZoom();
+      return;
+    }
+
+    setFocusedNodeId(node.id);
+    setSelectedNodeId(node.id);
+
+    const nodeCenterX = node.x + node.w / 2;
+    const nodeCenterY = node.y + node.h / 2;
+    const cw = containerRef.current?.clientWidth || 1200;
+    const ch = containerRef.current?.clientHeight || 700;
+
+    // Smoothly zoom in to spotlight this component and its immediate data streams
+    const targetZoom = 1.35;
+    const targetPanX = cw / 2 - nodeCenterX * targetZoom;
+    const targetPanY = ch / 2 - nodeCenterY * targetZoom;
+
+    setZoom(targetZoom);
+    setPan({ x: targetPanX, y: targetPanY });
+  };
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if ((e.target as HTMLElement).closest('.interactive-node') || (e.target as HTMLElement).closest('.interactive-control')) {
@@ -941,10 +969,11 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
   };
 
   const handleZoom = (delta: number) => {
-    setZoom(prev => Math.min(Math.max(0.4, prev + delta), 1.5));
+    setZoom(prev => Math.min(Math.max(0.4, prev + delta), 1.6));
   };
 
   const handleResetZoom = () => {
+    setFocusedNodeId(null);
     setZoom(0.92);
     setPan({ x: 20, y: 15 });
     setRouteActive(false);
@@ -1004,7 +1033,22 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
     );
   });
 
+  const isEdgeConnectedToFocus = (edge: ArchitectureEdge) => {
+    if (!focusedNodeId) return false;
+    return edge.sourceId === focusedNodeId || edge.targetId === focusedNodeId;
+  };
+
   const isNodeDimmed = (node: ArchitectureNode) => {
+    if (focusedNodeId) {
+      if (node.id === focusedNodeId) return false;
+      // Keep direct neighbor nodes illuminated so the flow can be seen traveling between them
+      const isNeighbor = ARCHITECTURE_EDGES.some(
+        e =>
+          (e.sourceId === focusedNodeId && e.targetId === node.id) ||
+          (e.targetId === focusedNodeId && e.sourceId === node.id)
+      );
+      return !isNeighbor;
+    }
     if (routeActive && !node.category) return true;
     if (lensCategory !== 'all' && node.category !== lensCategory) return true;
     if (viewPreset === 'clinical' && !['clinical_tracker', 'iqr_engine', 'thi_weather', 'fastapi_gateway'].includes(node.id)) {
@@ -1017,11 +1061,18 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
   };
 
   const isEdgeHighlighted = (edge: ArchitectureEdge) => {
+    if (focusedNodeId) {
+      return isEdgeConnectedToFocus(edge);
+    }
     if (routeActive && edge.isPrimaryPath) return true;
     if (hoveredNodeId && (edge.sourceId === hoveredNodeId || edge.targetId === hoveredNodeId)) return true;
     if (selectedNodeId && (edge.sourceId === selectedNodeId || edge.targetId === selectedNodeId)) return true;
     return false;
   };
+
+  // Connected counts for focused node
+  const focusedIncomingEdges = focusedNodeId ? ARCHITECTURE_EDGES.filter(e => e.targetId === focusedNodeId) : [];
+  const focusedOutgoingEdges = focusedNodeId ? ARCHITECTURE_EDGES.filter(e => e.sourceId === focusedNodeId) : [];
 
   return (
     <div
@@ -1175,6 +1226,37 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
           </button>
         </div>
 
+        {/* Floating Center Focus & Live Flow Banner */}
+        {focusedNode && (
+          <div className="absolute top-4 left-1/2 -translate-x-1/2 z-30 flex items-center space-x-3 px-4 py-2 rounded-2xl bg-[#080D1A]/95 border border-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.55)] backdrop-blur-xl animate-in fade-in slide-in-from-top-2 interactive-control">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-cyan-400 shadow-[0_0_10px_#00F0FF]"></span>
+            </span>
+            <div className="text-xs">
+              <span className="text-slate-400 text-[11px] font-mono">{language === 'hi' ? 'प्रवाह फोकस:' : 'Flow Stream:'} </span>
+              <span className="font-extrabold text-white text-xs">{language === 'hi' ? focusedNode.nameHi : focusedNode.nameEn}</span>
+              <span className="ml-2 px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 font-mono text-[9.5px] border border-cyan-500/40">
+                {focusedIncomingEdges.length} {language === 'hi' ? 'आवक' : 'IN'} • {focusedOutgoingEdges.length} {language === 'hi' ? 'जावक' : 'OUT'}
+              </span>
+            </div>
+            <button
+              onClick={() => setIsDrawerOpen(true)}
+              className="px-2.5 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10.5px] font-bold border border-slate-700 transition-colors"
+              title="Inspect card details"
+            >
+              {language === 'hi' ? 'विवरण' : 'Card'} ℹ
+            </button>
+            <button
+              onClick={handleResetZoom}
+              className="px-2.5 py-1 rounded-xl bg-rose-950/80 hover:bg-rose-900 border border-rose-500/60 text-rose-200 text-[10.5px] font-bold transition-colors"
+              title="Zoom out / Reset flow"
+            >
+              {language === 'hi' ? 'ज़ूम आउट' : 'Zoom Out'} ✕
+            </button>
+          </div>
+        )}
+
         {/* Floating Canvas Bottom Right Controls: ROUTE, LENS, Zoom */}
         <div className="absolute bottom-5 right-5 z-20 flex items-center space-x-2 interactive-control">
           <button
@@ -1239,9 +1321,10 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
 
         {/* MAIN SCALED CANVAS */}
         <div
-          className="absolute inset-0 origin-top-left transition-transform duration-75 ease-out"
+          className="absolute inset-0 origin-top-left"
           style={{
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+            transition: isDragging ? 'none' : 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
             width: '1320px',
             height: '730px'
           }}
@@ -1351,18 +1434,19 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
             {/* CONNECTING EDGES */}
             {ARCHITECTURE_EDGES.map(edge => {
               const highlighted = isEdgeHighlighted(edge);
-              const dimmed = routeActive && !edge.isPrimaryPath;
+              const isFocusEdge = isEdgeConnectedToFocus(edge);
+              const dimmed = (focusedNodeId && !isFocusEdge) || (routeActive && !edge.isPrimaryPath);
 
               return (
-                <g key={edge.id} className="transition-opacity duration-300" opacity={dimmed ? 0.15 : highlighted ? 1 : 0.7}>
-                  {/* Glowing Outline under path when highlighted */}
+                <g key={edge.id} className="transition-opacity duration-300" opacity={dimmed ? 0.08 : highlighted ? 1 : 0.65}>
+                  {/* Glowing Outline under path when highlighted or focused */}
                   {highlighted && (
                     <path
                       d={edge.d}
                       fill="none"
                       stroke={edge.pulseColor}
-                      strokeWidth="5"
-                      opacity="0.4"
+                      strokeWidth={isFocusEdge ? '7' : '5'}
+                      opacity={isFocusEdge ? 0.7 : 0.4}
                       filter="url(#glow-cyan)"
                     />
                   )}
@@ -1373,7 +1457,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                     d={edge.d}
                     fill="none"
                     stroke={edge.color}
-                    strokeWidth={highlighted ? '2.5' : '1.8'}
+                    strokeWidth={isFocusEdge ? '3.2' : highlighted ? '2.5' : '1.8'}
                     strokeDasharray={edge.id === 'e_pwa_gateway' || edge.id === 'e_copilot_ui' ? '4 4' : 'none'}
                     markerEnd={`url(#arrow-${
                       edge.color === '#10B981' || edge.color === '#059669'
@@ -1393,31 +1477,64 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                   {/* LIVE ANIMATED FLOW PACKET (Glowing Capsule Traveling along Path) */}
                   {isLive && (
                     <g>
-                      <circle r="4" fill={edge.pulseColor} filter="url(#glow-green)">
+                      {/* Primary Leading Flow Particle */}
+                      <circle r={isFocusEdge ? '5' : '4'} fill={edge.pulseColor} filter="url(#glow-green)">
                         <animateMotion
-                          dur={edge.pulseDuration}
+                          dur={isFocusEdge ? '1.4s' : edge.pulseDuration}
                           repeatCount="indefinite"
                           path={edge.d}
                         />
                       </circle>
-                      {/* Elongated Glowing Capsule Packet */}
+                      {/* Primary Elongated Glowing Capsule */}
                       <rect
-                        x="-14"
-                        y="-4.5"
-                        width="28"
-                        height="9"
-                        rx="4.5"
+                        x={isFocusEdge ? '-18' : '-14'}
+                        y={isFocusEdge ? '-5.5' : '-4.5'}
+                        width={isFocusEdge ? '36' : '28'}
+                        height={isFocusEdge ? '11' : '9'}
+                        rx={isFocusEdge ? '5.5' : '4.5'}
                         fill={edge.pulseColor}
-                        opacity="0.9"
+                        opacity={isFocusEdge ? 1 : 0.9}
                         filter="url(#glow-cyan)"
                       >
                         <animateMotion
-                          dur={edge.pulseDuration}
+                          dur={isFocusEdge ? '1.4s' : edge.pulseDuration}
                           repeatCount="indefinite"
                           path={edge.d}
                           rotate="auto"
                         />
                       </rect>
+
+                      {/* Staggered Secondary Flow Capsule for Focused Box */}
+                      {isFocusEdge && (
+                        <g>
+                          <circle r="4" fill={edge.pulseColor} filter="url(#glow-cyan)">
+                            <animateMotion
+                              dur="1.4s"
+                              repeatCount="indefinite"
+                              path={edge.d}
+                              begin="0.7s"
+                            />
+                          </circle>
+                          <rect
+                            x="-14"
+                            y="-4.5"
+                            width="28"
+                            height="9"
+                            rx="4.5"
+                            fill={edge.pulseColor}
+                            opacity="0.85"
+                            filter="url(#glow-green)"
+                          >
+                            <animateMotion
+                              dur="1.4s"
+                              repeatCount="indefinite"
+                              path={edge.d}
+                              rotate="auto"
+                              begin="0.7s"
+                            />
+                          </rect>
+                        </g>
+                      )}
                     </g>
                   )}
                 </g>
@@ -1428,13 +1545,14 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
             {ARCHITECTURE_EDGES.map(edge => {
               const label = language === 'hi' ? edge.labelHi : edge.labelEn;
               const highlighted = isEdgeHighlighted(edge);
-              const dimmed = routeActive && !edge.isPrimaryPath;
+              const isFocusEdge = isEdgeConnectedToFocus(edge);
+              const dimmed = (focusedNodeId && !isFocusEdge) || (routeActive && !edge.isPrimaryPath);
 
               return (
                 <g
                   key={`label-${edge.id}`}
                   transform={`translate(${edge.labelX}, ${edge.labelY})`}
-                  opacity={dimmed ? 0.2 : 1}
+                  opacity={dimmed ? 0.1 : 1}
                   className="transition-opacity duration-300"
                 >
                   <rect
@@ -1444,15 +1562,15 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                     height="20"
                     rx="10"
                     fill="#080D18"
-                    stroke={highlighted ? edge.pulseColor : 'rgba(100, 116, 139, 0.45)'}
-                    strokeWidth="1"
-                    filter="drop-shadow(0 2px 4px rgba(0,0,0,0.6))"
+                    stroke={isFocusEdge ? '#00F0FF' : highlighted ? edge.pulseColor : 'rgba(100, 116, 139, 0.45)'}
+                    strokeWidth={isFocusEdge ? '1.5' : '1'}
+                    filter={isFocusEdge ? 'drop-shadow(0 0 8px rgba(0,240,255,0.7))' : 'drop-shadow(0 2px 4px rgba(0,0,0,0.6))'}
                   />
                   <text
                     x="0"
                     y="3.5"
                     textAnchor="middle"
-                    fill={highlighted ? '#FFFFFF' : '#94A3B8'}
+                    fill={isFocusEdge ? '#00F0FF' : highlighted ? '#FFFFFF' : '#94A3B8'}
                     fontSize="9"
                     fontWeight="bold"
                     fontFamily="monospace"
@@ -1466,17 +1584,15 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
 
           {/* HTML CARDS (EXACT CYBERGUARD STYLE NEON CARDS) */}
           {ARCHITECTURE_NODES.map(node => {
-            const isSelected = selectedNodeId === node.id;
+            const isFocused = focusedNodeId === node.id;
+            const isSelected = selectedNodeId === node.id || isFocused;
             const isHovered = hoveredNodeId === node.id;
             const dimmed = isNodeDimmed(node);
 
             return (
               <div
                 key={node.id}
-                onClick={() => {
-                  setSelectedNodeId(node.id);
-                  setIsDrawerOpen(true);
-                }}
+                onClick={(e) => handleNodeClick(node, e)}
                 onMouseEnter={() => setHoveredNodeId(node.id)}
                 onMouseLeave={() => setHoveredNodeId(null)}
                 style={{
@@ -1485,17 +1601,19 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                   top: `${node.y}px`,
                   width: `${node.w}px`,
                   height: `${node.h}px`,
-                  zIndex: isSelected ? 25 : isHovered ? 20 : 10
+                  zIndex: isFocused ? 40 : isSelected ? 25 : isHovered ? 20 : 10
                 }}
-                className={`interactive-node cursor-pointer rounded-2xl p-2.5 transition-all duration-200 border bg-[#0D1322]/95 backdrop-blur-md flex flex-col justify-between ${
+                className={`interactive-node cursor-pointer rounded-2xl p-2.5 transition-all duration-300 border bg-[#0D1322]/95 backdrop-blur-md flex flex-col justify-between ${
                   node.color
                 } ${
-                  isSelected
+                  isFocused
+                    ? 'ring-4 ring-cyan-400 scale-[1.08] shadow-[0_0_45px_rgba(6,182,212,0.9)] z-40'
+                    : isSelected
                     ? 'ring-2 ring-cyan-400 scale-[1.03] shadow-[0_0_28px_rgba(6,182,212,0.6)]'
                     : isHovered
                     ? 'scale-[1.02] shadow-[0_0_22px_rgba(255,255,255,0.2)]'
                     : 'hover:scale-[1.01]'
-                } ${dimmed ? 'opacity-25 grayscale-[60%]' : 'opacity-100'}`}
+                } ${dimmed ? 'opacity-20 grayscale-[75%]' : 'opacity-100'}`}
               >
                 {/* Node Header: Icon + Title */}
                 <div className="flex items-start justify-between space-x-2">
@@ -1512,9 +1630,13 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                       </p>
                     </div>
                   </div>
-                  {isSelected && (
+                  {isFocused ? (
+                    <span className="px-1.5 py-0.5 rounded text-[8px] font-black bg-cyan-400 text-slate-950 uppercase tracking-wider animate-pulse flex-shrink-0 shadow-[0_0_10px_#00F0FF]">
+                      FLOWING
+                    </span>
+                  ) : isSelected ? (
                     <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping flex-shrink-0" />
-                  )}
+                  ) : null}
                 </div>
 
                 {/* Node Footer: Tech Badge / Pill */}
