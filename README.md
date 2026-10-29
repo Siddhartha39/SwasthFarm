@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <a href="#-architecture--system-flowcharts"><img src="https://img.shields.io/badge/Architecture-Clean%20Decoupled-059669?style=for-the-badge&logo=diagramsdotnet" alt="Architecture" /></a>
+  <a href="ARCHITECTURE.md"><img src="https://img.shields.io/badge/Architecture-Archify%20Spec%20v2.17-8B5CF6?style=for-the-badge&logo=diagramsdotnet" alt="Archify Architecture Spec" /></a>
   <a href="#-tech-stack--why-we-chose-it"><img src="https://img.shields.io/badge/Frontend-React%2018%20%2B%20TypeScript%20%2B%20Vite-2563EB?style=for-the-badge&logo=react" alt="React + Vite" /></a>
   <a href="#-tech-stack--why-we-chose-it"><img src="https://img.shields.io/badge/Analytics_API-Python%20%2B%20FastAPI-F59E0B?style=for-the-badge&logo=fastapi" alt="FastAPI" /></a>
   <a href="#-firestore-data-architecture"><img src="https://img.shields.io/badge/Database-Cloud%20Firestore-FFCA28?style=for-the-badge&logo=firebase" alt="Firebase Firestore" /></a>
@@ -22,7 +22,8 @@
 
 ## 📖 Table of Contents
 1. [🌟 Project Vision & Core Product Philosophy](#-project-vision--core-product-philosophy)
-2. [📊 Architecture & System Flowcharts](#-architecture--system-flowcharts)
+2. [📐 Full System Architecture Spec (Archify v2.17 Standard)](ARCHITECTURE.md)
+3. [📊 Architecture & System Flowcharts](#-architecture--system-flowcharts)
    - [A. End-to-End User Journey & Operations Flowchart](#a-end-to-end-user-journey--operations-flowchart)
    - [B. Multi-Tier Distributed System Architecture](#b-multi-tier-distributed-system-architecture)
    - [C. Multi-Farm & Animal 360° Data Hierarchy](#c-multi-farm--animal-360-data-hierarchy)

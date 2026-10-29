@@ -20,6 +20,7 @@ import { LogFeedModal } from '@/components/animals/LogFeedModal';
 import { LogProductionModal } from '@/components/animals/LogProductionModal';
 import { LogVaccineModal } from '@/components/animals/LogVaccineModal';
 import { AuthModal } from '@/components/auth/AuthModal';
+import { ArchitectureModal } from '@/components/architecture/ArchitectureModal';
 
 import {
   Menu,
@@ -81,6 +82,7 @@ export const App: React.FC = () => {
   const [addAnimalModalOpen, setAddAnimalModalOpen] = useState(false);
   const [addFarmModalOpen, setAddFarmModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [architectureModalOpen, setArchitectureModalOpen] = useState(false);
 
   // Quick logging modals
   const [logHealthModalOpen, setLogHealthModalOpen] = useState(false);
@@ -126,10 +128,15 @@ export const App: React.FC = () => {
         <LandingPage
           onOpenAuth={() => setAuthModalOpen(true)}
           onEnterDashboard={() => setViewMode('dashboard')}
+          onOpenArchitecture={() => setArchitectureModalOpen(true)}
         />
         <AuthModal
           isOpen={authModalOpen}
           onClose={() => setAuthModalOpen(false)}
+        />
+        <ArchitectureModal
+          isOpen={architectureModalOpen}
+          onClose={() => setArchitectureModalOpen(false)}
         />
       </>
     );
@@ -163,6 +170,7 @@ export const App: React.FC = () => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
         onLogout={handleLogout}
+        onOpenArchitecture={() => setArchitectureModalOpen(true)}
       />
 
       {/* Main Layout Area */}
@@ -177,6 +185,7 @@ export const App: React.FC = () => {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }}
           onLogout={handleLogout}
+          onOpenArchitecture={() => setArchitectureModalOpen(true)}
         />
 
         {/* Mobile Menu Bar */}
@@ -795,6 +804,11 @@ export const App: React.FC = () => {
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
+      />
+
+      <ArchitectureModal
+        isOpen={architectureModalOpen}
+        onClose={() => setArchitectureModalOpen(false)}
       />
 
     </div>

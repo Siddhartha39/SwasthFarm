@@ -2,16 +2,17 @@ import React, { useState } from 'react';
 import { useFarm } from '@/context/FarmContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
-import { Building2, Plus, Bell, Globe, ChevronDown, Check, AlertTriangle, ShieldAlert, LogOut, ExternalLink, User } from 'lucide-react';
+import { Building2, Plus, Bell, Globe, ChevronDown, Check, AlertTriangle, ShieldAlert, LogOut, ExternalLink, User, Network } from 'lucide-react';
 
 interface HeaderProps {
   onOpenAddFarm: () => void;
   onOpenAuth: () => void;
   onGoToFrontPage?: () => void;
   onLogout?: () => void;
+  onOpenArchitecture?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoToFrontPage, onLogout }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoToFrontPage, onLogout, onOpenArchitecture }) => {
   const { farms, selectedFarm, switchFarm, alerts, weather, markAlertRead } = useFarm();
   const { language, toggleLanguage, t } = useLanguage();
   const { user, logout: authLogout } = useAuth();
@@ -189,6 +190,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoT
             )}
           </div>
 
+          {/* System Architecture Button */}
+          {onOpenArchitecture && (
+            <button
+              onClick={onOpenArchitecture}
+              className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-purple-700 bg-purple-50 hover:bg-purple-100 border border-purple-200 transition-colors shadow-sm"
+              title="View System Architecture & Flow (Archify Spec)"
+            >
+              <Network className="w-3.5 h-3.5 text-purple-600" />
+              <span className="hidden sm:inline">{t.architecture}</span>
+            </button>
+          )}
+
           {/* Visit Front Page quick link */}
           {onGoToFrontPage && (
             <button
@@ -234,6 +247,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenAddFarm, onOpenAuth, onGoT
                 </div>
 
                 <div className="py-1">
+                  {onOpenArchitecture && (
+                    <button
+                      onClick={() => {
+                        setUserDropdownOpen(false);
+                        onOpenArchitecture();
+                      }}
+                      className="w-full flex items-center space-x-2.5 px-4 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-50 transition-colors"
+                    >
+                      <Network className="w-4 h-4 text-purple-600" />
+                      <span>{t.architecture} (Archify Spec)</span>
+                    </button>
+                  )}
+
                   {onGoToFrontPage && (
                     <button
                       onClick={() => {

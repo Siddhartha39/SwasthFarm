@@ -22,15 +22,17 @@ import {
   Award,
   Layers,
   Lock,
-  Smartphone
+  Smartphone,
+  Network
 } from 'lucide-react';
 
 interface LandingPageProps {
   onOpenAuth: () => void;
   onEnterDashboard: () => void;
+  onOpenArchitecture?: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onEnterDashboard }) => {
+export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onEnterDashboard, onOpenArchitecture }) => {
   const { user, isAuthenticated, loginAsDemo, logout } = useAuth();
   const { language, setLanguage, t } = useLanguage();
 
@@ -178,7 +180,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onEnterDas
           </div>
 
           {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center space-x-8 text-sm font-semibold text-slate-600">
+          <nav className="hidden lg:flex items-center space-x-7 text-sm font-semibold text-slate-600">
             <a href="#species" className="hover:text-emerald-600 transition-colors">
               {language === 'hi' ? 'पशु श्रेणियां' : 'Livestock Species'}
             </a>
@@ -191,11 +193,32 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onEnterDas
             <a href="#assistant" className="hover:text-emerald-600 transition-colors">
               {language === 'hi' ? 'एआई सहायक' : 'AI Farm Assistant'}
             </a>
+            {onOpenArchitecture && (
+              <button
+                onClick={onOpenArchitecture}
+                className="flex items-center space-x-1.5 text-purple-700 hover:text-purple-900 font-bold transition-colors"
+              >
+                <Network className="w-4 h-4 text-purple-600" />
+                <span>{t.architecture}</span>
+              </button>
+            )}
           </nav>
 
           {/* Action CTAs & Language Switcher */}
           <div className="flex items-center space-x-3">
             
+            {/* System Architecture Button */}
+            {onOpenArchitecture && (
+              <button
+                onClick={onOpenArchitecture}
+                className="flex items-center space-x-1.5 px-3 py-1.5 rounded-xl bg-purple-50 hover:bg-purple-100 text-xs font-bold text-purple-800 border border-purple-200 transition-colors shadow-sm"
+                title="View System Architecture & Flow (Archify)"
+              >
+                <Network className="w-3.5 h-3.5 text-purple-600" />
+                <span className="hidden sm:inline">{t.architecture}</span>
+              </button>
+            )}
+
             {/* Language Selector */}
             <button
               onClick={() => setLanguage(language === 'en' ? 'hi' : 'en')}
@@ -338,6 +361,16 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenAuth, onEnterDas
                   <LogIn className="w-4 h-4 text-emerald-300" />
                   <span>{language === 'hi' ? 'किसान लॉगिन' : 'Farmer Login (OTP)'}</span>
                 </button>
+
+                {onOpenArchitecture && (
+                  <button
+                    onClick={onOpenArchitecture}
+                    className="w-full sm:w-auto bg-purple-600/30 hover:bg-purple-600/40 text-purple-200 border border-purple-400/40 font-bold text-sm px-6 py-3.5 rounded-xl backdrop-blur transition flex items-center justify-center space-x-2"
+                  >
+                    <Network className="w-4 h-4 text-purple-300" />
+                    <span>{language === 'hi' ? 'सिस्टम आर्किटेक्चर' : 'System Architecture'}</span>
+                  </button>
+                )}
               </div>
 
             </div>

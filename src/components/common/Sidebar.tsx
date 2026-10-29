@@ -15,7 +15,8 @@ import {
   Settings,
   LogOut,
   Building2,
-  ExternalLink
+  ExternalLink,
+  Network
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -24,9 +25,10 @@ interface SidebarProps {
   onCloseMobile: () => void;
   onGoToFrontPage?: () => void;
   onLogout?: () => void;
+  onOpenArchitecture?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile, onGoToFrontPage, onLogout }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile, onGoToFrontPage, onLogout, onOpenArchitecture }) => {
   const { activeTab, setActiveTab, selectedFarm, animals, alerts } = useFarm();
   const { t } = useLanguage();
   const { logout } = useAuth();
@@ -117,8 +119,20 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpenMobile, onCloseMobile, o
           })}
         </nav>
 
-        {/* Footer / Front Page & Logout */}
+        {/* Footer / Architecture, Front Page & Logout */}
         <div className="p-4 border-t border-green-800/80 space-y-1">
+          {onOpenArchitecture && (
+            <button
+              onClick={() => {
+                if (onCloseMobile) onCloseMobile();
+                onOpenArchitecture();
+              }}
+              className="w-full flex items-center space-x-3 px-3.5 py-2 rounded-xl text-xs font-semibold text-purple-300 hover:bg-purple-900/60 hover:text-white transition-colors"
+            >
+              <Network className="w-3.5 h-3.5 text-purple-400" />
+              <span>{t.architecture} (Archify Spec)</span>
+            </button>
+          )}
           {onGoToFrontPage && (
             <button
               onClick={onGoToFrontPage}
