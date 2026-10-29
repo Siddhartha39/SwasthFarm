@@ -21,8 +21,11 @@ import {
   Zap,
   Lock,
   GitBranch,
-  FileCode2
+  FileCode2,
+  Maximize2,
+  Minimize2
 } from 'lucide-react';
+import { LiveArchitectureCanvas } from './LiveArchitectureCanvas';
 
 interface ArchitectureModalProps {
   isOpen: boolean;
@@ -87,9 +90,10 @@ export const ARCHITECTURE_MERMAID = `flowchart TD
 
 export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, onClose }) => {
   const { language, t } = useLanguage();
-  const [activeTab, setActiveTab] = useState<'diagram' | 'components' | 'primaryPath' | 'mermaid'>('diagram');
+  const [activeTab, setActiveTab] = useState<'live' | 'diagram' | 'components' | 'primaryPath' | 'mermaid'>('live');
   const [selectedComponentId, setSelectedComponentId] = useState<string>('c1');
   const [copied, setCopied] = useState(false);
+  const [isModalMaximized, setIsModalMaximized] = useState(false);
 
   if (!isOpen) return null;
 
@@ -356,25 +360,35 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
   const currentComp = components.find(c => c.id === selectedComponentId) || components[0];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6 animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl shadow-2xl border border-gray-200 w-full max-w-6xl max-h-[92vh] flex flex-col overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-md flex items-center justify-center p-1 sm:p-3 animate-in fade-in duration-200">
+      <div
+        className={`bg-[#0A0F1D] text-slate-100 shadow-2xl border border-slate-700/80 flex flex-col overflow-hidden transition-all duration-200 ${
+          isModalMaximized
+            ? 'w-screen h-screen rounded-none border-none'
+            : 'w-full max-w-[97vw] h-[95vh] rounded-3xl'
+        }`}
+      >
         
         {/* Header Bar */}
-        <div className="bg-gradient-to-r from-purple-900 via-indigo-900 to-emerald-900 text-white p-5 sm:p-6 flex items-center justify-between flex-shrink-0">
+        <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 border-b border-slate-800 text-white px-5 py-3.5 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center space-x-3.5">
-            <div className="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center border border-white/20 shadow-inner">
-              <Network className="w-6 h-6 text-purple-300" />
+            <div className="w-10 h-10 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center shadow-inner">
+              <Network className="w-5 h-5 text-cyan-300" />
             </div>
             <div>
               <div className="flex items-center space-x-2">
-                <h2 className="text-lg sm:text-xl font-extrabold tracking-tight">
+                <h2 className="text-base sm:text-lg font-extrabold tracking-tight">
                   {t.architectureTitle}
                 </h2>
-                <span className="px-2 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/40 text-[10px] font-bold uppercase tracking-wider">
+                <span className="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 text-[10px] font-bold uppercase tracking-wider">
                   Archify Spec v2.17
                 </span>
+                <span className="hidden md:inline-flex items-center space-x-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 text-[10px] font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  <span>Interactive Live Canvas</span>
+                </span>
               </div>
-              <p className="text-xs text-purple-200/90 mt-0.5 max-w-2xl line-clamp-1 sm:line-clamp-none">
+              <p className="text-xs text-slate-400 mt-0.5 max-w-2xl line-clamp-1 sm:line-clamp-none">
                 {t.architectureSubtitle}
               </p>
             </div>
@@ -383,16 +397,25 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
           <div className="flex items-center space-x-2">
             <button
               onClick={handleCopyMermaid}
-              className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-xl text-xs font-semibold transition-colors"
+              className="hidden sm:flex items-center space-x-1.5 px-3 py-1.5 bg-slate-800/80 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl text-xs font-semibold transition-colors"
               title={t.copyMermaid}
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5" />}
+              {copied ? <Check className="w-3.5 h-3.5 text-emerald-300" /> : <Copy className="w-3.5 h-3.5 text-purple-400" />}
               <span>{copied ? t.copied : t.copyMermaid}</span>
             </button>
 
             <button
+              onClick={() => setIsModalMaximized(!isModalMaximized)}
+              className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors"
+              title={isModalMaximized ? 'Restore View' : 'Maximize Window'}
+            >
+              {isModalMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+
+            <button
               onClick={onClose}
-              className="p-2 text-white/80 hover:text-white rounded-xl hover:bg-white/10 transition-colors"
+              className="p-2 text-slate-400 hover:text-white rounded-xl hover:bg-slate-800 transition-colors"
+              title="Close Architecture"
             >
               <X className="w-5 h-5" />
             </button>
@@ -400,30 +423,48 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
         </div>
 
         {/* Tab Controls */}
-        <div className="px-6 py-2.5 bg-gray-50 border-b border-gray-200 flex items-center justify-between flex-shrink-0 overflow-x-auto">
-          <div className="flex items-center space-x-1.5 text-xs font-bold">
+        <div className="px-5 py-2.5 bg-[#0C1222] border-b border-slate-800 flex items-center justify-between flex-shrink-0 overflow-x-auto">
+          <div className="flex items-center space-x-2 text-xs font-bold">
+            <button
+              onClick={() => setActiveTab('live')}
+              className={`px-3.5 py-1.5 rounded-xl transition-all flex items-center space-x-1.5 ${
+                activeTab === 'live'
+                  ? 'bg-gradient-to-r from-cyan-600 to-blue-600 text-white shadow-[0_0_15px_rgba(6,182,212,0.4)] border border-cyan-400/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
+              }`}
+            >
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span>{language === 'hi' ? '⚡ लाइव वर्कफ़्लो (Live)' : '⚡ Live Workflow'}</span>
+            </button>
+
             <button
               onClick={() => setActiveTab('diagram')}
               className={`px-3.5 py-1.5 rounded-xl transition-all ${
-                activeTab === 'diagram' ? 'bg-purple-700 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-200'
+                activeTab === 'diagram'
+                  ? 'bg-purple-700 text-white shadow-sm border border-purple-400/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
               }`}
             >
-              {language === 'hi' ? '📊 विज़ुअल आर्किटेक्चर फ्लो' : '📊 Visual Architecture Topology'}
+              {language === 'hi' ? '📊 टियर टोपोलॉजी' : '📊 Tier Topology'}
             </button>
 
             <button
               onClick={() => setActiveTab('components')}
               className={`px-3.5 py-1.5 rounded-xl transition-all ${
-                activeTab === 'components' ? 'bg-purple-700 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-200'
+                activeTab === 'components'
+                  ? 'bg-purple-700 text-white shadow-sm border border-purple-400/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
               }`}
             >
-              {language === 'hi' ? '🗂️ 12 मुख्य घटक (कार्ड्स)' : '🗂️ 12 Core Components (Archify Cards)'}
+              {language === 'hi' ? '🗂️ 12 मुख्य घटक (कार्ड्स)' : '🗂️ 12 Core Components'}
             </button>
 
             <button
               onClick={() => setActiveTab('primaryPath')}
               className={`px-3.5 py-1.5 rounded-xl transition-all ${
-                activeTab === 'primaryPath' ? 'bg-purple-700 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-200'
+                activeTab === 'primaryPath'
+                  ? 'bg-purple-700 text-white shadow-sm border border-purple-400/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
               }`}
             >
               {language === 'hi' ? '⚡ मुख्य ऑपरेशनल पाथ' : '⚡ Primary Operational Path'}
@@ -432,10 +473,12 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
             <button
               onClick={() => setActiveTab('mermaid')}
               className={`px-3.5 py-1.5 rounded-xl transition-all ${
-                activeTab === 'mermaid' ? 'bg-purple-700 text-white shadow-sm' : 'text-gray-600 hover:bg-gray-200'
+                activeTab === 'mermaid'
+                  ? 'bg-purple-700 text-white shadow-sm border border-purple-400/40'
+                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/60'
               }`}
             >
-              {language === 'hi' ? '📜 मर्मेड कोड (Mermaid)' : '📜 Mermaid Source Spec'}
+              {language === 'hi' ? '📜 मर्मेड कोड (Mermaid)' : '📜 Mermaid Source'}
             </button>
           </div>
 
@@ -443,7 +486,7 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
             href="https://github.com/Siddhartha39/SwasthFarm/blob/main/ARCHITECTURE.md"
             target="_blank"
             rel="noopener noreferrer"
-            className="hidden md:inline-flex items-center space-x-1 text-xs font-bold text-purple-700 hover:text-purple-900"
+            className="hidden md:inline-flex items-center space-x-1 text-xs font-bold text-cyan-400 hover:text-cyan-300"
           >
             <span>{t.viewFullDoc}</span>
             <ExternalLink className="w-3.5 h-3.5" />
@@ -451,7 +494,13 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
         </div>
 
         {/* Tab Content Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-slate-50/50">
+        {activeTab === 'live' ? (
+          <div className="flex-1 w-full h-full min-h-0 overflow-hidden">
+            <LiveArchitectureCanvas onOpenDoc={() => setActiveTab('components')} />
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-slate-900/40">
+            {/* Existing non-live tabs render here */}
           
           {/* TAB 1: VISUAL TOPOLOGY */}
           {activeTab === 'diagram' && (
@@ -781,21 +830,25 @@ export const ArchitectureModal: React.FC<ArchitectureModalProps> = ({ isOpen, on
             </div>
           )}
 
-        </div>
+          </div>
+        )}
 
         {/* Footer */}
-        <div className="p-4 bg-white border-t border-gray-200 flex items-center justify-between flex-shrink-0 text-xs">
-          <div className="flex items-center space-x-2 text-gray-500">
-            <ShieldCheck className="w-4 h-4 text-emerald-600" />
-            <span>SwasthFarm 2.0 • Government & Veterinary Biosecurity Compliant</span>
+        <div className="p-3.5 bg-[#080D1A] border-t border-slate-800 flex items-center justify-between flex-shrink-0 text-xs">
+          <div className="flex items-center space-x-2 text-slate-400">
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span className="hidden sm:inline">SwasthFarm 2.0 • Archify Standard Decoupled Architecture</span>
+            <span className="sm:hidden">SwasthFarm 2.0</span>
           </div>
 
-          <button
-            onClick={onClose}
-            className="px-5 py-2 bg-gray-900 hover:bg-black text-white rounded-xl font-bold transition-colors"
-          >
-            {language === 'hi' ? 'बंद करें' : 'Close Explorer'}
-          </button>
+          <div className="flex items-center space-x-3">
+            <button
+              onClick={onClose}
+              className="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-xl font-bold text-xs transition-colors"
+            >
+              {language === 'hi' ? 'बंद करें' : 'Close'}
+            </button>
+          </div>
         </div>
 
       </div>

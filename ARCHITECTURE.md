@@ -8,6 +8,10 @@
 
 SwasthFarm is architected to address the unique challenges of rural livestock farming: intermittent connectivity, complex multi-species biological telemetry, sensitive veterinary clinical data, and the need for actionable, truthful AI recommendations without medical hallucinations.
 
+> [!TIP]
+> **Live Interactive Architecture Explorer**:
+> SwasthFarm includes a CyberGuard-inspired, dark-canvas **Live Architecture Canvas** accessible directly in-app via the **"📐 Architecture"** button. It features real-time animated telemetry packets, live data pulses between edge devices and the FastAPI gateway, interactive pan & zoom, ROUTE primary path tracing, LENS cluster focusing, and an instant Archify Notes & Index drawer.
+
 ```mermaid
 flowchart TD
     subgraph Client["🖥️ Presentation & Client Layer (React 18 + Vite)"]
