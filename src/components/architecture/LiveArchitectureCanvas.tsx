@@ -67,22 +67,22 @@ export interface ArchitectureNode {
 }
 
 export const ARCHITECTURE_NODES: ArchitectureNode[] = [
-  // COLUMN 1: EDGE PRESENTATION & SENSORS
+  // COLUMN 1: EDGE & FIELD SENSORS
   {
     id: 'user_pwa',
-    nameEn: 'Field Operations PWA',
-    nameHi: 'फील्ड ऑपरेशंस PWA',
-    subtitleEn: 'Mobile Barn Sensor & PWA',
+    nameEn: 'Farmer & Vet Edge PWA',
+    nameHi: 'किसान एवं पशुचिकित्सक PWA',
+    subtitleEn: 'Manifest V3 Edge Sensor',
     subtitleHi: 'मोबाइल शेड डेटा प्रविष्टि',
-    badge: 'Touch & Bluetooth PWA',
+    badge: 'MOBILE / OFFLINE PWA',
     tier: 'Edge Presentation',
-    color: 'border-rose-500/80 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.3)]',
+    color: 'border-rose-500/80 text-rose-300 shadow-[0_0_22px_rgba(244,63,94,0.35)]',
     glowColor: '#F43F5E',
     icon: <Smartphone className="w-5 h-5 text-rose-400" />,
-    x: 40,
-    y: 130,
-    w: 220,
-    h: 82,
+    x: 50,
+    y: 180,
+    w: 200,
+    h: 80,
     responsibilities: {
       en: [
         'Mobile Progressive Web App with zero-install touch interface for field operations',
@@ -109,19 +109,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'farmer_session',
-    nameEn: 'Farmer & Vet Auth Portal',
-    nameHi: 'किसान एवं पशुचिकित्सक पोर्टल',
-    subtitleEn: 'Role-Based Access (Farmer/Vet)',
+    nameEn: 'Farmer / Vet Session',
+    nameHi: 'किसान एवं पशुचिकित्सक सत्र',
+    subtitleEn: 'Browser & Field Session',
     subtitleHi: 'भूमिका-आधारित सुरक्षित सत्र',
-    badge: 'Authenticated RBAC',
+    badge: 'AUTHENTICATED RBAC',
     tier: 'User Session Layer',
-    color: 'border-cyan-500/80 text-cyan-300 shadow-[0_0_20px_rgba(6,182,212,0.3)]',
+    color: 'border-cyan-500/80 text-cyan-300 shadow-[0_0_22px_rgba(6,182,212,0.35)]',
     glowColor: '#06B6D4',
     icon: <UserCheck className="w-5 h-5 text-cyan-400" />,
-    x: 40,
-    y: 330,
-    w: 220,
-    h: 82,
+    x: 50,
+    y: 450,
+    w: 200,
+    h: 80,
     responsibilities: {
       en: [
         'Manages user credentials, OTP sessions, and Role-Based Access Control (Farmer vs Vet)',
@@ -148,19 +148,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'offline_cache',
-    nameEn: 'Offline Persistence Engine',
+    nameEn: 'Offline Resilience Engine',
     nameHi: 'ऑफ़लाइन स्टोरेज इंजन',
     subtitleEn: 'LocalStorage Snapshot Cache',
     subtitleHi: 'स्थानीय ब्राउज़र स्नैपशॉट',
-    badge: 'swasth_farm_data_v2',
+    badge: 'KEY: SWASTH_FARM_DATA_V2',
     tier: 'Client-Side Persistence',
-    color: 'border-amber-500/80 text-amber-300 shadow-[0_0_20px_rgba(245,158,11,0.3)]',
+    color: 'border-amber-500/80 text-amber-300 shadow-[0_0_22px_rgba(245,158,11,0.35)]',
     glowColor: '#F59E0B',
     icon: <HardDrive className="w-5 h-5 text-amber-400" />,
-    x: 40,
-    y: 530,
-    w: 220,
-    h: 82,
+    x: 290,
+    y: 615,
+    w: 200,
+    h: 80,
     responsibilities: {
       en: [
         'Guarantees 100% full-featured operation even if rural power/internet is disconnected',
@@ -189,19 +189,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   // COLUMN 2: CLIENT APPLICATION & STATE COORDINATOR
   {
     id: 'web_ui',
-    nameEn: 'Web Management Console',
+    nameEn: 'Web UI Console',
     nameHi: 'वेब प्रबंधन कंसोल (डैशबोर्ड)',
-    subtitleEn: 'React 18 + Vite Executive View',
+    subtitleEn: 'React 18 + Vite + Tailwind',
     subtitleHi: 'कार्यकारी डैशबोर्ड एवं 360° प्रोफाइल',
-    badge: 'React 18 + FarmContext',
+    badge: 'SINGLE PAGE APP (SPA)',
     tier: 'Executive Presentation',
-    color: 'border-cyan-400/90 text-cyan-200 shadow-[0_0_24px_rgba(6,182,212,0.45)]',
+    color: 'border-cyan-400/90 text-cyan-200 shadow-[0_0_26px_rgba(6,182,212,0.5)]',
     glowColor: '#00F0FF',
     icon: <Layout className="w-5 h-5 text-cyan-300" />,
-    x: 295,
-    y: 330,
-    w: 225,
-    h: 84,
+    x: 290,
+    y: 450,
+    w: 200,
+    h: 80,
     responsibilities: {
       en: [
         'Renders executive KPIs, Recharts telemetry curves, and 360° animal health cards',
@@ -232,17 +232,17 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     id: 'firestore_sync',
     nameEn: 'Firestore Sync Service',
     nameHi: 'क्लाउड फायरस्टोर सिंक सेवा',
-    subtitleEn: 'Bidirectional onSnapshot SDK',
+    subtitleEn: 'Bidirectional onSnapshot',
     subtitleHi: 'रीयल-टाइम दोतरफा सिंक',
-    badge: 'Firebase SDK v10 (TLS)',
+    badge: 'FIREBASE SDK V10 (TLS)',
     tier: 'Cloud Persistence Core',
-    color: 'border-sky-500/80 text-sky-300 shadow-[0_0_20px_rgba(2,132,199,0.3)]',
+    color: 'border-sky-500/80 text-sky-300 shadow-[0_0_22px_rgba(2,132,199,0.35)]',
     glowColor: '#0284C7',
     icon: <Cloud className="w-5 h-5 text-sky-400" />,
-    x: 575,
-    y: 130,
-    w: 195,
-    h: 82,
+    x: 555,
+    y: 170,
+    w: 190,
+    h: 80,
     responsibilities: {
       en: [
         'Real-time multi-device synchronization via Firestore websocket listeners',
@@ -269,19 +269,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'fastapi_gateway',
-    nameEn: 'FastAPI Analytics Gateway',
+    nameEn: 'FastAPI Gateway',
     nameHi: 'फास्टएपीआई एनालिटिक्स गेटवे',
     subtitleEn: 'REST API & Batch Worker',
     subtitleHi: 'पायथन 3.11 माइक्रो-सर्विस',
-    badge: 'Python 3.11 + FastAPI',
+    badge: 'PYTHON 3.11 + FASTAPI',
     tier: 'Compute & Dispatch Core',
-    color: 'border-emerald-500/90 text-emerald-300 shadow-[0_0_24px_rgba(16,185,129,0.4)]',
+    color: 'border-emerald-500/90 text-emerald-300 shadow-[0_0_26px_rgba(16,185,129,0.45)]',
     glowColor: '#10B981',
     icon: <Code2 className="w-5 h-5 text-emerald-400" />,
-    x: 575,
-    y: 330,
-    w: 195,
-    h: 84,
+    x: 555,
+    y: 450,
+    w: 190,
+    h: 80,
     responsibilities: {
       en: [
         'High-throughput Python microservice for processing multi-herd batch records',
@@ -308,19 +308,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'herd_db',
-    nameEn: 'Cloud Firestore Database',
+    nameEn: 'Farm Intel Store',
     nameHi: 'क्लाउड फायरस्टोर डेटाबेस',
-    subtitleEn: 'Herd & Production Ledger',
+    subtitleEn: 'Cloud Firestore + Snapshot',
     subtitleHi: 'पशुधन उत्पादन एवं स्वास्थ्य लेजर',
-    badge: 'Firestore Collections',
+    badge: 'IMMUTABLE LEDGER',
     tier: 'Cloud Persistence Store',
-    color: 'border-indigo-500/80 text-indigo-300 shadow-[0_0_20px_rgba(99,102,241,0.3)]',
+    color: 'border-indigo-500/80 text-indigo-300 shadow-[0_0_22px_rgba(99,102,241,0.35)]',
     glowColor: '#6366F1',
     icon: <Database className="w-5 h-5 text-indigo-400" />,
-    x: 575,
-    y: 530,
-    w: 195,
-    h: 82,
+    x: 555,
+    y: 615,
+    w: 190,
+    h: 80,
     responsibilities: {
       en: [
         'Cloud Firestore collections: `farms`, `animals`, `production`, `feed_logs`, `health`',
@@ -346,22 +346,22 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     category: 'core'
   },
 
-  // SUB-CONTAINER INSIDE CORE: HERD HEALTH & TELEMETRY PIPELINE
+  // SUB-CONTAINER INSIDE CORE: CLINICAL & ANOMALY PIPELINE
   {
     id: 'iqr_engine',
-    nameEn: 'IQR Anomaly Engine',
-    nameHi: 'IQR सांख्यिकीय विसंगति इंजन',
-    subtitleEn: '30-Day Baseline Outlier (-18.2%)',
+    nameEn: 'IQR Anomaly Model',
+    nameHi: 'IQR सांख्यिकीय विसंगति मॉडल',
+    subtitleEn: 'Z-Score (-18.2% Outliers)',
     subtitleHi: 'असामान्य दूध गिरावट पहचान',
-    badge: 'IQR & Z-Score Tests',
+    badge: 'IQR & Z-SCORE TESTS',
     tier: 'Statistical Intelligence',
-    color: 'border-purple-500/90 text-purple-300 shadow-[0_0_22px_rgba(168,85,247,0.4)]',
+    color: 'border-purple-500/90 text-purple-300 shadow-[0_0_24px_rgba(168,85,247,0.45)]',
     glowColor: '#A855F7',
     icon: <Activity className="w-5 h-5 text-purple-400" />,
-    x: 805,
-    y: 130,
-    w: 165,
-    h: 80,
+    x: 795,
+    y: 145,
+    w: 230,
+    h: 76,
     responsibilities: {
       en: [
         'Calculates 30-day rolling mean, IQR, and standard deviation for individual milk yields',
@@ -388,19 +388,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'clinical_tracker',
-    nameEn: 'Clinical Vitals Tracker',
+    nameEn: 'Clinical Inspector',
     nameHi: 'नैदानिक तापमान एवं लक्षण',
-    subtitleEn: 'Core Rectal Temp °C & Vitals',
+    subtitleEn: 'Core Rectal Temp °C + Vitals',
     subtitleHi: 'शारीरिक तापमान एवं लक्षण',
-    badge: 'Core Temp °C Signs',
+    badge: 'RECTAL TEMP & SIGNS',
     tier: 'Veterinary Telemetry',
-    color: 'border-rose-500/80 text-rose-300 shadow-[0_0_20px_rgba(225,29,72,0.35)]',
+    color: 'border-rose-500/80 text-rose-300 shadow-[0_0_22px_rgba(225,29,72,0.4)]',
     glowColor: '#E11D48',
     icon: <Thermometer className="w-5 h-5 text-rose-400" />,
-    x: 805,
-    y: 260,
-    w: 165,
-    h: 74,
+    x: 795,
+    y: 280,
+    w: 230,
+    h: 76,
     responsibilities: {
       en: [
         'Monitors core rectal temperature (°C) against species physiological thresholds',
@@ -427,19 +427,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'thi_weather',
-    nameEn: 'THI Heat Stress Engine',
+    nameEn: 'THI Weather Sandbox',
     nameHi: 'THI हीट स्ट्रेस इंडेक्स',
-    subtitleEn: 'Ambient Temp + RH (NRC)',
+    subtitleEn: 'NRC Heat Stress (Temp+RH)',
     subtitleHi: 'तापमान व आर्द्रता इंडेक्स',
-    badge: 'NRC Formula (0-100)',
+    badge: 'OPENWEATHERMAP + NRC',
     tier: 'Environmental Intelligence',
-    color: 'border-teal-500/80 text-teal-300 shadow-[0_0_20px_rgba(20,184,166,0.35)]',
+    color: 'border-teal-500/80 text-teal-300 shadow-[0_0_22px_rgba(20,184,166,0.4)]',
     glowColor: '#14B8A6',
     icon: <Sun className="w-5 h-5 text-teal-400" />,
-    x: 805,
-    y: 390,
-    w: 165,
-    h: 74,
+    x: 795,
+    y: 415,
+    w: 230,
+    h: 76,
     responsibilities: {
       en: [
         'Pulls ambient temperature and relative humidity for farm geo-coordinates',
@@ -466,19 +466,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'biosecurity_scorer',
-    nameEn: '15-Pt Biosecurity Audit',
+    nameEn: '15-Pt Biosecurity Scorer',
     nameHi: '15-सूत्रीय जैव-सुरक्षा ऑडिट',
-    subtitleEn: 'WHO/FAO Farm Risk Protocol',
+    subtitleEn: 'WHO/FAO Audit Protocol',
     subtitleHi: 'मानक फार्म सुरक्षा ऑडिट',
-    badge: 'Score: 0-100 Index',
+    badge: 'SCORE: 0-100 INDEX',
     tier: 'Preventive Compliance',
-    color: 'border-emerald-500/80 text-emerald-300 shadow-[0_0_20px_rgba(5,150,105,0.3)]',
+    color: 'border-emerald-500/80 text-emerald-300 shadow-[0_0_22px_rgba(5,150,105,0.35)]',
     glowColor: '#059669',
     icon: <ShieldCheck className="w-5 h-5 text-emerald-400" />,
-    x: 805,
-    y: 520,
-    w: 165,
-    h: 74,
+    x: 795,
+    y: 550,
+    w: 230,
+    h: 76,
     responsibilities: {
       en: [
         'Evaluates 15 critical infection-control checkpoints: tire dip, footbaths, quarantine, fencing',
@@ -504,22 +504,22 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
     category: 'pipeline'
   },
 
-  // COLUMN 4: AI INTELLIGENCE & AGRONOMIC DECISION CORE
+  // COLUMN 3: AI INTELLIGENCE & AGRONOMIC DECISION CORE
   {
     id: 'kisan_copilot',
-    nameEn: 'Kisan Mitra AI Copilot',
+    nameEn: 'Kisan Copilot',
     nameHi: 'किसान मित्र एआई कोपायलट',
-    subtitleEn: 'Domain-Specific Farm RAG',
+    subtitleEn: 'AI Threat & Farm Analyst',
     subtitleHi: 'सत्यापित फार्म RAG एवं कृषि सहायक',
-    badge: 'Zero-Hallucination AI',
+    badge: 'DOMAIN AI RAG',
     tier: 'AI Intelligence Core',
-    color: 'border-amber-400/90 text-amber-200 shadow-[0_0_24px_rgba(234,179,8,0.45)]',
+    color: 'border-amber-400/90 text-amber-200 shadow-[0_0_26px_rgba(234,179,8,0.5)]',
     glowColor: '#EAB308',
     icon: <Bot className="w-5 h-5 text-amber-300" />,
-    x: 1040,
-    y: 130,
-    w: 225,
-    h: 84,
+    x: 1125,
+    y: 170,
+    w: 220,
+    h: 80,
     responsibilities: {
       en: [
         'Queries live herd telemetry directly before generating any advice (Zero Hallucination)',
@@ -546,19 +546,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'diagnostic_evaluator',
-    nameEn: 'Herd Diagnostic Evaluator',
-    nameHi: 'पशुधन नैदानिक समन्वयक',
-    subtitleEn: 'Multi-Signal Causal Tree',
+    nameEn: 'Risk Fusion Engine',
+    nameHi: 'जोखिम एवं नैदानिक समन्वयक',
+    subtitleEn: 'Bayesian Multi-Signal',
     subtitleHi: 'तापमान + दूध + हीट स्ट्रेस समन्वय',
-    badge: 'Multi-Signal Evaluator',
+    badge: 'BAYESIAN FUSION',
     tier: 'Decision Synthesis Core',
-    color: 'border-cyan-400/90 text-cyan-200 shadow-[0_0_24px_rgba(6,182,212,0.45)]',
+    color: 'border-cyan-400/90 text-cyan-200 shadow-[0_0_26px_rgba(6,182,212,0.5)]',
     glowColor: '#00F0FF',
     icon: <Cpu className="w-5 h-5 text-cyan-300" />,
-    x: 1040,
-    y: 330,
-    w: 225,
-    h: 84,
+    x: 1125,
+    y: 450,
+    w: 220,
+    h: 82,
     responsibilities: {
       en: [
         'Fuses 4 disparate signal streams: Yield Drops (-18.2%) + Rectal Temp + Feed Cost + THI Stress',
@@ -585,19 +585,19 @@ export const ARCHITECTURE_NODES: ArchitectureNode[] = [
   },
   {
     id: 'action_engine',
-    nameEn: 'Agronomic Profit & Nutrition',
+    nameEn: 'Action & Profit Engine',
     nameHi: 'कृषि पोषण एवं लाभ संवर्धक',
-    subtitleEn: 'TMR Ration & Feed ROI Plan',
+    subtitleEn: '5-Pt Protocol & TMR Balancing',
     subtitleHi: 'संतुलित आहार एवं वित्तीय लाभ योजना',
-    badge: 'TMR & ROI Optimizer',
+    badge: 'AGRONOMIC OPTIMIZER',
     tier: 'Intervention Execution',
-    color: 'border-rose-500/80 text-rose-300 shadow-[0_0_20px_rgba(244,63,94,0.3)]',
+    color: 'border-rose-500/80 text-rose-300 shadow-[0_0_22px_rgba(244,63,94,0.35)]',
     glowColor: '#F43F5E',
     icon: <TrendingUp className="w-5 h-5 text-rose-400" />,
-    x: 1040,
-    y: 530,
-    w: 225,
-    h: 82,
+    x: 1125,
+    y: 615,
+    w: 220,
+    h: 80,
     responsibilities: {
       en: [
         'Formulates 5-step concrete recovery actions: TMR mineral ration, water misting, mastitis isolation',
@@ -640,34 +640,34 @@ export interface ArchitectureEdge {
 }
 
 export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
-  // 1. Farmer Session -> Web UI (HTTPS Session)
+  // 1. Farmer Session -> Web UI (HTTPS)
   {
     id: 'e_session_ui',
     sourceId: 'farmer_session',
     targetId: 'web_ui',
-    labelEn: 'HTTPS Session',
-    labelHi: 'HTTPS सत्र',
+    labelEn: 'HTTPS',
+    labelHi: 'HTTPS',
     color: '#06B6D4',
     pulseColor: '#00F0FF',
     pulseDuration: '1.8s',
-    d: 'M 260 372 L 295 372',
-    labelX: 277,
-    labelY: 372,
+    d: 'M 250 490 L 290 490',
+    labelX: 270,
+    labelY: 490,
     isPrimaryPath: true
   },
-  // 2. Field PWA -> Web UI (Mobile Field Entry)
+  // 2. Field PWA -> FastAPI Gateway (Telemetry Ingest)
   {
-    id: 'e_pwa_ui',
+    id: 'e_pwa_gateway',
     sourceId: 'user_pwa',
-    targetId: 'web_ui',
-    labelEn: 'Field Telemetry',
-    labelHi: 'फील्ड टेलीमेट्री',
+    targetId: 'fastapi_gateway',
+    labelEn: 'Telemetry Ingest',
+    labelHi: 'टेलीमेट्री इनगेस्ट',
     color: '#F43F5E',
     pulseColor: '#10B981',
-    pulseDuration: '2.4s',
-    d: 'M 260 171 C 320 171, 320 330, 320 330',
-    labelX: 305,
-    labelY: 235,
+    pulseDuration: '2.5s',
+    d: 'M 250 220 C 400 220, 420 475, 555 475',
+    labelX: 375,
+    labelY: 285,
     isPrimaryPath: true
   },
   // 3. Web UI -> Offline Cache (Local Snapshot)
@@ -680,9 +680,9 @@ export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
     color: '#F59E0B',
     pulseColor: '#F59E0B',
     pulseDuration: '2.2s',
-    d: 'M 350 414 C 350 490, 260 550, 260 550',
-    labelX: 320,
-    labelY: 480,
+    d: 'M 390 530 L 390 615',
+    labelX: 390,
+    labelY: 572,
     isPrimaryPath: true
   },
   // 4. Web UI -> FastAPI Gateway (POST /telemetry)
@@ -695,9 +695,9 @@ export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
     color: '#06B6D4',
     pulseColor: '#00F0FF',
     pulseDuration: '1.9s',
-    d: 'M 520 372 L 575 372',
-    labelX: 547,
-    labelY: 372,
+    d: 'M 490 490 L 555 490',
+    labelX: 522,
+    labelY: 490,
     isPrimaryPath: true
   },
   // 5. FastAPI Gateway -> Firestore Sync (Cloud Sync TLS)
@@ -709,145 +709,145 @@ export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
     labelHi: 'क्लाउड सिंक (TLS)',
     color: '#0284C7',
     pulseColor: '#38BDF8',
-    pulseDuration: '2.1s',
-    d: 'M 672 330 L 672 212',
-    labelX: 672,
-    labelY: 270,
+    pulseDuration: '2.0s',
+    d: 'M 650 450 L 650 250',
+    labelX: 650,
+    labelY: 350,
     isPrimaryPath: true
   },
-  // 6. Herd Database -> Firestore Sync (Bidirectional Sync)
+  // 6. FastAPI Gateway -> Farm Intel Store (Store Audit)
   {
-    id: 'e_db_sync',
-    sourceId: 'herd_db',
-    targetId: 'firestore_sync',
-    labelEn: 'onSnapshot Sync',
-    labelHi: 'रीयल-टाइम सिंक',
+    id: 'e_gateway_db',
+    sourceId: 'fastapi_gateway',
+    targetId: 'herd_db',
+    labelEn: 'Store Audit',
+    labelHi: 'ऑडिट लेजर',
     color: '#6366F1',
     pulseColor: '#818CF8',
-    pulseDuration: '2.8s',
-    d: 'M 620 530 L 620 212',
-    labelX: 620,
-    labelY: 450
+    pulseDuration: '2.4s',
+    d: 'M 650 530 L 650 615',
+    labelX: 650,
+    labelY: 572
   },
-  // 7. FastAPI Gateway -> Pipeline Dispatch
+  // 7. FastAPI Gateway -> Pipeline Dispatches
   {
-    id: 'e_gateway_diag',
+    id: 'e_gateway_vitals',
     sourceId: 'fastapi_gateway',
-    targetId: 'diagnostic_evaluator',
-    labelEn: 'Compute Batch',
-    labelHi: 'बैच विश्लेषण',
-    color: '#10B981',
-    pulseColor: '#34D399',
-    pulseDuration: '2.2s',
-    d: 'M 770 372 L 805 372',
-    labelX: 787,
-    labelY: 372,
+    targetId: 'clinical_tracker',
+    labelEn: 'Vitals & Temp °C',
+    labelHi: 'तापमान व लक्षण',
+    color: '#E11D48',
+    pulseColor: '#FB7185',
+    pulseDuration: '2.1s',
+    d: 'M 745 480 C 770 480, 770 318, 795 318',
+    labelX: 770,
+    labelY: 380,
     isPrimaryPath: true
   },
-  // 8. IQR Engine -> Kisan Mitra Copilot (Outlier Alert -18.2%)
+  // 8. IQR Anomaly Engine -> Risk Fusion Engine (Outlier Alert)
   {
-    id: 'e_iqr_copilot',
+    id: 'e_iqr_fusion',
     sourceId: 'iqr_engine',
-    targetId: 'kisan_copilot',
-    labelEn: 'Outlier Flag (-18.2%)',
+    targetId: 'diagnostic_evaluator',
+    labelEn: 'Outlier Risk (-18.2%)',
     labelHi: 'उत्पादन गिरावट (-18.2%)',
     color: '#A855F7',
     pulseColor: '#F43F5E',
     pulseDuration: '2.0s',
-    d: 'M 970 170 L 1040 170',
-    labelX: 1005,
-    labelY: 170,
+    d: 'M 1025 183 C 1075 183, 1075 470, 1125 470',
+    labelX: 1075,
+    labelY: 260,
     isPrimaryPath: true
   },
-  // 9. Clinical Tracker -> Diagnostic Evaluator (Fever & Mastitis Signs)
+  // 9. Clinical Tracker -> Risk Fusion Engine (Clinical Signs)
   {
-    id: 'e_clinical_diag',
+    id: 'e_clinical_fusion',
     sourceId: 'clinical_tracker',
     targetId: 'diagnostic_evaluator',
-    labelEn: 'Core Temp °C',
-    labelHi: 'शारीरिक तापमान °C',
+    labelEn: 'Clinical Signs',
+    labelHi: 'शारीरिक लक्षण',
     color: '#E11D48',
     pulseColor: '#FB7185',
     pulseDuration: '2.1s',
-    d: 'M 970 297 C 1005 297, 1005 350, 1040 350',
-    labelX: 1005,
-    labelY: 310,
+    d: 'M 1025 318 C 1070 318, 1070 485, 1125 485',
+    labelX: 1072,
+    labelY: 370,
     isPrimaryPath: true
   },
-  // 10. THI Weather -> Diagnostic Evaluator (Heat Stress Level)
+  // 10. THI Weather -> Risk Fusion Engine (Heat Factor)
   {
-    id: 'e_thi_diag',
+    id: 'e_thi_fusion',
     sourceId: 'thi_weather',
     targetId: 'diagnostic_evaluator',
-    labelEn: 'THI Heat Index',
-    labelHi: 'THI हीट स्ट्रेस',
+    labelEn: 'Heat Factor',
+    labelHi: 'हीट स्ट्रेस',
     color: '#14B8A6',
     pulseColor: '#2DD4BF',
     pulseDuration: '2.3s',
-    d: 'M 970 427 C 1005 427, 1005 372, 1040 372',
-    labelX: 1005,
-    labelY: 410,
+    d: 'M 1025 453 C 1070 453, 1070 500, 1125 500',
+    labelX: 1072,
+    labelY: 465,
     isPrimaryPath: true
   },
-  // 11. Diagnostic Evaluator -> Kisan Mitra Copilot (Clinical Grounding Summary)
+  // 11. Biosecurity Scorer -> Risk Fusion Engine (Bio-Score 0-100)
   {
-    id: 'e_diag_copilot',
-    sourceId: 'diagnostic_evaluator',
-    targetId: 'kisan_copilot',
-    labelEn: 'Health Grounding',
-    labelHi: 'स्वास्थ्य सारांश',
-    color: '#EAB308',
-    pulseColor: '#FDE047',
-    pulseDuration: '2.0s',
-    d: 'M 1152 330 L 1152 214',
-    labelX: 1152,
-    labelY: 270,
-    isPrimaryPath: true
-  },
-  // 12. Diagnostic Evaluator -> Action Engine (Formulate Recovery Plan)
-  {
-    id: 'e_diag_action',
-    sourceId: 'diagnostic_evaluator',
-    targetId: 'action_engine',
-    labelEn: 'Recovery Matrix',
-    labelHi: 'सुधार कार्ययोजना',
-    color: '#06B6D4',
-    pulseColor: '#22D3EE',
-    pulseDuration: '2.2s',
-    d: 'M 1152 414 L 1152 530',
-    labelX: 1152,
-    labelY: 470,
-    isPrimaryPath: true
-  },
-  // 13. Biosecurity Scorer -> Action Engine (Biosecurity Certification)
-  {
-    id: 'e_bio_action',
+    id: 'e_bio_fusion',
     sourceId: 'biosecurity_scorer',
-    targetId: 'action_engine',
-    labelEn: 'Bio-Audit Score',
-    labelHi: 'ऑडिट स्कोर 0-100',
+    targetId: 'diagnostic_evaluator',
+    labelEn: 'Bio-Score 0-100',
+    labelHi: 'बायो-स्कोर 0-100',
     color: '#059669',
     pulseColor: '#34D399',
     pulseDuration: '2.4s',
-    d: 'M 970 557 L 1040 557',
-    labelX: 1005,
-    labelY: 557
+    d: 'M 1025 588 C 1075 588, 1075 515, 1125 515',
+    labelX: 1075,
+    labelY: 560
   },
-  // 14. Action Engine -> Herd Database (Preserve Audit Records)
+  // 12. Risk Fusion Engine -> Kisan Copilot (Risk Summary)
+  {
+    id: 'e_fusion_copilot',
+    sourceId: 'diagnostic_evaluator',
+    targetId: 'kisan_copilot',
+    labelEn: 'Risk Summary',
+    labelHi: 'जोखिम सारांश',
+    color: '#EAB308',
+    pulseColor: '#FDE047',
+    pulseDuration: '1.9s',
+    d: 'M 1235 450 L 1235 250',
+    labelX: 1235,
+    labelY: 345,
+    isPrimaryPath: true
+  },
+  // 13. Risk Fusion Engine -> Action Engine (Protocol Matrix)
+  {
+    id: 'e_fusion_action',
+    sourceId: 'diagnostic_evaluator',
+    targetId: 'action_engine',
+    labelEn: 'Protocol Matrix',
+    labelHi: 'प्रोटोकॉल मैट्रिक्स',
+    color: '#06B6D4',
+    pulseColor: '#22D3EE',
+    pulseDuration: '2.1s',
+    d: 'M 1235 532 L 1235 615',
+    labelX: 1235,
+    labelY: 574,
+    isPrimaryPath: true
+  },
+  // 14. Action Engine -> Farm Intel Store (Store Audit / Commit)
   {
     id: 'e_action_db',
     sourceId: 'action_engine',
     targetId: 'herd_db',
-    labelEn: 'Commit Records',
-    labelHi: 'रिकॉर्ड संरक्षण',
+    labelEn: 'Store Audit',
+    labelHi: 'ऑडिट रिकॉर्ड',
     color: '#F43F5E',
     pulseColor: '#FB7185',
-    pulseDuration: '2.5s',
-    d: 'M 1040 585 L 770 585',
-    labelX: 905,
-    labelY: 585
+    pulseDuration: '2.6s',
+    d: 'M 1125 655 L 745 655',
+    labelX: 935,
+    labelY: 655
   },
-  // 15. Kisan Mitra Copilot -> Web UI Console (Verified Bilingual Advice Feed)
+  // 15. Kisan Copilot -> Web UI (Verified RAG Advice Feed)
   {
     id: 'e_copilot_ui',
     sourceId: 'kisan_copilot',
@@ -856,10 +856,10 @@ export const ARCHITECTURE_EDGES: ArchitectureEdge[] = [
     labelHi: 'सत्यापित RAG परामर्श',
     color: '#EAB308',
     pulseColor: '#FDE047',
-    pulseDuration: '3.2s',
-    d: 'M 1040 150 C 750 20, 410 20, 410 330',
-    labelX: 680,
-    labelY: 24,
+    pulseDuration: '3.0s',
+    d: 'M 1125 185 C 800 35, 420 35, 390 450',
+    labelX: 740,
+    labelY: 35,
     isPrimaryPath: true
   }
 ];
@@ -886,9 +886,17 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
   const [isExportMenuOpen, setIsExportMenuOpen] = useState<boolean>(false);
   const [copiedMermaid, setCopiedMermaid] = useState<boolean>(false);
 
+  // Context Menu State (CyberGuard right-click menu)
+  const [contextMenu, setContextMenu] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    targetNodeId?: string;
+  } | null>(null);
+
   // Pan and Zoom: Centered and fitted
-  const [zoom, setZoom] = useState<number>(0.92);
-  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 20, y: 15 });
+  const [zoom, setZoom] = useState<number>(0.90);
+  const [pan, setPan] = useState<{ x: number; y: number }>({ x: 30, y: 15 });
   const [focusedNodeId, setFocusedNodeId] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragStart = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
@@ -924,6 +932,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
+    if (contextMenu?.visible) setContextMenu(null);
     if ((e.target as HTMLElement).closest('.interactive-node') || (e.target as HTMLElement).closest('.interactive-control')) {
       return;
     }
@@ -949,8 +958,8 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
 
   const handleResetZoom = () => {
     setFocusedNodeId(null);
-    setZoom(0.92);
-    setPan({ x: 20, y: 15 });
+    setZoom(0.90);
+    setPan({ x: 30, y: 15 });
     setRouteActive(false);
     setLensCategory('all');
   };
@@ -974,11 +983,35 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
 
+  // CyberGuard Context Menu Handler
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const targetNodeEl = (e.target as HTMLElement).closest('.interactive-node');
+    let targetNodeId: string | undefined = undefined;
+
+    if (targetNodeEl) {
+      const found = ARCHITECTURE_NODES.find(n => n.id === targetNodeEl.getAttribute('data-node-id'));
+      if (found) targetNodeId = found.id;
+    }
+
+    const rect = containerRef.current?.getBoundingClientRect();
+    const x = e.clientX - (rect?.left || 0);
+    const y = e.clientY - (rect?.top || 0);
+
+    setContextMenu({
+      visible: true,
+      x: Math.min(x, (rect?.width || 1200) - 220),
+      y: Math.min(y, (rect?.height || 700) - 240),
+      targetNodeId
+    });
+  };
+
   const handleCopyMermaid = () => {
     navigator.clipboard.writeText(ARCHITECTURE_MERMAID);
     setCopiedMermaid(true);
     setTimeout(() => setCopiedMermaid(false), 2000);
     setIsExportMenuOpen(false);
+    setContextMenu(null);
   };
 
   const handleDownloadSVG = () => {
@@ -996,6 +1029,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     setIsExportMenuOpen(false);
+    setContextMenu(null);
   };
 
   const filteredNodes = ARCHITECTURE_NODES.filter(node => {
@@ -1024,7 +1058,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
       );
       return !isNeighbor;
     }
-    if (routeActive && !node.category) return true;
+    if (routeActive && !edgeInPrimaryRoute(node.id)) return true;
     if (lensCategory !== 'all' && node.category !== lensCategory) return true;
     if (viewPreset === 'clinical' && !['clinical_tracker', 'iqr_engine', 'thi_weather', 'fastapi_gateway'].includes(node.id)) {
       return true;
@@ -1033,6 +1067,10 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
       return true;
     }
     return false;
+  };
+
+  const edgeInPrimaryRoute = (nodeId: string) => {
+    return ARCHITECTURE_EDGES.some(e => e.isPrimaryPath && (e.sourceId === nodeId || e.targetId === nodeId));
   };
 
   const isEdgeHighlighted = (edge: ArchitectureEdge) => {
@@ -1052,31 +1090,35 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-full flex flex-col bg-[#070B13] text-slate-100 font-sans select-none overflow-hidden ${
+      onContextMenu={handleContextMenu}
+      onClick={() => {
+        if (contextMenu?.visible) setContextMenu(null);
+      }}
+      className={`relative w-full h-full flex flex-col bg-[#050811] text-slate-100 font-sans select-none overflow-hidden ${
         isFullscreen ? 'fixed inset-0 z-50' : 'rounded-2xl'
       }`}
     >
-      {/* TOP HEADER CONTROLS */}
-      <div className="flex-shrink-0 z-30 px-5 py-3 bg-[#0B101D]/90 backdrop-blur-md border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+      {/* TOP HEADER CONTROLS (CyberGuard Match) */}
+      <div className="flex-shrink-0 z-30 px-5 py-3 bg-[#080D1A]/95 backdrop-blur-md border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
         {/* Left Title & Status Indicator */}
         <div className="flex items-center space-x-3">
           <span className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-500 shadow-[0_0_12px_#06B6D4]"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-cyan-400 shadow-[0_0_12px_#06B6D4]"></span>
           </span>
           <div>
             <div className="flex items-center space-x-2">
               <h1 className="text-base sm:text-lg font-extrabold tracking-tight text-white flex items-center space-x-2">
                 <span>{language === 'hi' ? 'स्वस्थफार्म AI सिस्टम आर्किटेक्चर' : 'SwasthFarm AI System Architecture'}</span>
               </h1>
-              <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-purple-500/20 text-purple-300 border border-purple-500/40">
+              <span className="hidden sm:inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-cyan-500/10 text-cyan-300 border border-cyan-500/30">
                 Archify v2.17
               </span>
             </div>
             <p className="text-[11px] text-slate-400 hidden md:block">
               {language === 'hi'
                 ? 'पशुधन टेलीमेट्री, सांख्यिकीय विसंगति पहचान और डोमेन RAG लाइव आर्किटेक्चर'
-                : 'End-to-End Livestock Telemetry, Statistical Anomaly Intelligence & Kisan Mitra RAG Pipeline'}
+                : 'End-to-End Multi-Signal Livestock Telemetry & Agronomic AI Intelligence Pipeline'}
             </p>
           </div>
         </div>
@@ -1095,7 +1137,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
               }}
               className="bg-slate-900/90 text-slate-200 border border-slate-700 rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:outline-none focus:ring-1 focus:ring-cyan-500 cursor-pointer"
             >
-              <option value="classic">⚡ {language === 'hi' ? 'क्लासिक (संपूर्ण 12 घटक)' : 'Classic (All Components)'}</option>
+              <option value="classic">⚡ {language === 'hi' ? 'क्लासिक (संपूर्ण पाइपलाइन)' : 'Classic'}</option>
               <option value="primaryPath">🎯 {language === 'hi' ? 'मुख्य ऑपरेशनल पाथ' : 'Primary Operational Path'}</option>
               <option value="clinical">🩺 {language === 'hi' ? 'नैदानिक एवं विसंगति प्रवाह' : 'Clinical & Anomaly Flow'}</option>
               <option value="rag">🤖 {language === 'hi' ? 'किसान मित्र RAG परामर्श' : 'Kisan Mitra RAG Consultation'}</option>
@@ -1183,7 +1225,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
           handleZoom(e.deltaY < 0 ? 0.05 : -0.05);
         }}
         style={{
-          backgroundColor: '#070B13',
+          backgroundColor: '#050811',
           backgroundImage:
             'radial-gradient(circle, rgba(56, 189, 248, 0.12) 1.2px, transparent 1.2px)',
           backgroundSize: '24px 24px'
@@ -1196,7 +1238,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
             className="flex items-center space-x-2 px-3.5 py-2 rounded-xl bg-slate-900/90 hover:bg-slate-800 border border-slate-700/80 text-xs font-bold text-slate-200 shadow-xl backdrop-blur-md transition-all hover:border-cyan-500/60"
           >
             <Layers className="w-4 h-4 text-cyan-400" />
-            <span>{language === 'hi' ? '🗂 नोट्स एवं इंडेक्स' : '🗂 Notes & index'}</span>
+            <span>{language === 'hi' ? '🗂 नोट्स एवं इंडेक्स' : 'Notes & index'}</span>
             <span className="w-2 h-2 rounded-full bg-cyan-400" />
           </button>
         </div>
@@ -1232,7 +1274,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
           </div>
         )}
 
-        {/* Floating Canvas Bottom Right Controls: ROUTE, LENS, Zoom */}
+        {/* Floating Canvas Bottom Right Controls: ROUTE, LENS, Zoom (CyberGuard Match) */}
         <div className="absolute bottom-5 right-5 z-20 flex items-center space-x-2 interactive-control">
           <button
             onClick={() => setRouteActive(!routeActive)}
@@ -1300,15 +1342,15 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
           style={{
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
             transition: isDragging ? 'none' : 'transform 0.65s cubic-bezier(0.16, 1, 0.3, 1)',
-            width: '1340px',
-            height: '730px'
+            width: '1420px',
+            height: '750px'
           }}
         >
           {/* SVG LAYER */}
           <svg
             id="live-arch-svg"
             className="absolute inset-0 w-full h-full pointer-events-none"
-            viewBox="0 0 1340 730"
+            viewBox="0 0 1420 750"
           >
             <defs>
               {/* Glow Filters */}
@@ -1363,15 +1405,31 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
               <marker id="arrow-blue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
                 <path d="M 0 1 L 9 5 L 0 9 z" fill="#0284C7" />
               </marker>
+              <marker id="arrow-teal" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#14B8A6" />
+              </marker>
             </defs>
 
-            {/* SUBGRAPH 1: SwasthFarm Cloud & Analytics Core (Yellow Border) */}
+            {/* OUTER BLUEPRINT FRAME (CyberGuard Blue Border) */}
             <rect
-              x="550"
-              y="55"
-              width="440"
-              height="600"
-              rx="24"
+              x="18"
+              y="18"
+              width="1384"
+              height="714"
+              rx="16"
+              fill="none"
+              stroke="#0284C7"
+              strokeWidth="1.5"
+              strokeOpacity="0.4"
+            />
+
+            {/* SUBGRAPH 1: SwasthFarm Backend Core (Yellow Border) */}
+            <rect
+              x="530"
+              y="85"
+              width="540"
+              height="625"
+              rx="22"
               fill="rgba(234, 179, 8, 0.015)"
               stroke="#EAB308"
               strokeWidth="1.5"
@@ -1379,19 +1437,19 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
               className="transition-all"
             />
             {/* Subgraph Badge */}
-            <g transform="translate(570, 43)">
-              <rect x="0" y="0" width="240" height="24" rx="6" fill="#181509" stroke="#EAB308" strokeWidth="1" />
-              <text x="12" y="16" fill="#FDE047" fontSize="11" fontWeight="bold" fontFamily="monospace">
-                {language === 'hi' ? '⚡ स्वस्थफार्म क्लाउड एवं एनालिटिक्स कोर' : '⚡ SwasthFarm Cloud Core'}
+            <g transform="translate(545, 73)">
+              <rect x="0" y="0" width="220" height="24" rx="6" fill="#181509" stroke="#EAB308" strokeWidth="1" />
+              <text x="10" y="16" fill="#FDE047" fontSize="11" fontWeight="bold" fontFamily="monospace">
+                ⚡ SwasthFarm Backend Core
               </text>
             </g>
 
-            {/* SUBGRAPH 2: Herd Telemetry & Diagnostic Pipeline (Pink dashed container) */}
+            {/* SUBGRAPH 2: Clinical & Anomaly Pipeline (Pink dashed container) */}
             <rect
-              x="785"
-              y="90"
-              width="195"
-              height="535"
+              x="775"
+              y="110"
+              width="270"
+              height="580"
               rx="18"
               fill="rgba(244, 63, 94, 0.02)"
               stroke="#F43F5E"
@@ -1399,10 +1457,10 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
               strokeDasharray="5 5"
               className="transition-all"
             />
-            <g transform="translate(795, 78)">
-              <rect x="0" y="0" width="185" height="22" rx="5" fill="#1C0E14" stroke="#F43F5E" strokeWidth="1" />
+            <g transform="translate(790, 98)">
+              <rect x="0" y="0" width="200" height="22" rx="5" fill="#1C0E14" stroke="#F43F5E" strokeWidth="1" />
               <text x="8" y="15" fill="#FDA4AF" fontSize="10" fontWeight="bold" fontFamily="monospace">
-                {language === 'hi' ? '🩺 पशुधन टेलीमेट्री पाइपलाइन' : '🩺 Herd Health Pipeline'}
+                🩺 Clinical & Anomaly Pipeline
               </text>
             </g>
 
@@ -1433,7 +1491,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                     fill="none"
                     stroke={edge.color}
                     strokeWidth={isFocusEdge ? '3.2' : highlighted ? '2.5' : '1.8'}
-                    strokeDasharray={edge.id === 'e_pwa_ui' || edge.id === 'e_copilot_ui' ? '4 4' : 'none'}
+                    strokeDasharray={edge.id === 'e_pwa_gateway' || edge.id === 'e_copilot_ui' ? '4 4' : 'none'}
                     markerEnd={`url(#arrow-${
                       edge.color === '#10B981' || edge.color === '#059669'
                         ? 'green'
@@ -1441,6 +1499,8 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                         ? 'cyan'
                         : edge.color === '#0284C7'
                         ? 'blue'
+                        : edge.color === '#14B8A6'
+                        ? 'teal'
                         : edge.color === '#A855F7' || edge.color === '#6366F1'
                         ? 'purple'
                         : edge.color === '#EAB308'
@@ -1449,10 +1509,10 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                     })`}
                   />
 
-                  {/* LIVE ANIMATED FLOW PACKET */}
+                  {/* LIVE ANIMATED FLOW PACKET (CyberGuard Glowing Capsule) */}
                   {isLive && (
                     <g>
-                      {/* Primary Leading Flow Particle */}
+                      {/* Leading Flow Particle */}
                       <circle r={isFocusEdge ? '5' : '4'} fill={edge.pulseColor} filter="url(#glow-green)">
                         <animateMotion
                           dur={isFocusEdge ? '1.4s' : edge.pulseDuration}
@@ -1531,9 +1591,9 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                   className="transition-opacity duration-300"
                 >
                   <rect
-                    x={-(label.length * 3.5 + 8)}
+                    x={-(label.length * 3.4 + 8)}
                     y="-10"
-                    width={label.length * 7 + 16}
+                    width={label.length * 6.8 + 16}
                     height="20"
                     rx="10"
                     fill="#080D18"
@@ -1567,6 +1627,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
             return (
               <div
                 key={node.id}
+                data-node-id={node.id}
                 onClick={(e) => handleNodeClick(node, e)}
                 onMouseEnter={() => setHoveredNodeId(node.id)}
                 onMouseLeave={() => setHoveredNodeId(null)}
@@ -1578,7 +1639,7 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                   height: `${node.h}px`,
                   zIndex: isFocused ? 40 : isSelected ? 25 : isHovered ? 20 : 10
                 }}
-                className={`interactive-node cursor-pointer rounded-2xl p-2.5 transition-all duration-300 border bg-[#0D1322]/95 backdrop-blur-md flex flex-col justify-between ${
+                className={`interactive-node cursor-pointer rounded-2xl p-2.5 transition-all duration-300 border bg-[#0C1120]/95 backdrop-blur-md flex flex-col justify-between ${
                   node.color
                 } ${
                   isFocused
@@ -1593,14 +1654,14 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
                 {/* Node Header: Icon + Title */}
                 <div className="flex items-start justify-between space-x-2">
                   <div className="flex items-center space-x-2 min-w-0">
-                    <div className="p-1.5 rounded-xl bg-slate-800/90 border border-slate-700/80 flex-shrink-0">
+                    <div className="p-1.5 rounded-xl bg-slate-900 border border-slate-700/80 flex-shrink-0">
                       {node.icon}
                     </div>
                     <div className="min-w-0">
                       <h4 className="text-[11.5px] font-extrabold text-white truncate tracking-tight">
                         {language === 'hi' ? node.nameHi : node.nameEn}
                       </h4>
-                      <p className="text-[9.5px] text-slate-400 truncate font-mono mt-0.5">
+                      <p className="text-[9px] text-slate-400 truncate font-mono mt-0.5">
                         {language === 'hi' ? node.subtitleHi : node.subtitleEn}
                       </p>
                     </div>
@@ -1627,9 +1688,93 @@ export const LiveArchitectureCanvas: React.FC<LiveArchitectureCanvasProps> = ({
         </div>
       </div>
 
+      {/* CYBERGUARD SLEEK RIGHT-CLICK CONTEXT MENU */}
+      {contextMenu?.visible && (
+        <div
+          style={{ top: `${contextMenu.y}px`, left: `${contextMenu.x}px` }}
+          className="absolute z-50 w-56 rounded-2xl bg-[#0B101D]/95 border border-slate-700/90 shadow-2xl backdrop-blur-xl p-1.5 text-xs text-slate-200 animate-in fade-in zoom-in-95 duration-150"
+          onClick={e => e.stopPropagation()}
+        >
+          {contextMenu.targetNodeId && (
+            <div className="px-3 py-1.5 border-b border-slate-800/80 text-[10px] font-mono uppercase tracking-wider text-cyan-400 flex items-center justify-between">
+              <span>COMPONENT ACTIONS</span>
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400" />
+            </div>
+          )}
+
+          {contextMenu.targetNodeId && (
+            <button
+              onClick={() => {
+                const node = ARCHITECTURE_NODES.find(n => n.id === contextMenu.targetNodeId);
+                if (node) handleNodeClick(node, { stopPropagation: () => {} } as any);
+                setContextMenu(null);
+              }}
+              className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-left hover:bg-slate-800/80 hover:text-cyan-300 transition-colors"
+            >
+              <Eye className="w-4 h-4 text-cyan-400" />
+              <span className="font-semibold">Focus & Stream In/Out</span>
+            </button>
+          )}
+
+          <button
+            onClick={() => {
+              setRouteActive(!routeActive);
+              setContextMenu(null);
+            }}
+            className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-left hover:bg-slate-800/80 hover:text-purple-300 transition-colors"
+          >
+            <Zap className="w-4 h-4 text-purple-400" />
+            <span>{routeActive ? 'Clear Route Trace' : 'Trace Primary Route'}</span>
+          </button>
+
+          <button
+            onClick={() => {
+              if (contextMenu.targetNodeId) {
+                setSelectedNodeId(contextMenu.targetNodeId);
+              }
+              setIsDrawerOpen(true);
+              setContextMenu(null);
+            }}
+            className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-left hover:bg-slate-800/80 hover:text-emerald-300 transition-colors"
+          >
+            <Layers className="w-4 h-4 text-emerald-400" />
+            <span>Open Notes & Index</span>
+          </button>
+
+          <div className="my-1 border-t border-slate-800/70" />
+
+          <button
+            onClick={handleDownloadSVG}
+            className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-left hover:bg-slate-800/80 text-slate-300 transition-colors"
+          >
+            <Download className="w-4 h-4 text-sky-400" />
+            <span>Export SVG Diagram</span>
+          </button>
+
+          <button
+            onClick={handleCopyMermaid}
+            className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-left hover:bg-slate-800/80 text-slate-300 transition-colors"
+          >
+            <Copy className="w-4 h-4 text-amber-400" />
+            <span>Copy Mermaid Graph</span>
+          </button>
+
+          <button
+            onClick={() => {
+              handleResetZoom();
+              setContextMenu(null);
+            }}
+            className="w-full flex items-center space-x-2 px-3 py-2 rounded-xl text-left hover:bg-slate-800/80 text-rose-300 transition-colors"
+          >
+            <RotateCcw className="w-4 h-4 text-rose-400" />
+            <span>Reset View (100%)</span>
+          </button>
+        </div>
+      )}
+
       {/* SLIDING SIDE DRAWER ("Notes & Index" / Archify Inspector) */}
       <div
-        className={`absolute top-0 right-0 h-full w-full sm:w-[460px] bg-[#0A0F1D]/95 backdrop-blur-xl border-l border-slate-800 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${
+        className={`absolute top-0 right-0 h-full w-full sm:w-[460px] bg-[#080D1A]/95 backdrop-blur-xl border-l border-slate-800 shadow-2xl z-40 transition-transform duration-300 flex flex-col ${
           isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
         }`}
       >
